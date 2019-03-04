@@ -1,8 +1,10 @@
-set(SOURCES test_xscoordinate.c)
+set(SOURCES test_xscoordinate.c test_xscarray.c)
 add_library(test_xscoordinate STATIC test_xscoordinate.c)
+add_library(test_xscarray STATIC test_xscarray.c)
 
-set(STATION_TESTLIBS test_xscoordinate xscoordinate)
-set(TESTLIBS ${STATION_TESTLIBS})
+set(XSC_TESTLIB test_xscoordinate xscoordinate)
+set(XSCARRAY_TESTLIB test_xscarray xscarray)
+set(TESTLIBS ${XSC_TESTLIB} ${XSCARRAY_TESTLIB})
 
 add_executable(test_panthera test_panthera.c ${SOURCES})
 target_link_libraries(test_panthera -lcunit ${TESTLIBS})
