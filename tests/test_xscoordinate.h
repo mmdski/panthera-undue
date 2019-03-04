@@ -2,4 +2,4 @@
 #include "CUnit/Basic.h"
 #endif
 
-extern CU_ErrorCode add_station_suite(void);
+extern CU_ErrorCode add_xsc_suite(void);

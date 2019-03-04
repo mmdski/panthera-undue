@@ -1,7 +1,7 @@
-set(SOURCES test_station.c)
-add_library(test_station STATIC test_station.c)
+set(SOURCES test_xscoordinate.c)
+add_library(test_xscoordinate STATIC test_xscoordinate.c)
 
-set(STATION_TESTLIBS test_station station)
+set(STATION_TESTLIBS test_xscoordinate xscoordinate)
 set(TESTLIBS ${STATION_TESTLIBS})
 
 add_executable(test_panthera test_panthera.c ${SOURCES})
