@@ -1,5 +1,5 @@
+#include "panthera/xscoordinate.h"
 #include "cii/mem.h"
-#include <panthera/xscoordinate.h>
 
 #define T XSCoordinate_T
 
@@ -19,7 +19,7 @@ T xsc_new(double x, double y) {
     return xsc;
 }
 
-void xsc_free(T xsc) { FREE(xsc); }
+void xsc_free(T c) { FREE(c); }
 
-double xsc_x(T xsc) { return xsc->x; }
-double xsc_y(T xsc) { return xsc->y; }
+double xsc_x(T c) { return c->x; }
+double xsc_y(T c) { return c->y; }

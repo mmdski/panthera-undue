@@ -1,7 +1,6 @@
-/*static char rcsid[] = "$Id$";*/
-#include "mem.h"
-#include "assert.h"
-#include "except.h"
+#include "cii/mem.h"
+#include "cii/assert.h"
+#include "cii/except.h"
 #include <stddef.h>
 #include <stdlib.h>
 const Except_T Mem_Failed = {"Allocation failed"};

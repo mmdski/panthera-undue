@@ -1,14 +1,27 @@
+#include "cii/assert.h"
 #include "cii/mem.h"
 #include <panthera/xscarray.h>
 
 #define T XSCArray_T
+
+const Except_T xscarray_new_Failed = {"xscarray_new failed"};
 
 struct T {
     XSCoordinate_T *array;
     int n;
 };
 
+void _xscarray_check_x(int n, double *x);
+
 T xscarray_new(int n, double *x, double *y) {
+
+    assert(x);
+    assert(y);
+
+    if (n < 2)
+        RAISE(xscarray_new_Failed);
+
+    _xscarray_check_x(n, x);
 
     T a;
     NEW(a);
@@ -36,6 +49,15 @@ void xscarray_free(T a) {
     Mem_free((void *)a->array, __FILE__, __LINE__);
 
     FREE(a);
+}
+
+void _xscarray_check_x(int n, double *x) {
+
+    int i;
+    for (i = 1; i < n; i++) {
+        if (*(x + i - 1) > *(x + i))
+            RAISE(xscarray_new_Failed);
+    }
 }
 
 int xscarray_n(T a) { return a->n; }

@@ -1,11 +1,12 @@
 #ifndef XSCARRAY_INCLUDED
 #define XSCARRAY_INCLUDED
 
-#ifndef XSCOORDINATE_INCLUDED
+#include "cii/except.h"
 #include <panthera/xscoordinate.h>
-#endif
 
 #define T XSCArray_T
+
+extern const Except_T xscarray_new_Failed;
 
 typedef struct T *T;
 

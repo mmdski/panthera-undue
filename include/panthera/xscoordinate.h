@@ -6,10 +6,10 @@
 typedef struct T *T;
 
 T xsc_new(double x, double y);
-void xsc_free(T s);
+void xsc_free(T c);
 
-double xsc_x(T s);
-double xsc_y(T s);
+double xsc_x(T c);
+double xsc_y(T c);
 
 #undef T
 #endif

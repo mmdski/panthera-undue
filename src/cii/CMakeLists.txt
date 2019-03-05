@@ -1,6 +1,6 @@
-add_library(assert STATIC assert.c assert.h except.h)
-add_library(except STATIC except.c assert.h except.h)
-add_library(mem STATIC mem.c assert.h except.h mem.h)
+add_library(assert STATIC assert.c)
+add_library(except STATIC except.c)
+add_library(mem STATIC mem.c)
 
 target_link_libraries(assert PUBLIC except)
 target_link_libraries(except PUBLIC assert)

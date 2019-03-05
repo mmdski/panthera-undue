@@ -1,6 +1,5 @@
-/* static char rcsid[] = "$Id$" "\n$Id$";*/
-#include "except.h"
-#include "assert.h"
+#include "cii/except.h"
+#include "cii/assert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #define T Except_T
@@ -29,12 +28,12 @@ void Except_raise(const T *e, const char *file, int line) {
         abort();
     }
     p->exception = e;
-    p->file = file;
-    p->line = line;
+    p->file      = file;
+    p->line      = line;
 #ifdef WIN32
     Except_pop();
 #else
-    Except_stack = Except_stack->prev;
+    Except_stack    = Except_stack->prev;
 #endif
     longjmp(p->env, Except_raised);
 }
@@ -57,7 +56,7 @@ void Except_push(Except_Frame *fp) {
     BOOL cond;
 
     fp->prev = TlsGetValue(Except_index);
-    cond = TlsSetValue(Except_index, fp);
+    cond     = TlsSetValue(Except_index, fp);
     assert(cond == TRUE);
 }
 
