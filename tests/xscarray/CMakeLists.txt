@@ -1,0 +1,3 @@
+add_executable(test_xscarray_new test_xscarray_new.c)
+target_link_libraries(test_xscarray_new xscarray)
+add_test(test_xscarray_new ${EXECUTABLE_OUTPUT_PATH}/test_xscarray_new)
