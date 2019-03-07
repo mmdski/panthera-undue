@@ -1,0 +1,3 @@
+add_executable(test_coarray_new test_coarray_new.c)
+target_link_libraries(test_coarray_new coarray)
+add_test(test_coarray_new ${EXECUTABLE_OUTPUT_PATH}/test_coarray_new)

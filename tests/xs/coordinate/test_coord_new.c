@@ -1,4 +1,4 @@
-#include "panthera/xscoordinate.h"
+#include "coordinate.h"
 
 int main() {
     double x = 0;
@@ -6,15 +6,15 @@ int main() {
 
     int result = 0;
 
-    XSCoordinate_T c = xsc_new(x, y);
+    Coordinate_T c = coord_new(x, y);
 
     if (c == 0)
         result = -1;
-    if (xsc_x(c) != x)
+    if (coord_x(c) != x)
         result = -1;
-    if (xsc_y(c) != y)
+    if (coord_y(c) != y)
         result = -1;
-    xsc_free(c);
+    coord_free(c);
 
     return result;
 }

@@ -1,2 +1,1 @@
-add_subdirectory(xscoordinate)
-add_subdirectory(xscarray)
+add_subdirectory(xs)
