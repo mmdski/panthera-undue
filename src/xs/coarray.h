@@ -1,5 +1,5 @@
-#ifndef XSCARRAY_INCLUDED
-#define XSCARRAY_INCLUDED
+#ifndef XS_COARRAY_INCLUDED
+#define XS_COARRAY_INCLUDED
 
 #include "cii/except.h"
 #include "coordinate.h"

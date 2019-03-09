@@ -1,5 +1,5 @@
-#ifndef COORDINATE_INCLUDED
-#define COORDINATE_INCLUDED
+#ifndef XS_COORDINATE_INCLUDED
+#define XS_COORDINATE_INCLUDED
 
 #define T Coordinate_T
 
