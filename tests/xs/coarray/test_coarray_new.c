@@ -7,7 +7,6 @@ int test_new_succeed();
 int test_new_fail();
 
 int main() {
-    int result;
     if (test_new_succeed() != 0)
         return 1;
     if (test_new_fail() != 0)
