@@ -8,5 +8,8 @@
     "files.trimFinalNewlines": true,
     "C_Cpp.clang_format_fallbackStyle": "{BasedOnStyle: LLVM, IndentWidth: 4, AlignConsecutiveAssignments: true, AlignTrailingComments: true, ColumnLimit: 79}",
     "C_Cpp.default.intelliSenseMode": "gcc-x64",
-    "C_Cpp.default.cStandard": "c99"
+    "C_Cpp.default.cStandard": "c99",
+    "cSpell.words": [
+        "coarray"
+    ]
 }
