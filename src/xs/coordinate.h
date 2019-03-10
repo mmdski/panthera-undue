@@ -16,6 +16,9 @@ T coord_new(double x, double y);
 /* Frees space from a previously allocated Coordinate_T */
 void coord_free(T c);
 
+/* Makes a copy and returns a new Coordinate_T */
+T coord_copy(T c);
+
 /* x value from Coordinate_T */
 double coord_x(T c);
 

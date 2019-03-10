@@ -21,6 +21,8 @@ T coord_new(double x, double y) {
     return c;
 }
 
+T coord_copy(T c) { return coord_new((c->x), (c->y)); }
+
 T coord_interp_y(T c1, T c2, double y) {
 
     /* raise exception if y is outside fo the range of c1->y and c2->y
