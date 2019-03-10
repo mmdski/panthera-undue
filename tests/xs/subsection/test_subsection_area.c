@@ -35,9 +35,9 @@ int test_rectangle() {
 
     int result = 0;
 
-    int n                   = 5;
-    double x[]              = {0, 0.25, 0.5, 0.75, 1};
-    double y[]              = {0, 0, 0, 0, 0};
+    int n                   = 7;
+    double x[]              = {0, 0, 0.25, 0.5, 0.75, 1, 1};
+    double y[]              = {1, 0, 0, 0, 0, 0, 1};
     double roughness        = 0.03;
     double activation_depth = 0.1;
 
