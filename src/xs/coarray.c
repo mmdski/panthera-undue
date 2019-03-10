@@ -117,10 +117,10 @@ T coarray_subarray_y(T a, double y) {
     /* check the first coordinate */
     c1 = *(a->array);
 
-    /* if the y of the coordinate is less than y, add the coordinate
-     * to the list
+    /* if the y of the coordinate is less than or equal to y, add the
+     * coordinate to the list
      */
-    if (coord_y(c1) < y) {
+    if (coord_y(c1) <= y) {
         c_last = coord_copy(c1);
         list   = List_push(list, c_last);
     }
@@ -139,8 +139,8 @@ T coarray_subarray_y(T a, double y) {
             list   = List_push(list, c_last);
         }
 
-        /* add c2 if c2.y is below y */
-        if (coord_y(c2) < y) {
+        /* add c2 if c2.y is at or below y */
+        if (coord_y(c2) <= y) {
             c_last = coord_copy(c2);
             list   = List_push(list, c_last);
         }
@@ -148,7 +148,7 @@ T coarray_subarray_y(T a, double y) {
         /* if the last coordinate added wasn't null and
          * both coordinates are above y, add a NULL coordinate
          */
-        if (c_last != NULL && coord_y(c1) > y && (coord_y(c2) > y)) {
+        if (c_last != NULL && (i < (a->n) - 1) && (coord_y(c2) > y)) {
             c_last = NULL;
             list   = List_push(list, c_last);
         }
