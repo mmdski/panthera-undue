@@ -1,19 +1,19 @@
 #include "coarray.h"
 #include "cii/assert.h"
-#include "cii/list.h"
 #include "cii/mem.h"
 #include <stddef.h>
 
 #define T CoArray_T
 
-const Except_T coarray_new_Failed = {"coarray_new failed"};
+const Except_T coarray_x_order_Error = {"Invalid x-value order"};
 
 struct T {
     Coordinate_T *array;
     int n;
 };
 
-void _coarray_check(int n, double *x);
+void coarray_check(int n, double *x);
+void check_x_coordinates(int n, Coordinate_T *array);
 
 T coarray_new(int n, double *x, double *y) {
 
@@ -21,9 +21,9 @@ T coarray_new(int n, double *x, double *y) {
     assert(y);
 
     if (n < 2)
-        RAISE(coarray_new_Failed);
+        RAISE(coarray_x_order_Error);
 
-    _coarray_check(n, x);
+    coarray_check(n, x);
 
     T a;
     NEW(a);
@@ -36,6 +36,75 @@ T coarray_new(int n, double *x, double *y) {
     for (i = 0; i < n; i++) {
         *(a->array + i) = coord_new(*(x + i), *(y + i));
     }
+
+    return a;
+}
+
+T coarray_from_array(int n, Coordinate_T *array) {
+
+    int i;
+
+    T a;
+
+    check_x_coordinates(n, array);
+
+    NEW(a);
+    a->n     = n;
+    a->array = Mem_calloc(n, sizeof(Coordinate_T), __FILE__, __LINE__);
+
+    for (i = 0; i < n; i++) {
+        if (*(array + i) == NULL)
+            *(a->array + i) = NULL;
+        else
+            *(a->array + i) = coord_copy(*(array + i));
+    }
+
+    return a;
+}
+
+T coarray_from_list(List_T list) {
+
+    int i;
+    int n;
+    T a;
+
+    Coordinate_T *tmp;
+
+    n = List_length(list);
+
+    NEW(a);
+    a->n     = n;
+    a->array = Mem_calloc(n, sizeof(Coordinate_T), __FILE__, __LINE__);
+
+    tmp = (Coordinate_T *)List_toArray(list, NULL);
+
+    check_x_coordinates(n, tmp);
+
+    if (*(tmp) == NULL)
+        *(a->array) = NULL;
+    else
+        *(a->array) = coord_copy(*(tmp));
+
+    for (i = 1; i < n; i++) {
+
+        /* if this coordinate is NULL, add NULL to the new array */
+        if (*(tmp + i) == NULL)
+            *(a->array + i) = NULL;
+
+        /* if the previous x is less than this x, free memory and raise
+         * error */
+        // else if (coord_x(*(tmp + i)) < coord_x(*(tmp + i - 1))) {
+        //     coarray_free(a);
+        //     FREE(tmp);
+        //     RAISE(coarray_x_order_Error);
+        // }
+
+        /* otherwise, add a copy of the corrdinate to this array */
+        else
+            *(a->array + i) = coord_copy(*(tmp + i));
+    }
+
+    FREE(tmp);
 
     return a;
 }
@@ -76,15 +145,6 @@ int coarray_eq(T a1, T a2) {
     }
 
     return 1;
-}
-
-void _coarray_check(int n, double *x) {
-
-    int i;
-    for (i = 1; i < n; i++) {
-        if (*(x + i - 1) > *(x + i))
-            RAISE(coarray_new_Failed);
-    }
 }
 
 int coarray_n(T a) {
@@ -145,8 +205,10 @@ T coarray_subarray_y(T a, double y) {
             list   = List_push(list, c_last);
         }
 
-        /* if the last coordinate added wasn't null and
-         * both coordinates are above y, add a NULL coordinate
+        /* if the last coordinate added wasn't NULL,
+         * c2 isn't the last coordinate in the array,
+         * and c2 is above y,
+         * add a NULL spot in the
          */
         if (c_last != NULL && (i < (a->n) - 1) && (coord_y(c2) > y)) {
             c_last = NULL;
@@ -168,4 +230,32 @@ T coarray_subarray_y(T a, double y) {
         List_free(&list);
 
     return sa;
+}
+
+void coarray_check(int n, double *x) {
+
+    int i;
+    for (i = 1; i < n; i++) {
+        if (*(x + i - 1) > *(x + i))
+            RAISE(coarray_x_order_Error);
+    }
+}
+
+void check_x_coordinates(int n, Coordinate_T *array) {
+
+    int i;
+
+    Coordinate_T last_c = NULL;
+    if (*(array) != NULL)
+        last_c = *(array);
+
+    for (i = 1; i < n; i++) {
+
+        /* skip if either this or the last coordinate is null */
+        if (*(array + i) == NULL || last_c == NULL)
+            continue;
+
+        if (coord_x(*(array + i)) < coord_x(last_c))
+            RAISE(coarray_x_order_Error);
+    }
 }
