@@ -19,7 +19,7 @@ void coord_free(T c);
 /* Makes a copy and returns a new Coordinate_T */
 T coord_copy(T c);
 
-/* Returns 1 if c1 is equal to c2, 0 otherwise */
+/* Returns 1 if c1 and c2 are equal, 0 otherwise */
 int coord_eq(T c1, T c2);
 
 /* x value from Coordinate_T */
