@@ -6,7 +6,7 @@
         {
             "label": "valgrind",
             "type": "shell",
-            "command": "meson test -v --wrap=valgrind",
+            "command": "meson test -v --wrap=valgrind --num-processes 1",
             "options": {
                 "cwd": "${workspaceRoot}/build"
             },
