@@ -7,3 +7,8 @@ test_coord_interp_y = executable('test_coord_interp_y', 'test_coord_interp_y.c',
                              include_directories : [inc, xs_inc],
                              link_with : xslib)
 test('coord_interp_y test', test_coord_interp_y)
+
+test_coord_eq = executable('test_coord_eq', 'test_coord_eq.c',
+                             include_directories : [inc, xs_inc],
+                             link_with : xslib)
+test('coord_eq test', test_coord_eq)

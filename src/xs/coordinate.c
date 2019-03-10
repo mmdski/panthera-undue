@@ -23,6 +23,12 @@ T coord_new(double x, double y) {
 
 T coord_copy(T c) { return coord_new((c->x), (c->y)); }
 
+int coord_eq(T c1, T c2) {
+    if (c1 == c2)
+        return 1;
+    return (coord_x(c1) == coord_x(c2) && coord_y(c1) == coord_y(c2));
+}
+
 T coord_interp_y(T c1, T c2, double y) {
 
     /* raise exception if y is outside fo the range of c1->y and c2->y
