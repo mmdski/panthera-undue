@@ -14,6 +14,7 @@ struct T {
 
 static double ss_area(CoArray_T sa, double y);
 static double ss_perimeter(CoArray_T sa);
+static double ss_top_width(CoArray_T sa);
 
 T subsection_new(int n, double *x, double *y, double roughness,
                  double activation_depth) {
@@ -66,6 +67,22 @@ double subsection_perimeter(T ss, double y) {
     coarray_free(sa);
 
     return perimeter;
+}
+
+double subsection_top_width(T ss, double y) {
+
+    CoArray_T sa;
+
+    double width = 0;
+
+    if (y <= ss->d)
+        return width;
+
+    sa    = coarray_subarray_y(ss->a, y);
+    width = ss_top_width(sa);
+    coarray_free(sa);
+
+    return width;
 }
 
 /* ************************
@@ -128,4 +145,26 @@ static double ss_perimeter(CoArray_T sa) {
     }
 
     return perimeter;
+}
+
+static double ss_top_width(CoArray_T sa) {
+
+    double width = 0;
+    Coordinate_T c1;
+    Coordinate_T c2;
+
+    int i;
+    int n = coarray_n(sa);
+
+    for (i = 1; i < n; i++) {
+        c1 = coarray_get(sa, i - 1);
+        c2 = coarray_get(sa, i);
+
+        if (c1 == NULL || c2 == NULL)
+            continue;
+
+        width += coord_x(c2) - coord_x(c1);
+    }
+
+    return width;
 }

@@ -20,5 +20,8 @@ extern double subsection_area(T ss, double y);
 /* Calculates the perimeter of the subsection */
 extern double subsection_perimeter(T ss, double y);
 
+/* Calculates the top width of the subsection */
+extern double subsection_top_width(T ss, double y);
+
 #undef T
 #endif
