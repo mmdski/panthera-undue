@@ -12,10 +12,13 @@ extern T subsection_new(int n, double *x, double *y, double roughness,
                         double activation_depth);
 
 /* Frees memory from a previously allocated T */
-void subsection_free(T ss);
+extern void subsection_free(T ss);
 
 /* Calculates the area in the subsection */
-double subsection_area(T ss, double y);
+extern double subsection_area(T ss, double y);
+
+/* Calculates the perimeter of the subsection */
+extern double subsection_perimeter(T ss, double y);
 
 #undef T
 #endif
