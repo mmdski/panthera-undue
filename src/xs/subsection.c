@@ -4,17 +4,17 @@
 #include <math.h>
 #include <stddef.h>
 
-#define T Subsection_T
+#define T Subsection
 
 struct T {
-    CoArray_T a; /* coordinate array */
-    double n;    /* Manning's n */
-    double d;    /* activation depth */
+    CoArray array;    /* coordinate array */
+    double n;         /* Manning's n */
+    double min_depth; /* activation depth */
 };
 
-static double ss_area(CoArray_T sa, double y);
-static double ss_perimeter(CoArray_T sa);
-static double ss_top_width(CoArray_T sa);
+static double ss_area(CoArray sa, double y);
+static double ss_perimeter(CoArray sa);
+static double ss_top_width(CoArray sa);
 
 T subsection_new(int n, double *x, double *y, double roughness,
                  double activation_depth) {
@@ -26,28 +26,28 @@ T subsection_new(int n, double *x, double *y, double roughness,
     T ss;
     NEW(ss);
 
-    ss->a = coarray_new(n, x, y);
-    ss->n = roughness;
-    ss->d = activation_depth;
+    ss->array     = coarray_new(n, x, y);
+    ss->n         = roughness;
+    ss->min_depth = activation_depth;
 
     return ss;
 }
 
 void subsection_free(T ss) {
-    coarray_free(ss->a);
+    coarray_free(ss->array);
     FREE(ss);
 }
 
 double subsection_area(T ss, double y) {
 
-    CoArray_T sa; /* subarray */
+    CoArray sa; /* subarray */
 
     double area = 0;
 
-    if (y <= ss->d)
+    if (y <= ss->min_depth)
         return area;
 
-    sa   = coarray_subarray_y(ss->a, y);
+    sa   = coarray_subarray_y(ss->array, y);
     area = ss_area(sa, y);
     coarray_free(sa);
 
@@ -55,14 +55,14 @@ double subsection_area(T ss, double y) {
 }
 
 double subsection_perimeter(T ss, double y) {
-    CoArray_T sa; /* subarray */
+    CoArray sa; /* subarray */
 
     double perimeter = 0;
 
-    if (y <= ss->d)
+    if (y <= ss->min_depth)
         return perimeter;
 
-    sa        = coarray_subarray_y(ss->a, y);
+    sa        = coarray_subarray_y(ss->array, y);
     perimeter = ss_perimeter(sa);
     coarray_free(sa);
 
@@ -71,18 +71,81 @@ double subsection_perimeter(T ss, double y) {
 
 double subsection_top_width(T ss, double y) {
 
-    CoArray_T sa;
+    CoArray sa;
 
     double width = 0;
 
-    if (y <= ss->d)
+    if (y <= ss->min_depth)
         return width;
 
-    sa    = coarray_subarray_y(ss->a, y);
+    sa    = coarray_subarray_y(ss->array, y);
     width = ss_top_width(sa);
     coarray_free(sa);
 
     return width;
+}
+
+HydraulicProps ss_hydraulic_properties(T ss, double y) {
+
+    Coordinate c1;
+    Coordinate c2;
+    CoArray sa;
+
+    double area      = 0;
+    double perimeter = 0;
+    double top_width = 0;
+
+    HydraulicProps hp = hp_new();
+
+    int n;
+
+    /* return 0 subsection values if this subsection isn't activated */
+    if (ss->min_depth < y) {
+        sa = NULL;
+        n  = 0;
+    }
+    /* otherwise calculate the values */
+    else {
+        sa = coarray_subarray_y(ss->array, y);
+        n  = coarray_length(sa);
+    }
+
+    int i;
+
+    /* depth for c1 and c2 */
+    double d1;
+    double d2;
+
+    /* distances for perimeter */
+    double dx;
+    double dy;
+
+    for (i = 1; i < n; i++) {
+        c1 = coarray_get(sa, i - 1);
+        c2 = coarray_get(sa, i);
+
+        if (c1 == NULL || c2 == NULL)
+            continue;
+
+        /* calculate area by trapezoidal integration */
+        d1 = y - coord_y(c1);
+        d2 = y - coord_y(c2);
+        area += 0.5 * (d1 + d2) * (coord_x(c2) - coord_x(c1));
+
+        /* calculate perimeter */
+        dx = coord_x(c2) - coord_x(c1);
+        dy = coord_y(c2) - coord_y(c1);
+        perimeter += sqrt(dx * dx + dy * dy);
+
+        /* calculate top width */
+        top_width += coord_x(c2) - coord_x(c1);
+    }
+
+    hp_set_property(hp, HP_AREA, area);
+    hp_set_property(hp, HP_TOP_WIDTH, top_width);
+    hp_set_property(hp, HP_WETTED_PERIMETER, perimeter);
+
+    return hp;
 }
 
 /* ************************
@@ -90,18 +153,18 @@ double subsection_top_width(T ss, double y) {
  * ************************
  */
 
-static double ss_area(CoArray_T sa, double y) {
+static double ss_area(CoArray sa, double y) {
 
     int i; /* for loop */
 
-    Coordinate_T c1;
-    Coordinate_T c2;
+    Coordinate c1;
+    Coordinate c2;
 
     double d1; /* depth for c1 */
     double d2; /* depth for c2 */
 
     double area = 0;
-    int n       = coarray_n(sa); /* number of coordinates in subarray */
+    int n       = coarray_length(sa); /* number of coordinates in subarray */
 
     for (i = 1; i < n; i++) {
         c1 = coarray_get(sa, i - 1);
@@ -120,16 +183,16 @@ static double ss_area(CoArray_T sa, double y) {
     return area;
 }
 
-static double ss_perimeter(CoArray_T sa) {
+static double ss_perimeter(CoArray sa) {
 
     double perimeter = 0;
-    Coordinate_T c1;
-    Coordinate_T c2;
+    Coordinate c1;
+    Coordinate c2;
     double dx; /* distance in x */
     double dy; /* distance in y */
 
     int i; /* for loop */
-    int n = coarray_n(sa);
+    int n = coarray_length(sa);
 
     for (i = 1; i < n; i++) {
         c1 = coarray_get(sa, i - 1);
@@ -147,14 +210,14 @@ static double ss_perimeter(CoArray_T sa) {
     return perimeter;
 }
 
-static double ss_top_width(CoArray_T sa) {
+static double ss_top_width(CoArray sa) {
 
     double width = 0;
-    Coordinate_T c1;
-    Coordinate_T c2;
+    Coordinate c1;
+    Coordinate c2;
 
     int i;
-    int n = coarray_n(sa);
+    int n = coarray_length(sa);
 
     for (i = 1; i < n; i++) {
         c1 = coarray_get(sa, i - 1);

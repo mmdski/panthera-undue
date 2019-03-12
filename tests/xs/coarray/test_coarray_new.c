@@ -50,7 +50,7 @@ int test_new_fail() {
    1 - failure */
 int test_new(int n, double *x, double *y) {
     int result = 0;
-    CoArray_T a;
+    CoArray a;
 
     TRY a = coarray_new(n, x, y);
     EXCEPT(coarray_x_order_Error) { result = 1; }

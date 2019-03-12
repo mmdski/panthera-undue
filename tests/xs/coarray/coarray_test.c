@@ -1,18 +1,18 @@
 #include "coarray_test.h"
 
-void print_coarray_fail(CoArray_T expected, CoArray_T result) {
+void print_coarray_fail(CoArray expected, CoArray result) {
     printf("expected\n");
     print_coarray(expected);
     printf("\nresult\n");
     print_coarray(result);
 }
 
-void print_coarray(CoArray_T a) {
+void print_coarray(CoArray a) {
 
     int i;
-    int n = coarray_n(a);
+    int n = coarray_length(a);
 
-    Coordinate_T c;
+    Coordinate c;
 
     printf("n = %i\n", n);
 

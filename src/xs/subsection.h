@@ -2,12 +2,13 @@
 #define XS_SUBSECTION_INCLUDED
 
 #include "coarray.h"
+#include "panthera/hydraulicproperties.h"
 
-#define T Subsection_T
+#define T Subsection
 
 typedef struct T *T;
 
-/* Allocates memory and creates a new Subsection_T */
+/* Allocates memory and creates a new Subsection */
 extern T subsection_new(int n, double *x, double *y, double roughness,
                         double activation_depth);
 
@@ -22,6 +23,11 @@ extern double subsection_perimeter(T ss, double y);
 
 /* Calculates the top width of the subsection */
 extern double subsection_top_width(T ss, double y);
+
+/* Calculates hydraulic properties for the subsection.
+ * Returns a new HydraulicProps.
+ */
+extern HydraulicProps ss_hydraulic_properties(T ss, double y);
 
 #undef T
 #endif

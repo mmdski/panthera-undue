@@ -9,7 +9,7 @@ int main() {
 
     int test_result;
 
-    Subsection_T ss = subsection_new(n, x, y, roughness, activation_depth);
+    Subsection ss = subsection_new(n, x, y, roughness, activation_depth);
 
     if (ss == 0)
         test_result = 1;

@@ -12,13 +12,13 @@ int main() {
 
     double test_depth = 0.5;
 
-    Coordinate_T c;
+    Coordinate c;
 
-    CoArray_T a  = coarray_new(n, x, y);
-    CoArray_T sa = coarray_subarray_y(a, test_depth);
-    int n_sa     = coarray_n(sa);
+    CoArray a    = coarray_new(n, x, y);
+    CoArray sa = coarray_subarray_y(a, test_depth);
+    int n_sa     = coarray_length(sa);
 
-    Subsection_T ss  = subsection_new(n, x, y, roughness, activation_depth);
+    Subsection ss    = subsection_new(n, x, y, roughness, activation_depth);
     double area      = subsection_area(ss, test_depth);
     double perimeter = subsection_perimeter(ss, test_depth);
     double width     = subsection_top_width(ss, test_depth);

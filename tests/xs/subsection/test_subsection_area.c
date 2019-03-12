@@ -41,7 +41,7 @@ int test_rectangle() {
     double roughness        = 0.03;
     double activation_depth = 0.1;
 
-    Subsection_T ss = subsection_new(n, x, y, roughness, activation_depth);
+    Subsection ss = subsection_new(n, x, y, roughness, activation_depth);
 
     /* below activation depth
      * expected area is 0
@@ -87,7 +87,7 @@ int test_simple_triangle() {
     double roughness        = 0.03;
     double activation_depth = 0;
 
-    Subsection_T ss = subsection_new(n, x, y, roughness, activation_depth);
+    Subsection ss = subsection_new(n, x, y, roughness, activation_depth);
 
     /* depth of 1
      * 0.5 * 1 * 1 = 0.5
@@ -116,7 +116,7 @@ int test_equilateral_triangle() {
     double roughness        = 0.03;
     double activation_depth = 0;
 
-    Subsection_T ss = subsection_new(n, x, y, roughness, activation_depth);
+    Subsection ss = subsection_new(n, x, y, roughness, activation_depth);
 
     /* depth of 1
      * 0.5 * 1 * 1 = 0.5

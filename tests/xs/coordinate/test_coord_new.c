@@ -6,7 +6,7 @@ int main() {
 
     int result = 0;
 
-    Coordinate_T c = coord_new(x, y);
+    Coordinate c = coord_new(x, y);
 
     if (c == 0)
         result = -1;

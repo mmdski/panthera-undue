@@ -3,17 +3,17 @@
 #include "cii/mem.h"
 #include <stddef.h>
 
-#define T CoArray_T
+#define T CoArray
 
 const Except_T coarray_x_order_Error = {"Invalid x-value order"};
 
 struct T {
-    Coordinate_T *array;
+    Coordinate *array;
     int n;
 };
 
 void coarray_check(int n, double *x);
-void check_x_coordinates(int n, Coordinate_T *array);
+void check_x_coordinates(int n, Coordinate *array);
 
 T coarray_new(int n, double *x, double *y) {
 
@@ -30,7 +30,7 @@ T coarray_new(int n, double *x, double *y) {
 
     a->n = n;
 
-    a->array = Mem_calloc(n, sizeof(Coordinate_T), __FILE__, __LINE__);
+    a->array = Mem_calloc(n, sizeof(Coordinate), __FILE__, __LINE__);
 
     int i;
     for (i = 0; i < n; i++) {
@@ -40,7 +40,7 @@ T coarray_new(int n, double *x, double *y) {
     return a;
 }
 
-T coarray_from_array(int n, Coordinate_T *array) {
+T coarray_from_array(int n, Coordinate *array) {
 
     int i;
 
@@ -50,7 +50,7 @@ T coarray_from_array(int n, Coordinate_T *array) {
 
     NEW(a);
     a->n     = n;
-    a->array = Mem_calloc(n, sizeof(Coordinate_T), __FILE__, __LINE__);
+    a->array = Mem_calloc(n, sizeof(Coordinate), __FILE__, __LINE__);
 
     for (i = 0; i < n; i++) {
         if (*(array + i) == NULL)
@@ -68,15 +68,15 @@ T coarray_from_list(List_T list) {
     int n;
     T a;
 
-    Coordinate_T *tmp;
+    Coordinate *tmp;
 
     n = List_length(list);
 
     NEW(a);
     a->n     = n;
-    a->array = Mem_calloc(n, sizeof(Coordinate_T), __FILE__, __LINE__);
+    a->array = Mem_calloc(n, sizeof(Coordinate), __FILE__, __LINE__);
 
-    tmp = (Coordinate_T *)List_toArray(list, NULL);
+    tmp = (Coordinate *)List_toArray(list, NULL);
 
     check_x_coordinates(n, tmp);
 
@@ -113,7 +113,7 @@ void coarray_free(T a) {
 
     assert(a);
     int i;
-    Coordinate_T c;
+    Coordinate c;
     for (i = 0; i < a->n; i++) {
         c = *(a->array + i);
         coord_free(c);
@@ -126,8 +126,8 @@ void coarray_free(T a) {
 
 int coarray_eq(T a1, T a2) {
 
-    Coordinate_T c1;
-    Coordinate_T c2;
+    Coordinate c1;
+    Coordinate c2;
 
     int i;
 
@@ -147,12 +147,12 @@ int coarray_eq(T a1, T a2) {
     return 1;
 }
 
-int coarray_n(T a) {
+int coarray_length(T a) {
     assert(a);
     return a->n;
 }
 
-Coordinate_T coarray_get(T a, int i) {
+Coordinate coarray_get(T a, int i) {
     assert(a);
     assert((int)i < a->n);
     return a->array[i];
@@ -170,9 +170,9 @@ T coarray_subarray_y(T a, double y) {
 
     /* loop variables */
     int i;
-    Coordinate_T c1     = NULL;
-    Coordinate_T c2     = NULL;
-    Coordinate_T c_last = NULL; /* keep track of the last coordinate added */
+    Coordinate c1     = NULL;
+    Coordinate c2     = NULL;
+    Coordinate c_last = NULL; /* keep track of the last coordinate added */
 
     /* check the first coordinate */
     c1 = *(a->array);
@@ -223,7 +223,7 @@ T coarray_subarray_y(T a, double y) {
         sa->array = NULL;
     } else {
         list      = List_reverse(list);
-        sa->array = (Coordinate_T *)List_toArray(list, NULL);
+        sa->array = (Coordinate *)List_toArray(list, NULL);
     }
 
     if (list != NULL)
@@ -241,11 +241,11 @@ void coarray_check(int n, double *x) {
     }
 }
 
-void check_x_coordinates(int n, Coordinate_T *array) {
+void check_x_coordinates(int n, Coordinate *array) {
 
     int i;
 
-    Coordinate_T last_c = NULL;
+    Coordinate last_c = NULL;
     if (*(array) != NULL)
         last_c = *(array);
 

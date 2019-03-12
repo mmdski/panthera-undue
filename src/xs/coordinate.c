@@ -1,7 +1,7 @@
 #include "coordinate.h"
 #include "cii/mem.h"
 
-#define T Coordinate_T
+#define T Coordinate
 
 const Except_T coord_interp_y_Fail = {"Coordinate interpolation failed"};
 

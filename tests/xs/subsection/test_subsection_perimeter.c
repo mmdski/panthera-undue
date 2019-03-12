@@ -31,7 +31,7 @@ int test_rectangle(double depth, double expected) {
     double roughness        = 0.03;
     double activation_depth = 0.1;
 
-    Subsection_T ss = subsection_new(n, x, y, roughness, activation_depth);
+    Subsection ss = subsection_new(n, x, y, roughness, activation_depth);
 
     calculated = subsection_perimeter(ss, depth);
 
@@ -58,7 +58,7 @@ int test_right_triangle(double depth, double expected) {
     double roughness        = 0.03;
     double activation_depth = 0.1;
 
-    Subsection_T ss = subsection_new(n, x, y, roughness, activation_depth);
+    Subsection ss = subsection_new(n, x, y, roughness, activation_depth);
 
     calculated = subsection_perimeter(ss, depth);
 

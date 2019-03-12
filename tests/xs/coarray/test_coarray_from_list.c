@@ -1,7 +1,7 @@
+#include "coarray_test.h"
 #include "cii/except.h"
 #include "cii/list.h"
 #include "cii/mem.h"
-#include "coarray_test.h"
 
 int test_succeed();
 int test_succeed_null();
@@ -30,10 +30,10 @@ int test_succeed() {
 
     int i;
 
-    CoArray_T expected;
-    CoArray_T result;
+    CoArray expected;
+    CoArray result;
 
-    Coordinate_T c;
+    Coordinate c;
     List_T list = NULL;
 
     int n      = 4;
@@ -82,19 +82,19 @@ int test_succeed_null() {
 
     int i;
 
-    CoArray_T expected;
-    Coordinate_T *array;
+    CoArray expected;
+    Coordinate *array;
 
-    CoArray_T result;
+    CoArray result;
 
-    Coordinate_T c;
+    Coordinate c;
     List_T list = NULL;
 
     int n      = 5;
     double x[] = {0, 0, 1, 1};
     double y[] = {1, 0, 0, 1};
 
-    array = Mem_calloc(n, sizeof(Coordinate_T), __FILE__, __LINE__);
+    array = Mem_calloc(n, sizeof(Coordinate), __FILE__, __LINE__);
 
     for (i = 0; i < n; i++) {
         if (i == 2) {

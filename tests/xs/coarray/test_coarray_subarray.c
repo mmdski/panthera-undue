@@ -2,11 +2,11 @@
 #include <stddef.h>
 #include <stdio.h>
 
-void print_coarray(CoArray_T a);
+void print_coarray(CoArray a);
 
-int test_empty(CoArray_T a);
-int test_half(CoArray_T a);
-int test_all(CoArray_T a);
+int test_empty(CoArray a);
+int test_half(CoArray a);
+int test_all(CoArray a);
 // int test_equilateral_triangle();
 
 int main() {
@@ -17,7 +17,7 @@ int main() {
     double x[] = {0, 1};
     double y[] = {1, 2};
 
-    CoArray_T a = coarray_new(n, x, y);
+    CoArray a = coarray_new(n, x, y);
 
     if (test_empty(a)) {
         result = 1;
@@ -44,9 +44,9 @@ int main() {
     return result;
 }
 
-void print_coarray(CoArray_T a) {
-    int n = coarray_n(a);
-    Coordinate_T c;
+void print_coarray(CoArray a) {
+    int n = coarray_length(a);
+    Coordinate c;
     for (int i = 0; i < n; i++) {
         c = coarray_get(a, i);
         if (c == NULL)
@@ -56,15 +56,15 @@ void print_coarray(CoArray_T a) {
     }
 }
 
-int test_empty(CoArray_T a) {
+int test_empty(CoArray a) {
 
     int result = 0;
 
     double d = 0.5;
 
-    CoArray_T sa = coarray_subarray_y(a, d);
+    CoArray sa = coarray_subarray_y(a, d);
 
-    if (coarray_n(sa) != 0) {
+    if (coarray_length(sa) != 0) {
         result = 1;
         print_coarray(sa);
     }
@@ -74,7 +74,7 @@ int test_empty(CoArray_T a) {
     return result;
 }
 
-int test_half(CoArray_T a) {
+int test_half(CoArray a) {
 
     int result = 0;
 
@@ -84,9 +84,9 @@ int test_half(CoArray_T a) {
     double x[] = {0, 0.5};
     double y[] = {1, 1.5};
 
-    CoArray_T expected = coarray_new(n, x, y);
+    CoArray expected = coarray_new(n, x, y);
 
-    CoArray_T sa = coarray_subarray_y(a, d);
+    CoArray sa = coarray_subarray_y(a, d);
 
     if (!coarray_eq(sa, expected)) {
         result = 1;
@@ -99,7 +99,7 @@ int test_half(CoArray_T a) {
     return result;
 }
 
-int test_all(CoArray_T a) {
+int test_all(CoArray a) {
 
     int result = 0;
 
@@ -109,9 +109,9 @@ int test_all(CoArray_T a) {
     double x[] = {0, 1};
     double y[] = {1, 2};
 
-    CoArray_T expected = coarray_new(n, x, y);
+    CoArray expected = coarray_new(n, x, y);
 
-    CoArray_T sa = coarray_subarray_y(a, d);
+    CoArray sa = coarray_subarray_y(a, d);
 
     if (!coarray_eq(sa, expected)) {
         result = 1;
@@ -132,8 +132,8 @@ int test_equilateral_triangle() {
     double x[] = {0, 0.25, 0.5, 0.75, 1};
     double y[] = {0, 0.5, 1, 0.5, 0};
 
-    CoArray_T a  = coarray_new(n, x, y);
-    CoArray_T sa = coarray_subarray_y(a, 0.5);
+    CoArray a  = coarray_new(n, x, y);
+    CoArray sa = coarray_subarray_y(a, 0.5);
 
     printf("equilateral triangle not really tested\n");
     print_coarray(sa);

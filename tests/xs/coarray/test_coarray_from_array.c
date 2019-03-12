@@ -1,5 +1,5 @@
-#include "cii/mem.h"
 #include "coarray_test.h"
+#include "cii/mem.h"
 
 int test_success();
 int test_success_null();
@@ -24,10 +24,10 @@ int test_success() {
 
     int test_result = 0;
 
-    CoArray_T expected;
-    CoArray_T result;
+    CoArray expected;
+    CoArray result;
 
-    Coordinate_T *array;
+    Coordinate *array;
 
     int n      = 4;
     double x[] = {0, 0, 1, 1};
@@ -35,7 +35,7 @@ int test_success() {
 
     expected = coarray_new(n, x, y);
 
-    array = Mem_calloc(n, sizeof(Coordinate_T), __FILE__, __LINE__);
+    array = Mem_calloc(n, sizeof(Coordinate), __FILE__, __LINE__);
 
     for (i = 0; i < n; i++) {
         *(array + i) = coord_new(x[i], y[i]);
@@ -69,10 +69,10 @@ int test_success_null() {
     int test_result = 0;
     int null_index  = 2;
 
-    CoArray_T expected;
-    CoArray_T result;
+    CoArray expected;
+    CoArray result;
 
-    Coordinate_T *array;
+    Coordinate *array;
 
     int n      = 5;
     double x[] = {0, 0, 0, 1, 1};
@@ -80,7 +80,7 @@ int test_success_null() {
 
     expected = coarray_new(n, x, y);
 
-    array = Mem_calloc(n, sizeof(Coordinate_T), __FILE__, __LINE__);
+    array = Mem_calloc(n, sizeof(Coordinate), __FILE__, __LINE__);
 
     for (i = 0; i < n; i++) {
         if (i == null_index)
