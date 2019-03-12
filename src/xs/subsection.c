@@ -71,7 +71,7 @@ HydraulicProps ss_hydraulic_properties(T ss, double y) {
     int n;
 
     /* return 0 subsection values if this subsection isn't activated */
-    if (y <= ss->min_depth) {
+    if (y <= coarray_min_y(ss->array) || y <= ss->min_depth) {
         sa = NULL;
         n  = 0;
     }

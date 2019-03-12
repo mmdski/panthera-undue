@@ -8,8 +8,9 @@
 const Except_T coarray_x_order_Error = {"Invalid x-value order"};
 
 struct T {
-    Coordinate *array;
-    int n;
+    int length;        /* number of coordinates in this array */
+    double min_y;      /* minimum y value in coordinate array */
+    Coordinate *array; /* array of coordinates */
 };
 
 void coarray_check(int n, double *x);
@@ -28,13 +29,19 @@ T coarray_new(int n, double *x, double *y) {
     T a;
     NEW(a);
 
-    a->n = n;
-
-    a->array = Mem_calloc(n, sizeof(Coordinate), __FILE__, __LINE__);
+    a->length = n;
+    a->min_y  = INFINITY;
+    a->array  = Mem_calloc(n, sizeof(Coordinate), __FILE__, __LINE__);
 
     int i;
     for (i = 0; i < n; i++) {
         *(a->array + i) = coord_new(*(x + i), *(y + i));
+
+        /* if on the first point or current coord y is less than minimum,
+         * set minimum y to current point y
+         */
+        if (coord_y(*(a->array + i)) < a->min_y)
+            a->min_y = coord_y(*(a->array + i));
     }
 
     return a;
@@ -49,14 +56,18 @@ T coarray_from_array(int n, Coordinate *array) {
     check_x_coordinates(n, array);
 
     NEW(a);
-    a->n     = n;
-    a->array = Mem_calloc(n, sizeof(Coordinate), __FILE__, __LINE__);
+    a->length = n;
+    a->min_y  = INFINITY;
+    a->array  = Mem_calloc(n, sizeof(Coordinate), __FILE__, __LINE__);
 
     for (i = 0; i < n; i++) {
         if (*(array + i) == NULL)
             *(a->array + i) = NULL;
-        else
+        else {
             *(a->array + i) = coord_copy(*(array + i));
+            if (coord_y(*(a->array + i)) < a->min_y)
+                a->min_y = coord_y(*(a->array + i));
+        }
     }
 
     return a;
@@ -73,8 +84,9 @@ T coarray_from_list(List_T list) {
     n = List_length(list);
 
     NEW(a);
-    a->n     = n;
-    a->array = Mem_calloc(n, sizeof(Coordinate), __FILE__, __LINE__);
+    a->length = n;
+    a->min_y  = INFINITY;
+    a->array  = Mem_calloc(n, sizeof(Coordinate), __FILE__, __LINE__);
 
     tmp = (Coordinate *)List_toArray(list, NULL);
 
@@ -82,8 +94,10 @@ T coarray_from_list(List_T list) {
 
     if (*(tmp) == NULL)
         *(a->array) = NULL;
-    else
+    else {
         *(a->array) = coord_copy(*(tmp));
+        a->min_y    = coord_y(*(tmp));
+    }
 
     for (i = 1; i < n; i++) {
 
@@ -91,17 +105,12 @@ T coarray_from_list(List_T list) {
         if (*(tmp + i) == NULL)
             *(a->array + i) = NULL;
 
-        /* if the previous x is less than this x, free memory and raise
-         * error */
-        // else if (coord_x(*(tmp + i)) < coord_x(*(tmp + i - 1))) {
-        //     coarray_free(a);
-        //     FREE(tmp);
-        //     RAISE(coarray_x_order_Error);
-        // }
-
         /* otherwise, add a copy of the corrdinate to this array */
-        else
+        else {
             *(a->array + i) = coord_copy(*(tmp + i));
+            if (coord_y(*(a->array + i)) < a->min_y)
+                a->min_y = coord_y(*(a->array + i));
+        }
     }
 
     FREE(tmp);
@@ -114,7 +123,7 @@ void coarray_free(T a) {
     assert(a);
     int i;
     Coordinate c;
-    for (i = 0; i < a->n; i++) {
+    for (i = 0; i < a->length; i++) {
         c = *(a->array + i);
         coord_free(c);
     }
@@ -134,10 +143,10 @@ int coarray_eq(T a1, T a2) {
     if (a1 == a2)
         return 1;
 
-    if (a1->n != a2->n)
+    if (a1->length != a2->length)
         return 0;
 
-    for (i = 0; i < a1->n; i++) {
+    for (i = 0; i < a1->length; i++) {
         c1 = *(a1->array + i);
         c2 = *(a2->array + i);
         if (!coord_eq(c1, c2))
@@ -149,14 +158,16 @@ int coarray_eq(T a1, T a2) {
 
 int coarray_length(T a) {
     assert(a);
-    return a->n;
+    return a->length;
 }
 
 Coordinate coarray_get(T a, int i) {
     assert(a);
-    assert((int)i < a->n);
+    assert((int)i < a->length);
     return a->array[i];
 }
+
+double coarray_min_y(T a) { return a->min_y; }
 
 T coarray_subarray_y(T a, double y) {
 
@@ -185,7 +196,7 @@ T coarray_subarray_y(T a, double y) {
         list   = List_push(list, c_last);
     }
 
-    for (i = 1; i < a->n; i++) {
+    for (i = 1; i < a->length; i++) {
 
         c1 = *(a->array + i - 1);
         c2 = *(a->array + i);
@@ -210,7 +221,7 @@ T coarray_subarray_y(T a, double y) {
          * and c2 is above y,
          * add a NULL spot in the
          */
-        if (c_last != NULL && (i < (a->n) - 1) && (coord_y(c2) > y)) {
+        if (c_last != NULL && (i < (a->length) - 1) && (coord_y(c2) > y)) {
             c_last = NULL;
             list   = List_push(list, c_last);
         }
@@ -218,7 +229,7 @@ T coarray_subarray_y(T a, double y) {
 
     n = List_length(list);
     NEW(sa);
-    sa->n = n;
+    sa->length = n;
     if (n == 0) {
         sa->array = NULL;
     } else {

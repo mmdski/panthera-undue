@@ -4,6 +4,7 @@
 #include "cii/except.h"
 #include "cii/list.h"
 #include "coordinate.h"
+#include <math.h>
 
 #define T CoArray
 
@@ -33,6 +34,9 @@ extern int coarray_length(T a);
 
 /* Gets the i-th coordinate of the CoArray */
 Coordinate coarray_get(T a, int i);
+
+/* Returns the minimum y value in the CoArray */
+double coarray_min_y(T a);
 
 /* Returns a subarray with points below y-value */
 extern T coarray_subarray_y(T a, double y);
