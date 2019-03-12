@@ -20,10 +20,7 @@ int main() {
         printf("test_simple_triangle failed\n");
     }
 
-    if (test_equilateral_triangle()) {
-        result = 1;
-        printf("test_equilateral_triangle failed\n");
-    }
+    result = test_equilateral_triangle();
 
     return result;
 }
@@ -134,9 +131,10 @@ int test_equilateral_triangle() {
     expected_area   = 0.125;
     calculated_area = subsection_area(ss, 0.5);
     if (fabs(expected_area - calculated_area) > 1e-15) {
+        printf("test_equilateral_triangle failed\n");
+        printf("y = 0.5\texpected_area = %f\tcalculated_area = %f\n",
+               expected_area, calculated_area);
         result = 1;
-        printf("expected_area = %f\tcalculated_area = %f\n", expected_area,
-               calculated_area);
     }
 
     subsection_free(ss);
