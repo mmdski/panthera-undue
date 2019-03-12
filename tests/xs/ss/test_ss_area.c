@@ -38,13 +38,13 @@ int test_rectangle() {
     double roughness        = 0.03;
     double activation_depth = 0.1;
 
-    Subsection ss = subsection_new(n, x, y, roughness, activation_depth);
+    Subsection ss = ss_new(n, x, y, roughness, activation_depth);
 
     /* below activation depth
      * expected area is 0
      */
     expected_area   = 0;
-    calculated_area = subsection_area(ss, activation_depth / 2);
+    calculated_area = ss_area(ss, activation_depth / 2);
     if (expected_area != calculated_area)
         result = 1;
 
@@ -53,7 +53,7 @@ int test_rectangle() {
      * expected area is 0.5
      */
     expected_area   = 0.5;
-    calculated_area = subsection_area(ss, 0.5);
+    calculated_area = ss_area(ss, 0.5);
     if (fabs(expected_area - calculated_area) > 1e-15)
         result = 1;
 
@@ -62,11 +62,11 @@ int test_rectangle() {
      * expected area is 1
      */
     expected_area   = 1;
-    calculated_area = subsection_area(ss, 1);
+    calculated_area = ss_area(ss, 1);
     if (fabs(expected_area - calculated_area) > 1e-15)
         result = 1;
 
-    subsection_free(ss);
+    ss_free(ss);
 
     return result;
 }
@@ -84,18 +84,18 @@ int test_simple_triangle() {
     double roughness        = 0.03;
     double activation_depth = 0;
 
-    Subsection ss = subsection_new(n, x, y, roughness, activation_depth);
+    Subsection ss = ss_new(n, x, y, roughness, activation_depth);
 
     /* depth of 1
      * 0.5 * 1 * 1 = 0.5
      * expected area is 0.5
      */
     expected_area   = 0.5;
-    calculated_area = subsection_area(ss, 1);
+    calculated_area = ss_area(ss, 1);
     if (fabs(expected_area - calculated_area) > 1e-15)
         result = 1;
 
-    subsection_free(ss);
+    ss_free(ss);
 
     return result;
 }
@@ -113,14 +113,14 @@ int test_equilateral_triangle() {
     double roughness        = 0.03;
     double activation_depth = 0;
 
-    Subsection ss = subsection_new(n, x, y, roughness, activation_depth);
+    Subsection ss = ss_new(n, x, y, roughness, activation_depth);
 
     /* depth of 1
      * 0.5 * 1 * 1 = 0.5
      * expected area is 0.5
      */
     expected_area   = 0.5;
-    calculated_area = subsection_area(ss, 1);
+    calculated_area = ss_area(ss, 1);
     if (fabs(expected_area - calculated_area) > 1e-15)
         result = 1;
 
@@ -129,7 +129,7 @@ int test_equilateral_triangle() {
      * expected area is 0.125
      */
     expected_area   = 0.125;
-    calculated_area = subsection_area(ss, 0.5);
+    calculated_area = ss_area(ss, 0.5);
     if (fabs(expected_area - calculated_area) > 1e-15) {
         printf("test_equilateral_triangle failed\n");
         printf("y = 0.5\texpected_area = %f\tcalculated_area = %f\n",
@@ -137,7 +137,7 @@ int test_equilateral_triangle() {
         result = 1;
     }
 
-    subsection_free(ss);
+    ss_free(ss);
 
     return result;
 }

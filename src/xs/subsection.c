@@ -12,8 +12,8 @@ struct T {
     double min_depth; /* activation depth */
 };
 
-T subsection_new(int n, double *x, double *y, double roughness,
-                 double activation_depth) {
+T ss_new(int n, double *x, double *y, double roughness,
+         double activation_depth) {
 
     assert(x);
     assert(y);
@@ -29,12 +29,12 @@ T subsection_new(int n, double *x, double *y, double roughness,
     return ss;
 }
 
-void subsection_free(T ss) {
+void ss_free(T ss) {
     coarray_free(ss->array);
     FREE(ss);
 }
 
-double subsection_area(T ss, double y) {
+double ss_area(T ss, double y) {
 
     HydraulicProps hp = ss_hydraulic_properties(ss, y);
     double area       = hp_get_property(hp, HP_AREA);
@@ -42,14 +42,14 @@ double subsection_area(T ss, double y) {
     return area;
 }
 
-double subsection_perimeter(T ss, double y) {
+double ss_perimeter(T ss, double y) {
     HydraulicProps hp = ss_hydraulic_properties(ss, y);
     double perimeter  = hp_get_property(hp, HP_WETTED_PERIMETER);
     hp_free(hp);
     return perimeter;
 }
 
-double subsection_top_width(T ss, double y) {
+double ss_top_width(T ss, double y) {
     HydraulicProps hp = ss_hydraulic_properties(ss, y);
     double width      = hp_get_property(hp, HP_TOP_WIDTH);
     hp_free(hp);

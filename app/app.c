@@ -18,10 +18,10 @@ int main() {
     CoArray sa = coarray_subarray_y(a, test_depth);
     int n_sa     = coarray_length(sa);
 
-    Subsection ss    = subsection_new(n, x, y, roughness, activation_depth);
-    double area      = subsection_area(ss, test_depth);
-    double perimeter = subsection_perimeter(ss, test_depth);
-    double width     = subsection_top_width(ss, test_depth);
+    Subsection ss    = ss_new(n, x, y, roughness, activation_depth);
+    double area      = ss_area(ss, test_depth);
+    double perimeter = ss_perimeter(ss, test_depth);
+    double width     = ss_top_width(ss, test_depth);
 
     for (int i = 0; i < n_sa; i++) {
         c = coarray_get(sa, i);

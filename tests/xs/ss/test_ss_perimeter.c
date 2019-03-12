@@ -31,9 +31,9 @@ int test_rectangle(double depth, double expected) {
     double roughness        = 0.03;
     double activation_depth = 0.1;
 
-    Subsection ss = subsection_new(n, x, y, roughness, activation_depth);
+    Subsection ss = ss_new(n, x, y, roughness, activation_depth);
 
-    calculated = subsection_perimeter(ss, depth);
+    calculated = ss_perimeter(ss, depth);
 
     if (expected != calculated) {
         printf("test_rectangle failed\n");
@@ -41,7 +41,7 @@ int test_rectangle(double depth, double expected) {
         result = 1;
     }
 
-    subsection_free(ss);
+    ss_free(ss);
 
     return result;
 }
@@ -58,9 +58,9 @@ int test_right_triangle(double depth, double expected) {
     double roughness        = 0.03;
     double activation_depth = 0.1;
 
-    Subsection ss = subsection_new(n, x, y, roughness, activation_depth);
+    Subsection ss = ss_new(n, x, y, roughness, activation_depth);
 
-    calculated = subsection_perimeter(ss, depth);
+    calculated = ss_perimeter(ss, depth);
 
     if (expected != calculated) {
         printf("test_right_triangle failed\n");
@@ -68,7 +68,7 @@ int test_right_triangle(double depth, double expected) {
         result = 1;
     }
 
-    subsection_free(ss);
+    ss_free(ss);
 
     return result;
 }

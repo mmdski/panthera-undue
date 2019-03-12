@@ -1,5 +1,5 @@
-#ifndef XS_SUBSECTION_INCLUDED
-#define XS_SUBSECTION_INCLUDED
+#ifndef XS_SS_INCLUDED
+#define XS_SS_INCLUDED
 
 #include "coarray.h"
 #include "panthera/hydraulicproperties.h"
@@ -9,20 +9,20 @@
 typedef struct T *T;
 
 /* Allocates memory and creates a new Subsection */
-extern T subsection_new(int n, double *x, double *y, double roughness,
-                        double activation_depth);
+extern T ss_new(int n, double *x, double *y, double roughness,
+                double activation_depth);
 
 /* Frees memory from a previously allocated T */
-extern void subsection_free(T ss);
+extern void ss_free(T ss);
 
 /* Calculates the area in the subsection */
-extern double subsection_area(T ss, double y);
+extern double ss_area(T ss, double y);
 
 /* Calculates the perimeter of the subsection */
-extern double subsection_perimeter(T ss, double y);
+extern double ss_perimeter(T ss, double y);
 
 /* Calculates the top width of the subsection */
-extern double subsection_top_width(T ss, double y);
+extern double ss_top_width(T ss, double y);
 
 /* Calculates hydraulic properties for the subsection.
  * Returns a new HydraulicProps.

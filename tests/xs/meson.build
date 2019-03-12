@@ -1,3 +1,3 @@
-subdir('coordinate')
+subdir('coord')
 subdir('coarray')
-subdir('subsection')
+subdir('ss')

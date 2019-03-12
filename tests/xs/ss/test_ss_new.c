@@ -9,14 +9,14 @@ int main() {
 
     int test_result;
 
-    Subsection ss = subsection_new(n, x, y, roughness, activation_depth);
+    Subsection ss = ss_new(n, x, y, roughness, activation_depth);
 
     if (ss == 0)
         test_result = 1;
     else
         test_result = 0;
 
-    subsection_free(ss);
+    ss_free(ss);
 
     return test_result;
 }
