@@ -1,5 +1,5 @@
-#include "test_coord.h"
 #include "coordinate.h"
+#include "panthera_test.h"
 
 typedef struct {
     Coordinate c;
@@ -12,12 +12,12 @@ struct coord_test_data {
 
 typedef struct coord_test_data coord_test_data;
 
-void setup_coord(coord_fixture *cf, coord_test_data test_data) {
+void init_coord(coord_fixture *cf, coord_test_data test_data) {
     cf->c = coord_new(test_data.x, test_data.y);
 }
 
 void coord_setup(coord_fixture *cf, gconstpointer test_data) {
-    setup_coord(cf, *(const coord_test_data *)test_data);
+    init_coord(cf, *(const coord_test_data *)test_data);
 }
 
 void coord_teardown(coord_fixture *cf, gconstpointer ignore) {
