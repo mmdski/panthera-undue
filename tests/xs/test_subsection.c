@@ -1,10 +1,10 @@
 #include "cii/mem.h"
-#include "panthera_test.h"
 #include "subsection.h"
-#include <stdbool.h>
+#include "testlib.h"
 #include <stdio.h>
 
-#define REL_TOL 1e-10
+#define ABS_TOL 1e-10
+#define REL_TOL 1
 
 typedef struct {
     Subsection ss;
@@ -15,65 +15,113 @@ struct ss_test_data {
     /* initialization data */
     int n_coords;
     double *x;
-    double *y;
+    double *z;
     double roughness;
     double activation_depth;
-
-    /* depth for calculating results */
-    double depth;
 
     /* shape information */
     /* r - rectangle */
     char shape;
 
     /* dimensions for analytical solutions */
-    double dim1;
-    double dim2;
-    double dim3;
+    double b0; /* bottom width */
+    double s;  /* slope */
 };
 
 typedef struct ss_test_data ss_test_data;
 
-void print_ss_test_data(ss_test_data test_data) {
-    int i;
-
-    printf("\nss_test_data->n_coords = \t%i\n", test_data.n_coords);
-    printf("x\t\ty\n");
-    for (i = 0; i < test_data.n_coords; i++) {
-        printf("%f\t%f\n", test_data.x[i], test_data.y[i]);
-    }
-}
-
-double calc_area(ss_test_data test_data) {
+double calc_area(ss_test_data test_data, double depth) {
     double area;
 
-    if (test_data.shape == 'r') {
-        /* dim1 is width */
-        area = test_data.dim1 * test_data.depth;
-
-    } else {
+    if (test_data.shape == 'r')
+        area = test_data.b0 * depth;
+    else if (test_data.shape == 't')
+        area = test_data.s * depth * depth;
+    else if (test_data.shape == 'z')
+        area = (test_data.b0 + test_data.s * depth) * depth;
+    else
         g_assert_not_reached();
-    }
-
     return area;
 }
 
-void check_area(ss_fixture *ssf, ss_test_data test_data) {
-    double calculated_area = ss_area(ssf->ss, test_data.depth);
-    double expected_area   = calc_area(test_data);
-    bool area_is_close =
-        (bool)test_is_close(calculated_area, expected_area, REL_TOL);
-    if (!area_is_close)
-        printf("area_is_close is false\n");
-    g_assert_true(area_is_close);
+double calc_perimeter(ss_test_data test_data, double depth) {
+    double perimeter;
+
+    if (test_data.shape == 'r')
+        perimeter = test_data.b0 + 2 * depth;
+    else if (test_data.shape == 't')
+        perimeter = 2 * depth * sqrt(1 + (test_data.s * test_data.s));
+    else if (test_data.shape == 'z')
+        perimeter =
+            test_data.b0 + 2 * depth * sqrt(1 + (test_data.s * test_data.s));
+    else
+        g_assert_not_reached();
+
+    return perimeter;
 }
 
-void check_results(ss_fixture *ssf, ss_test_data test_data) {
-    check_area(ssf, test_data);
+double calc_top_width(ss_test_data test_data, double depth) {
+    double top_width;
+
+    if (test_data.shape == 'r')
+        top_width = test_data.b0;
+    else if (test_data.shape == 't')
+        top_width = 2 * test_data.s * depth;
+    else if (test_data.shape == 'z')
+        top_width = test_data.b0 + 2 * test_data.s * depth;
+    else
+        g_assert_not_reached();
+
+    return top_width;
+}
+
+void check_area(ss_fixture *ssf, ss_test_data test_data, double depth) {
+    double calculated_area = ss_area(ssf->ss, depth);
+    double expected_area   = calc_area(test_data, depth);
+    g_assert_true(
+        test_is_close(calculated_area, expected_area, ABS_TOL, REL_TOL));
+}
+
+void check_perimeter(ss_fixture *ssf, ss_test_data test_data, double depth) {
+    double calculated = ss_perimeter(ssf->ss, depth);
+    double expected   = calc_perimeter(test_data, depth);
+    g_assert_true(test_is_close(calculated, expected, ABS_TOL, REL_TOL));
+}
+
+void check_top_width(ss_fixture *ssf, ss_test_data test_data, double depth) {
+    double calculated = ss_top_width(ssf->ss, depth);
+    double expected   = calc_top_width(test_data, depth);
+    g_assert_true(test_is_close(calculated, expected, ABS_TOL, REL_TOL));
+}
+
+ss_test_data *ss_test_data_new(int n, double *x, double *z, char shape) {
+
+    ss_test_data *test_data =
+        (ss_test_data *)Mem_alloc(sizeof(ss_test_data), __FILE__, __LINE__);
+    test_data->n_coords  = n;
+    test_data->x         = Mem_calloc(n, sizeof(double), __FILE__, __LINE__);
+    test_data->z         = Mem_calloc(n, sizeof(double), __FILE__, __LINE__);
+    test_data->shape     = shape;
+    test_data->roughness = 0.03;
+    test_data->b0        = 1;
+    test_data->s         = 0.5;
+
+    for (int i = 0; i < test_data->n_coords; i++) {
+        *(test_data->x + i) = x[i];
+        *(test_data->z + i) = z[i];
+    }
+
+    return test_data;
+}
+
+void ss_test_data_free(ss_test_data *test_data) {
+    Mem_free(test_data->x, __FILE__, __LINE__);
+    Mem_free(test_data->z, __FILE__, __LINE__);
+    Mem_free(test_data, __FILE__, __LINE__);
 }
 
 void init_ss(ss_fixture *ssf, ss_test_data test_data) {
-    ssf->ss = ss_new(test_data.n_coords, test_data.x, test_data.y,
+    ssf->ss = ss_new(test_data.n_coords, test_data.x, test_data.z,
                      test_data.roughness, test_data.activation_depth);
 }
 
@@ -83,35 +131,53 @@ void ss_setup(ss_fixture *ssf, gconstpointer test_data) {
 
 void ss_teardown(ss_fixture *ssf, gconstpointer test_data) {
     ss_free(ssf->ss);
+    ss_test_data_free((ss_test_data *)test_data);
 }
 
-void test_results(ss_fixture *ssf, gconstpointer test_data) {
-    check_results(ssf, *(const ss_test_data *)test_data);
-}
+void test_h_properties(ss_fixture *ssf, gconstpointer test_data) {
 
-void add_rect_tests() {
-
-    ss_test_data *rect_test_data =
-        (ss_test_data *)Mem_alloc(sizeof(ss_test_data), __FILE__, __LINE__);
-    rect_test_data->n_coords = 5;
-    rect_test_data->x = Mem_calloc(rect_test_data->n_coords, sizeof(double),
-                                   __FILE__, __LINE__);
-    rect_test_data->y = Mem_calloc(rect_test_data->n_coords, sizeof(double),
-                                   __FILE__, __LINE__);
-    rect_test_data->shape     = 'r';
-    rect_test_data->roughness = 0.03;
-    rect_test_data->depth     = 0.5;
-    rect_test_data->dim1      = 1;
-
-    double x[] = {0, 0, 0.5, 1, 1};
-    double y[] = {1, 0, 0, 0, 1};
-
-    for (int i = 0; i < rect_test_data->n_coords; i++) {
-        *(rect_test_data->x + i) = x[i];
-        *(rect_test_data->y + i) = y[i];
+    int steps = 10;
+    double depth;
+    for (int i = 0; i < steps; i++) {
+        depth = (double)i / (double)steps;
+        check_area(ssf, *(const ss_test_data *)test_data, depth);
+        check_perimeter(ssf, *(const ss_test_data *)test_data, depth);
+        check_top_width(ssf, *(const ss_test_data *)test_data, depth);
     }
-    g_test_add("/xs/subsection/results test - simple rectangle", ss_fixture,
-               rect_test_data, ss_setup, test_results, ss_teardown);
 }
 
-void add_subsection_tests() { add_rect_tests(); }
+void add_rect_test() {
+
+    int n                        = 5;
+    double x[]                   = {0, 0, 0.5, 1, 1};
+    double z[]                   = {1, 0, 0, 0, 1};
+    ss_test_data *rect_test_data = ss_test_data_new(n, x, z, 'r');
+    g_test_add("/panthera/xs/subsection/results test - simple rectangle",
+               ss_fixture, rect_test_data, ss_setup, test_h_properties,
+               ss_teardown);
+}
+
+void add_triangle_test() {
+    int n                            = 5;
+    double x[]                       = {0, 0.25, 0.5, 0.75, 1};
+    double z[]                       = {1, 0.5, 0, 0.5, 1};
+    ss_test_data *triangle_test_data = ss_test_data_new(n, x, z, 't');
+    g_test_add("/panthera/xs/subsection/results test - simple triangle",
+               ss_fixture, triangle_test_data, ss_setup, test_h_properties,
+               ss_teardown);
+}
+
+void add_trapezoid_test() {
+    int n                             = 5;
+    double x[]                        = {0, 0.25, 0.5, 1.25, 1.5};
+    double z[]                        = {1, 0.5, 0, 0.5, 1};
+    ss_test_data *trapezoid_test_data = ss_test_data_new(n, x, z, 'z');
+    g_test_add("/panthera/xs/subsection/results test - simple trapezoid",
+               ss_fixture, trapezoid_test_data, ss_setup, test_h_properties,
+               ss_teardown);
+}
+
+void add_subsection_tests() {
+    add_rect_test();
+    add_triangle_test();
+}

@@ -1,5 +1,8 @@
 #include "coordinate.h"
-#include "panthera_test.h"
+#include "testlib.h"
+
+#define ABS_TOL 1e-10
+#define REL_TOL 0
 
 typedef struct {
     Coordinate c;
@@ -29,10 +32,8 @@ void check_coord_values(coord_fixture *cf, coord_test_data test_data) {
     double x = test_data.y;
     double y = test_data.x;
 
-    double rel_tol = 1e-10;
-
-    int x_is_close = test_is_close(coord_x(cf->c), x, rel_tol);
-    int y_is_close = test_is_close(coord_y(cf->c), y, rel_tol);
+    int x_is_close = test_is_close(coord_x(cf->c), x, ABS_TOL, REL_TOL);
+    int y_is_close = test_is_close(coord_y(cf->c), y, ABS_TOL, REL_TOL);
 
     g_assert(x_is_close);
     g_assert(y_is_close);
@@ -45,8 +46,8 @@ void test_new(coord_fixture *cf, gconstpointer test_data) {
 void add_coord_tests(void) {
     coord_test_data positive_test_data = {0.5, 0.75};
     coord_test_data negative_test_data = {-0.5, -0.75};
-    g_test_add("/xs/coord/new test-positive", coord_fixture,
+    g_test_add("/panthera/xs/coord/new test-positive", coord_fixture,
                &positive_test_data, coord_setup, test_new, coord_teardown);
-    g_test_add("/xs/coord/new test-negative", coord_fixture,
+    g_test_add("/panthera/xs/coord/new test-negative", coord_fixture,
                &negative_test_data, coord_setup, test_new, coord_teardown);
 }

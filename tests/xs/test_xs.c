@@ -1,4 +1,4 @@
-#include "panthera_test.h"
+#include "testlib.h"
 extern void add_coord_tests(void);
 extern void add_subsection_tests(void);
 

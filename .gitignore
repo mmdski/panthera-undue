@@ -54,3 +54,6 @@ dkms.conf
 # build directory
 build/
 builddir/
+
+# trying out io.elementary.code
+*~
