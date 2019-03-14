@@ -2,10 +2,7 @@
 extern void add_coord_tests(void);
 extern void add_subsection_tests(void);
 
-int main(int argc, char **argv) {
-
-    g_test_init(&argc, &argv, NULL);
+void add_xs_tests(void) {
     add_coord_tests();
     add_subsection_tests();
-    return g_test_run();
 }
