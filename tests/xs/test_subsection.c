@@ -21,6 +21,8 @@ struct ss_test_data {
 
     /* shape information */
     /* r - rectangle */
+    /* t - triangle */
+    /* z - trapezoid */
     char shape;
 
     /* dimensions for analytical solutions */
@@ -168,9 +170,9 @@ void add_triangle_test() {
 }
 
 void add_trapezoid_test() {
-    int n                             = 5;
-    double x[]                        = {0, 0.25, 0.5, 1.25, 1.5};
-    double z[]                        = {1, 0.5, 0, 0.5, 1};
+    int n                             = 6;
+    double x[]                        = {0, 0.25, 0.5, 1.5, 1.75, 2};
+    double z[]                        = {1, 0.5, 0, 0, 0.5, 1};
     ss_test_data *trapezoid_test_data = ss_test_data_new(n, x, z, 'z');
     g_test_add("/panthera/xs/subsection/results test - simple trapezoid",
                ss_fixture, trapezoid_test_data, ss_setup, test_h_properties,
@@ -180,4 +182,5 @@ void add_trapezoid_test() {
 void add_subsection_tests() {
     add_rect_test();
     add_triangle_test();
+    add_trapezoid_test();
 }
