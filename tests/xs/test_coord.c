@@ -9,14 +9,14 @@ typedef struct {
 } coord_fixture;
 
 struct coord_test_data {
-    double x;
     double y;
+    double z;
 };
 
 typedef struct coord_test_data coord_test_data;
 
 void init_coord(coord_fixture *cf, coord_test_data test_data) {
-    cf->c = coord_new(test_data.x, test_data.y);
+    cf->c = coord_new(test_data.y, test_data.z);
 }
 
 void coord_setup(coord_fixture *cf, gconstpointer test_data) {
@@ -29,14 +29,14 @@ void coord_teardown(coord_fixture *cf, gconstpointer ignore) {
 
 void check_coord_values(coord_fixture *cf, coord_test_data test_data) {
 
-    double x = test_data.y;
-    double y = test_data.x;
+    double y = test_data.z;
+    double z = test_data.z;
 
-    int x_is_close = test_is_close(coord_x(cf->c), x, ABS_TOL, REL_TOL);
     int y_is_close = test_is_close(coord_y(cf->c), y, ABS_TOL, REL_TOL);
+    int z_is_close = test_is_close(coord_z(cf->c), z, ABS_TOL, REL_TOL);
 
-    g_assert(x_is_close);
     g_assert(y_is_close);
+    g_assert(z_is_close);
 }
 
 void test_new(coord_fixture *cf, gconstpointer test_data) {

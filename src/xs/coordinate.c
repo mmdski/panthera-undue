@@ -3,45 +3,45 @@
 
 #define T Coordinate
 
-const Except_T coord_interp_y_Fail = {"Coordinate interpolation failed"};
+const Except_T coord_interp_z_Fail = {"Coordinate interpolation failed"};
 
 struct T {
-    double x;
-    double y;
+    double y; /* lateral coordinate */
+    double z; /* vertical coordinate */
 };
 
-T coord_new(double x, double y) {
+T coord_new(double y, double z) {
 
     T c;
     NEW(c);
 
-    c->x = x;
     c->y = y;
+    c->z = z;
 
     return c;
 }
 
-T coord_copy(T c) { return coord_new((c->x), (c->y)); }
+T coord_copy(T c) { return coord_new((c->y), (c->z)); }
 
 int coord_eq(T c1, T c2) {
     if (c1 == c2)
         return 1;
-    return (coord_x(c1) == coord_x(c2) && coord_y(c1) == coord_y(c2));
+    return (coord_y(c1) == coord_y(c2) && coord_z(c1) == coord_z(c2));
 }
 
-T coord_interp_y(T c1, T c2, double y) {
+T coord_interp_z(T c1, T c2, double z) {
 
-    /* raise exception if y is outside fo the range of c1->y and c2->y
+    /* raise exception if z is outside fo the range of c1->z and c2->z
       (no extrapolation) */
-    if ((y < c1->y && y < c2->y) || (c1->y < y && c2->y < y))
-        RAISE(coord_interp_y_Fail);
+    if ((z < c1->z && z < c2->z) || (c1->z < z && c2->z < z))
+        RAISE(coord_interp_z_Fail);
 
-    double slope = (c2->x - c1->x) / (c2->y - c1->y);
-    double x     = slope * (y - c1->y) + c1->x;
-    return coord_new(x, y);
+    double slope = (c2->y - c1->y) / (c2->z - c1->z);
+    double y     = slope * (z - c1->z) + c1->y;
+    return coord_new(y, z);
 }
 
 void coord_free(T c) { FREE(c); }
 
-double coord_x(T c) { return c->x; }
 double coord_y(T c) { return c->y; }
+double coord_z(T c) { return c->z; }

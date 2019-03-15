@@ -6,12 +6,12 @@
 #define T Coordinate
 
 /* Except_T raised when coordinate interpolation */
-extern const Except_T coord_interp_y_Fail;
+extern const Except_T coord_interp_z_Fail;
 
 typedef struct T *T;
 
 /* Creates and allocate space for a new Coordinate */
-T coord_new(double x, double y);
+T coord_new(double y, double z);
 
 /* Frees space from a previously allocated Coordinate */
 void coord_free(T c);
@@ -23,13 +23,13 @@ T coord_copy(T c);
 int coord_eq(T c1, T c2);
 
 /* x value from Coordinate */
-double coord_x(T c);
-
-/* y value from Coordinate */
 double coord_y(T c);
 
-/* Linearly interpolates Coordinate given a y value */
-T coord_interp_y(T c1, T c2, double y);
+/* y value from Coordinate */
+double coord_z(T c);
+
+/* Linearly interpolates Coordinate given a z value */
+T coord_interp_z(T c1, T c2, double z);
 
 #undef T
 #endif
