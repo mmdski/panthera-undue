@@ -31,6 +31,10 @@ int main() {
             printf("x = %f\ty = %f\n", coord_y(c), coord_z(c));
     }
 
+    ss_free(ss);
+    coarray_free(a);
+    coarray_free(sa);
+
     printf("area = %f\n", area);
     printf("perimeter = %f\n", perimeter);
     printf("top width = %f\n", width);
