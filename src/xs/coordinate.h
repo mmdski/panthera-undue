@@ -6,7 +6,7 @@
 #define T Coordinate
 
 /* Except_T raised when coordinate interpolation */
-extern const Except_T coord_interp_z_Fail;
+extern const Except_T coord_interp_Fail;
 
 typedef struct T *T;
 
@@ -27,6 +27,9 @@ double coord_y(T c);
 
 /* y value from Coordinate */
 double coord_z(T c);
+
+/* Linearly interpolates Coordinate given a y value */
+T coord_interp_y(T c1, T c2, double z);
 
 /* Linearly interpolates Coordinate given a z value */
 T coord_interp_z(T c1, T c2, double z);
