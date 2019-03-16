@@ -22,13 +22,11 @@ typedef struct CoordTestData {
     double expected_z;
 } CoordTestData;
 
-CoordTestData interp_test_data = {0,   0,
-
-                                  1,   1,
-
-                                  0.5, 0.5};
-
+CoordTestData *coord_test_new(double y1, double z1, double y2, double z2,
+                              double expected_y, double expected_z);
+void coord_test_free(CoordTestData *ct);
 void check_coord_values(Coordinate c, double y, double z);
+void print_coordtestdata(CoordTestData *ct);
 
 /* coord_new test functions */
 
@@ -40,8 +38,9 @@ void coord_new_setup(CoordFixture *cf, gconstpointer test_data) {
     init_coord_new(cf, *(const CoordTestData *)test_data);
 }
 
-void coord_new_teardown(CoordFixture *cf, gconstpointer ignore) {
+void coord_new_teardown(CoordFixture *cf, gconstpointer test_data) {
     coord_free(cf->c1);
+    coord_test_free((CoordTestData *)test_data);
 }
 
 void test_new(CoordFixture *cf, gconstpointer test_data) {
@@ -57,12 +56,14 @@ void init_coord_interp(CoordFixture *cf, CoordTestData test_data) {
 }
 
 void coord_interp_setup(CoordFixture *cf, gconstpointer test_data) {
-    init_coord_interp(cf, *(const CoordTestData *)test_data);
+    CoordTestData coord_test_data = *(const CoordTestData *)test_data;
+    init_coord_interp(cf, coord_test_data);
 }
 
-void coord_interp_teardown(CoordFixture *cf, gconstpointer ignore) {
+void coord_interp_teardown(CoordFixture *cf, gconstpointer test_data) {
     coord_free(cf->c1);
     coord_free(cf->c2);
+    coord_test_free((CoordTestData *)test_data);
 }
 
 /* general functions */
@@ -85,6 +86,28 @@ void test_interp(CoordFixture *cf, gconstpointer test_data) {
     coord_free(c_z);
 }
 
+CoordTestData *coord_test_new(double y1, double z1, double y2, double z2,
+                              double expected_y, double expected_z) {
+    CoordTestData *ct;
+    NEW(ct);
+
+    ct->y1 = y1;
+    ct->z1 = z1;
+
+    ct->y2 = y2;
+    ct->z2 = z2;
+
+    ct->expected_y = expected_y;
+    ct->expected_z = expected_z;
+
+    return ct;
+}
+
+void coord_test_free(CoordTestData *ct) {
+    FREE(ct);
+}
+
+
 void check_coord_values(Coordinate c, double y, double z) {
 
     int y_is_close = test_is_close(coord_y(c), y, ABS_TOL, REL_TOL);
@@ -94,17 +117,36 @@ void check_coord_values(Coordinate c, double y, double z) {
     g_assert(z_is_close);
 }
 
+void print_coordtestdata(CoordTestData *ct) {
+    printf("\n");
+    printf("ct->y1 = %f\n", ct->y1);
+    printf("ct->z1 = %f\n", ct->z1);
+
+    printf("ct->y2 = %f\n", ct->y2);
+    printf("ct->z2 = %f\n", ct->z2);
+
+    printf("ct->expected_y = %f\n", ct->expected_y);
+    printf("ct->expected_z = %f\n", ct->expected_z);
+}
+
 void add_coord_tests(void) {
-    CoordTestData positive_test_data = {0.5, 0.75, 0, 0, 0, 0};
-    CoordTestData negative_test_data = {-0.5, -0.75, 0, 0, 0, 0};
+
+    /* test init a new coordinate */
+    CoordTestData *positive_test_data = coord_test_new(0.5, 0.75, 0, 0, 0, 0);
     g_test_add("/panthera/xs/coord/new test-positive", CoordFixture,
-               &positive_test_data, coord_new_setup, test_new,
-               coord_new_teardown);
-    g_test_add("/panthera/xs/coord/new test-negative", CoordFixture,
-               &negative_test_data, coord_new_setup, test_new,
+               positive_test_data, coord_new_setup, test_new,
                coord_new_teardown);
 
-    g_test_add("/panthera/xs/coord/new interp", CoordFixture,
-               &interp_test_data, coord_interp_setup, test_interp,
+    /* test init a new coordinate, negative coords */
+    CoordTestData *negative_test_data =
+        coord_test_new(-0.5, -0.75, 0, 0, 0, 0);
+    g_test_add("/panthera/xs/coord/new test-negative", CoordFixture,
+               negative_test_data, coord_new_setup, test_new,
+               coord_new_teardown);
+
+    /* test y, z interpolation of coordinates */
+    CoordTestData *interp_test_data = coord_test_new(0, 0, 1, 1, 0.5, 0.5);
+    g_test_add("/panthera/xs/coord/interp", CoordFixture,
+               interp_test_data, coord_interp_setup, test_interp,
                coord_interp_teardown);
 }
