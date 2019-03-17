@@ -167,7 +167,7 @@ int coarray_length(T a) {
 
 Coordinate coarray_get(T a, int i) {
     assert(a);
-    assert((int)i < a->length);
+    assert((int)(0 <= i || i < a->length));
     Coordinate c = a->array[i];
     if (c)
         return coord_copy(a->array[i]);
@@ -175,7 +175,88 @@ Coordinate coarray_get(T a, int i) {
         return NULL;
 }
 
+double coarray_get_y(T a, int i) {
+    assert(a);
+    assert((int)(0 <= i || i < a->length));
+    Coordinate c = a->array[i];
+    if (c)
+        return coord_y(c);
+    else
+        return NULL;
+}
+
+double coarray_get_z(T a, int i) {
+    assert(a);
+    assert((int)(0 <= i || i < a->length));
+    Coordinate c = a->array[i];
+    if (c)
+        return coord_z(c);
+    else
+        return NULL;
+}
+
 double coarray_min_z(T a) { return a->min_z; }
+
+T coarray_subarray_y(T a, double ylo, double yhi) {
+
+    assert(a);
+    assert((int)(ylo < yhi));
+    assert((int)(ylo != yhi));
+
+    /* subarray to return */
+    T sa;
+
+    List_T list = NULL;
+
+    int n; /* number of coordinates in the array */
+
+    /* loop variables */
+    int i;
+    Coordinate c1 = NULL;
+    Coordinate c2 = NULL;
+    Coordinate c_interp;
+
+    /* check the first coordinate, add it to the list if it's in the range */
+    c1 = *(a->array);
+    if (ylo <= coord_y(c1) && coord_y(c1) <= yhi)
+        list = List_push(list, c1);
+
+    for (i = 1; i < a->length; i++) {
+        c1 = *(a->array + i - 1);
+        c2 = *(a->array + i);
+
+        /* add an interpolated point if ylo is between c1 and c2 */
+        if (coord_y(c1) <= ylo && ylo <= coord_y(c2)) {
+            c_interp = coord_interp_y(c1, c2, ylo);
+            list     = List_push(list, c_interp);
+        }
+
+        /* add c2 if it is in the range */
+        if (ylo <= coord_y(c2) && coord_y(c2) <= yhi)
+            list = List_push(list, c2);
+
+        /* add an interpolated point if yhi is between c1 and c2 */
+        if (coord_y(c1) <= yhi && yhi <= coord_y(c2)) {
+            c_interp = coord_interp_y(c1, c2, yhi);
+            list     = List_push(list, c_interp);
+        }
+    }
+
+    n = List_length(list);
+    NEW(sa);
+    sa->length = n;
+    if (n == 0) {
+        sa->array = NULL;
+    } else {
+        list      = List_reverse(list);
+        sa->array = (Coordinate *)List_toArray(list, NULL);
+    }
+
+    if (list != NULL)
+        List_free(&list);
+
+    return sa;
+}
 
 T coarray_subarray_z(T a, double z) {
 
@@ -185,6 +266,7 @@ T coarray_subarray_z(T a, double z) {
     T sa;
 
     List_T list = NULL;
+
     int n; /* number of coordinates in the array */
 
     /* loop variables */
@@ -196,7 +278,7 @@ T coarray_subarray_z(T a, double z) {
     /* check the first coordinate */
     c1 = *(a->array);
 
-    /* if the y of the coordinate is less than or equal to y, add the
+    /* if the z of the coordinate is less than or equal to z, add the
      * coordinate to the list
      */
     if (coord_z(c1) <= z) {
@@ -210,7 +292,7 @@ T coarray_subarray_z(T a, double z) {
         c2 = *(a->array + i);
 
         /* add an interpolated coordinate if coordinates change from
-         * above to below or below to above the y value
+         * above to below or below to above the z value
          */
         if ((coord_z(c1) < z && z < coord_z(c2)) ||
             (z < coord_z(c1) && coord_z(c2) < z)) {
@@ -218,7 +300,7 @@ T coarray_subarray_z(T a, double z) {
             list   = List_push(list, c_last);
         }
 
-        /* add c2 if c2.y is at or below y */
+        /* add c2 if c2.z is at or below z */
         if (coord_z(c2) <= z) {
             c_last = coord_copy(c2);
             list   = List_push(list, c_last);

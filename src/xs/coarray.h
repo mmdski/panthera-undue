@@ -38,12 +38,25 @@ extern int coarray_length(T a);
 /* Returns a copy of the i-th coordinate of the CoArray,
  * or NULL, if the i-th element is NULL
  */
-Coordinate coarray_get(T a, int i);
+extern Coordinate coarray_get(T a, int i);
+
+/* Returns the y value of the i-th coordinate, or NULL if the i-th value
+ * is NULL.
+ */
+extern double coarray_get_y(T a, int i);
+
+/* Returns the z value of the i-th coordinate, or NULL if the i-th value
+ * is NULL.
+ */
+extern double coarray_get_z(T a, int i);
 
 /* Returns the minimum z value in the CoArray */
 double coarray_min_z(T a);
 
-/* Returns a subarray with points below z-value */
+/* Returns a subarray between ylo and yhi y values (inclusive) */
+extern T coarray_subarray_y(T a, double ylo, double yhi);
+
+/* Returns a subarray with points below z value */
 extern T coarray_subarray_z(T a, double z);
 
 #undef T
