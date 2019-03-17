@@ -168,7 +168,11 @@ int coarray_length(T a) {
 Coordinate coarray_get(T a, int i) {
     assert(a);
     assert((int)i < a->length);
-    return a->array[i];
+    Coordinate c = a->array[i];
+    if (c)
+        return coord_copy(a->array[i]);
+    else
+        return NULL;
 }
 
 double coarray_min_z(T a) { return a->min_z; }

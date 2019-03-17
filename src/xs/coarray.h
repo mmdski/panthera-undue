@@ -35,7 +35,9 @@ extern int coarray_eq(T a1, T a2);
 /* The number of coordinates in CoArray a */
 extern int coarray_length(T a);
 
-/* Gets the i-th coordinate of the CoArray */
+/* Returns a copy of the i-th coordinate of the CoArray,
+ * or NULL, if the i-th element is NULL
+ */
 Coordinate coarray_get(T a, int i);
 
 /* Returns the minimum z value in the CoArray */

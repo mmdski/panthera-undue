@@ -92,8 +92,14 @@ HydraulicProps ss_hydraulic_properties(T ss, double z) {
         c1 = coarray_get(sa, i - 1);
         c2 = coarray_get(sa, i);
 
-        if (c1 == NULL || c2 == NULL)
+        /* if c1 or c2 is NULL, clean up and continue */
+        if (c1 == NULL || c2 == NULL) {
+            if (c1)
+                coord_free(c1);
+            if (c2)
+                coord_free(c2);
             continue;
+        }
 
         /* calculate area by trapezoidal integration */
         d1 = z - coord_z(c1);
@@ -107,6 +113,9 @@ HydraulicProps ss_hydraulic_properties(T ss, double z) {
 
         /* calculate top width */
         top_width += coord_y(c2) - coord_y(c1);
+
+        coord_free(c1);
+        coord_free(c2);
     }
 
     hp_set_property(hp, HP_AREA, area);

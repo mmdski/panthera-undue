@@ -29,6 +29,7 @@ int main() {
             printf("NULL\n");
         else
             printf("x = %f\ty = %f\n", coord_y(c), coord_z(c));
+        coord_free(c);
     }
 
     ss_free(ss);
