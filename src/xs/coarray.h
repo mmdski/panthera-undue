@@ -17,6 +17,9 @@ typedef struct T *T;
 /* Allocates memory and creates a new CoArray */
 extern T coarray_new(int n, double *y, double *z);
 
+/* Allocates memory and returns a copy of CoArray ca */
+extern T coarray_copy(CoArray ca);
+
 /* Allocates memory and creates an array from an array of Coordinate */
 extern T coarray_from_array(int n, Coordinate *array);
 

@@ -47,6 +47,10 @@ T coarray_new(int n, double *y, double *z) {
     return a;
 }
 
+T coarray_copy(CoArray ca) {
+    return coarray_from_array(ca->length, ca->array);
+}
+
 T coarray_from_array(int n, Coordinate *array) {
 
     int i;
