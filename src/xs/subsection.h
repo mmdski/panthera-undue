@@ -9,10 +9,9 @@
 typedef struct T *T;
 
 /* Allocates memory and creates a new Subsection */
-extern T ss_new(int n, double *y, double *z, double roughness,
-                double activation_depth);
+extern T ss_new(CoArray ca, double roughness, double activation_depth);
 
-/* Frees memory from a previously allocated T */
+/* Frees memory from a previously allocated Subsection */
 extern void ss_free(T ss);
 
 /* Calculates the area in the subsection */

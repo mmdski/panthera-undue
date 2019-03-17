@@ -18,7 +18,7 @@ int main() {
     CoArray sa = coarray_subarray_z(a, test_depth);
     int n_sa     = coarray_length(sa);
 
-    Subsection ss    = ss_new(n, y, z, roughness, activation_depth);
+    Subsection ss    = ss_new(a, roughness, activation_depth);
     double area      = ss_area(ss, test_depth);
     double perimeter = ss_perimeter(ss, test_depth);
     double width     = ss_top_width(ss, test_depth);

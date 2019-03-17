@@ -12,17 +12,14 @@ struct T {
     double min_depth; /* activation depth */
 };
 
-T ss_new(int n, double *y, double *z, double roughness,
-         double activation_depth) {
+T ss_new(CoArray ca, double roughness, double activation_depth) {
 
-    assert(y);
-    assert(z);
     assert((int)(roughness > 0));
 
     T ss;
     NEW(ss);
 
-    ss->array     = coarray_new(n, y, z);
+    ss->array     = coarray_copy(ca);
     ss->n         = roughness;
     ss->min_depth = activation_depth;
 
