@@ -29,7 +29,7 @@ double coord_y(T c);
 double coord_z(T c);
 
 /* Linearly interpolates Coordinate given a y value */
-T coord_interp_y(T c1, T c2, double z);
+T coord_interp_y(T c1, T c2, double y);
 
 /* Linearly interpolates Coordinate given a z value */
 T coord_interp_z(T c1, T c2, double z);

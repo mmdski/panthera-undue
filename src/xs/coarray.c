@@ -182,7 +182,7 @@ double coarray_get_y(T a, int i) {
     if (c)
         return coord_y(c);
     else
-        return NULL;
+        return NAN;
 }
 
 double coarray_get_z(T a, int i) {
@@ -192,7 +192,7 @@ double coarray_get_z(T a, int i) {
     if (c)
         return coord_z(c);
     else
-        return NULL;
+        return NAN;
 }
 
 double coarray_min_z(T a) { return a->min_z; }

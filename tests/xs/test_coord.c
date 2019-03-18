@@ -16,14 +16,14 @@ typedef struct CoordTestData {
     double z1;
 
     double y2;
-    double z2;
+    double z2;\
 
     double expected_y;
     double expected_z;
 } CoordTestData;
 
-CoordTestData *coord_test_new(double y1, double z1, double y2, double z2,
-                              double expected_y, double expected_z);
+CoordTestData *new_coord_test_data(double y1, double z1, double y2, double z2,
+                                   double expected_y, double expected_z);
 void coord_test_free(CoordTestData *ct);
 void check_coord_values(Coordinate c, double y, double z);
 void print_coordtestdata(CoordTestData *ct);
@@ -43,7 +43,7 @@ void coord_new_teardown(CoordFixture *cf, gconstpointer test_data) {
     coord_test_free((CoordTestData *)test_data);
 }
 
-void test_new(CoordFixture *cf, gconstpointer test_data) {
+void coord_test_new(CoordFixture *cf, gconstpointer test_data) {
     CoordTestData data = *(const CoordTestData *)test_data;
     check_coord_values(cf->c1, data.y1, data.z1);
 }
@@ -86,8 +86,8 @@ void test_interp(CoordFixture *cf, gconstpointer test_data) {
     coord_free(c_z);
 }
 
-CoordTestData *coord_test_new(double y1, double z1, double y2, double z2,
-                              double expected_y, double expected_z) {
+CoordTestData *new_coord_test_data(double y1, double z1, double y2, double z2,
+                                   double expected_y, double expected_z) {
     CoordTestData *ct;
     NEW(ct);
 
@@ -110,8 +110,8 @@ void coord_test_free(CoordTestData *ct) {
 
 void check_coord_values(Coordinate c, double y, double z) {
 
-    int y_is_close = test_is_close(coord_y(c), y, ABS_TOL, REL_TOL);
-    int z_is_close = test_is_close(coord_z(c), z, ABS_TOL, REL_TOL);
+    bool y_is_close = test_is_close(coord_y(c), y, ABS_TOL, REL_TOL);
+    bool z_is_close = test_is_close(coord_z(c), z, ABS_TOL, REL_TOL);
 
     g_assert(y_is_close);
     g_assert(z_is_close);
@@ -132,20 +132,22 @@ void print_coordtestdata(CoordTestData *ct) {
 void add_coord_tests(void) {
 
     /* test init a new coordinate */
-    CoordTestData *positive_test_data = coord_test_new(0.5, 0.75, 0, 0, 0, 0);
+    CoordTestData *positive_test_data =
+        new_coord_test_data(0.5, 0.75, 0, 0, 0, 0);
     g_test_add("/panthera/xs/coord/new test-positive", CoordFixture,
-               positive_test_data, coord_new_setup, test_new,
+               positive_test_data, coord_new_setup, coord_test_new,
                coord_new_teardown);
 
     /* test init a new coordinate, negative coords */
     CoordTestData *negative_test_data =
-        coord_test_new(-0.5, -0.75, 0, 0, 0, 0);
+        new_coord_test_data(-0.5, -0.75, 0, 0, 0, 0);
     g_test_add("/panthera/xs/coord/new test-negative", CoordFixture,
-               negative_test_data, coord_new_setup, test_new,
+               negative_test_data, coord_new_setup, coord_test_new,
                coord_new_teardown);
 
     /* test y, z interpolation of coordinates */
-    CoordTestData *interp_test_data = coord_test_new(0, 0, 1, 1, 0.5, 0.5);
+    CoordTestData *interp_test_data =
+        new_coord_test_data(0, 0, 1, 1, 0.5, 0.5);
     g_test_add("/panthera/xs/coord/interp", CoordFixture,
                interp_test_data, coord_interp_setup, test_interp,
                coord_interp_teardown);

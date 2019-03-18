@@ -40,12 +40,12 @@ extern int coarray_length(T a);
  */
 extern Coordinate coarray_get(T a, int i);
 
-/* Returns the y value of the i-th coordinate, or NULL if the i-th value
+/* Returns the y value of the i-th coordinate, or NAN if the i-th value
  * is NULL.
  */
 extern double coarray_get_y(T a, int i);
 
-/* Returns the z value of the i-th coordinate, or NULL if the i-th value
+/* Returns the z value of the i-th coordinate, or NAN if the i-th value
  * is NULL.
  */
 extern double coarray_get_z(T a, int i);

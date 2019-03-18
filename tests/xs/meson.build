@@ -1,7 +1,10 @@
 xs_test_inc = include_directories('.')
 
 test_xs = executable('test_xs',
-                     ['test_xs.c', 'test_coord.c', 'test_subsection.c'],
+                     [
+                     'test_xs.c', 'test_coord.c', 'test_subsection.c',
+                     'test_coarray.c'
+                     ],
                      include_directories : [
                      inc, xs_inc, test_inc, xs_test_inc],
                      dependencies : [glib_dep, m_dep],
