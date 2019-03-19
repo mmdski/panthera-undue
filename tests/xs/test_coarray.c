@@ -72,6 +72,16 @@ void coarray_test_new(CoArrayFixture *caf, gconstpointer test_data) {
         check_coarray_values(caf->ca, data.y1, data.z1);
 }
 
+/* coarray_subarray_y test functions */
+
+void coarray_test_subarray_y(CoArrayFixture *caf, gconstpointer test_data) {
+    CoArrayTestData data = *(const CoArrayTestData *)test_data;
+
+    CoArray result = coarray_subarray_y(caf->ca, data.ylo, data.yhi);
+
+    g_assert_true(coarray_eq(result, data.expected));
+}
+
 /* test utility functions */
 
 CoArrayTestData *new_coarray_test_data(int n1, double *y1, double *z1,
@@ -209,6 +219,38 @@ void add_new_tests(void) {
                coarray_new_teardown);
 }
 
+void add_subarray_y_tests(void) {
+    int n1 = 4;
+    double y1[] = {0, 1, 2, 3};
+    double z1[] = {1.5, 1, 1, 1.5};
+    double ylo1 = 0.5;
+    double yhi1 = 2.5;
+    double expected_y1[] = {0.5, 1, 2, 2.5};
+    double expected_z1[] = {1.25, 1, 1, 1.25};
+    CoArray expected1 = coarray_new(n1, expected_y1, expected_z1);
+    CoArrayTestData *test_data_1 = new_coarray_test_data(n1, y1, z1, ylo1,
+                                                         yhi1, expected1,
+                                                         &no_Error);
+    g_test_add("/panthera/xs/coarray/interp_y/success 1", CoArrayFixture,
+               test_data_1, coarray_new_setup, coarray_test_subarray_y,
+               coarray_new_teardown);
+
+    int n2 = 2;
+    double ylo2 = 1;
+    double yhi2 = 2;
+    double expected_y2[] = {1, 2};
+    double expected_z2[] = {1, 1};
+    CoArray expected2 = coarray_new(n2, expected_y2, expected_z2);
+    CoArrayTestData *test_data_2 = new_coarray_test_data(n1, y1, z1, ylo2,
+                                                         yhi2, expected2,
+                                                         &no_Error);
+    g_test_add("/panthera/xs/coarray/interp_y/success 2", CoArrayFixture,
+               test_data_2, coarray_new_setup, coarray_test_subarray_y,
+               coarray_new_teardown);
+
+}
+
 void add_coarray_tests(void) {
     add_new_tests();
+    add_subarray_y_tests();
 }

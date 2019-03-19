@@ -245,7 +245,7 @@ T coarray_subarray_y(T a, double ylo, double yhi) {
         c2 = *(a->array + i);
 
         /* add an interpolated point if ylo is between c1 and c2 */
-        if (coord_y(c1) <= ylo && ylo <= coord_y(c2)) {
+        if (coord_y(c1) < ylo && ylo < coord_y(c2)) {
             c_interp = coord_interp_y(c1, c2, ylo);
             list     = List_push(list, c_interp);
         }
@@ -255,7 +255,7 @@ T coarray_subarray_y(T a, double ylo, double yhi) {
             list = List_push(list, c2);
 
         /* add an interpolated point if yhi is between c1 and c2 */
-        if (coord_y(c1) <= yhi && yhi <= coord_y(c2)) {
+        if (coord_y(c1) < yhi && yhi < coord_y(c2)) {
             c_interp = coord_interp_y(c1, c2, yhi);
             list     = List_push(list, c_interp);
         }
