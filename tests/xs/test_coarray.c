@@ -220,6 +220,8 @@ void add_new_tests(void) {
 }
 
 void add_subarray_y_tests(void) {
+
+    /* two points inside array */
     int n1 = 4;
     double y1[] = {0, 1, 2, 3};
     double z1[] = {1.5, 1, 1, 1.5};
@@ -235,6 +237,7 @@ void add_subarray_y_tests(void) {
                test_data_1, coarray_new_setup, coarray_test_subarray_y,
                coarray_new_teardown);
 
+    /* two points exactly equal to y values */
     int n2 = 2;
     double ylo2 = 1;
     double yhi2 = 2;
@@ -246,6 +249,17 @@ void add_subarray_y_tests(void) {
                                                          &no_Error);
     g_test_add("/panthera/xs/coarray/interp_y/success 2", CoArrayFixture,
                test_data_2, coarray_new_setup, coarray_test_subarray_y,
+               coarray_new_teardown);
+
+    /* two points outside y values */
+    double ylo3 = -INFINITY;
+    double yhi3 = INFINITY;
+    CoArray expected3 = coarray_new(n1, y1, z1);
+    CoArrayTestData *test_data_3 = new_coarray_test_data(n1, y1, z1, ylo3,
+                                                         yhi3, expected3,
+                                                         &no_Error);
+    g_test_add("/panthera/xs/coarray/interp_y/success 3", CoArrayFixture,
+               test_data_3, coarray_new_setup, coarray_test_subarray_y,
                coarray_new_teardown);
 
 }
