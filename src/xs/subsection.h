@@ -2,7 +2,7 @@
 #define XS_SS_INCLUDED
 
 #include "coarray.h"
-#include "panthera/hydraulicproperties.h"
+#include "panthera.h"
 
 #define T Subsection
 

@@ -1,7 +1,7 @@
 #ifndef XS_COORDINATE_INCLUDED
 #define XS_COORDINATE_INCLUDED
 
-#include "cii/except.h"
+#include "panthera.h"
 
 #define T Coordinate
 

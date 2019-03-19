@@ -2,9 +2,11 @@
 #include "cii/assert.h"
 #include "cii/mem.h"
 #include <stddef.h>
+#include <stdio.h>
 
 #define T CoArray
 
+const Except_T coarray_n_coords_Error = {"Too few coordinates"};
 const Except_T coarray_y_order_Error = {"Invalid y-value order"};
 
 struct T {
@@ -13,18 +15,18 @@ struct T {
     Coordinate *array; /* array of coordinates */
 };
 
-void coarray_check(int n, double *y);
 void check_y_coordinates(int n, Coordinate *array);
 
 T coarray_new(int n, double *y, double *z) {
 
-    assert(y);
-    assert(z);
-
     if (n < 2)
-        RAISE(coarray_y_order_Error);
+        RAISE(coarray_n_coords_Error);
 
-    coarray_check(n, y);
+    if (y == NULL)
+        RAISE(null_ptr_arg_Error);
+
+    if (z == NULL)
+        RAISE(null_ptr_arg_Error);
 
     T a;
     NEW(a);
@@ -43,6 +45,8 @@ T coarray_new(int n, double *y, double *z) {
         if (coord_z(*(a->array + i)) < a->min_z)
             a->min_z = coord_z(*(a->array + i));
     }
+
+    check_y_coordinates(n, a->array);
 
     return a;
 }
@@ -78,6 +82,9 @@ T coarray_from_array(int n, Coordinate *array) {
 }
 
 T coarray_from_list(List_T list) {
+
+    if (!list)
+        RAISE(null_ptr_arg_Error);
 
     int i;
     int n;
@@ -124,7 +131,9 @@ T coarray_from_list(List_T list) {
 
 void coarray_free(T a) {
 
-    assert(a);
+    if (!a)
+        RAISE(null_ptr_arg_Error);
+
     int i;
     Coordinate c;
     for (i = 0; i < a->length; i++) {
@@ -161,12 +170,16 @@ int coarray_eq(T a1, T a2) {
 }
 
 int coarray_length(T a) {
-    assert(a);
+    if (!a)
+        RAISE(null_ptr_arg_Error);
+
     return a->length;
 }
 
 Coordinate coarray_get(T a, int i) {
-    assert(a);
+    if (!a)
+        RAISE(null_ptr_arg_Error);
+
     assert((int)(0 <= i || i < a->length));
     Coordinate c = a->array[i];
     if (c)
@@ -176,7 +189,9 @@ Coordinate coarray_get(T a, int i) {
 }
 
 double coarray_get_y(T a, int i) {
-    assert(a);
+    if (!a)
+        RAISE(null_ptr_arg_Error);
+
     assert((int)(0 <= i || i < a->length));
     Coordinate c = a->array[i];
     if (c)
@@ -186,7 +201,9 @@ double coarray_get_y(T a, int i) {
 }
 
 double coarray_get_z(T a, int i) {
-    assert(a);
+    if (!a)
+        RAISE(null_ptr_arg_Error);
+
     assert((int)(0 <= i || i < a->length));
     Coordinate c = a->array[i];
     if (c)
@@ -199,7 +216,9 @@ double coarray_min_z(T a) { return a->min_z; }
 
 T coarray_subarray_y(T a, double ylo, double yhi) {
 
-    assert(a);
+    if (!a)
+        RAISE(null_ptr_arg_Error);
+
     assert((int)(ylo < yhi));
     assert((int)(ylo != yhi));
 
@@ -260,7 +279,8 @@ T coarray_subarray_y(T a, double ylo, double yhi) {
 
 T coarray_subarray_z(T a, double z) {
 
-    assert(a);
+    if (!a)
+        RAISE(null_ptr_arg_Error);
 
     /* subarray to return */
     T sa;
@@ -333,30 +353,27 @@ T coarray_subarray_z(T a, double z) {
     return sa;
 }
 
-void coarray_check(int n, double *y) {
-
-    int i;
-    for (i = 1; i < n; i++) {
-        if (*(y + i - 1) > *(y + i))
-            RAISE(coarray_y_order_Error);
-    }
-}
-
 void check_y_coordinates(int n, Coordinate *array) {
 
+    assert(array);
+
     int i;
 
+    Coordinate c;
     Coordinate last_c = NULL;
-    if (*(array) != NULL)
-        last_c = *(array);
 
-    for (i = 1; i < n; i++) {
+    for (i = 0; i < n; i++) {
+
+        c = *(array + i);
 
         /* skip if either this or the last coordinate is null */
-        if (*(array + i) == NULL || last_c == NULL)
-            continue;
+        if (c && last_c) {
+            if (coord_y(c) < coord_y(last_c))
+                RAISE(coarray_y_order_Error);
+        }
 
-        if (coord_y(*(array + i)) < coord_y(last_c))
-            RAISE(coarray_y_order_Error);
+        if (c)
+            last_c = c;
+
     }
 }

@@ -6,4 +6,10 @@ hplib = library('hp',
                 include_directories : inc,
                 link_with : ciilib)
 
+panthera_sources = ['panthera.c']
+pantheralib = library('panthera',
+                      panthera_sources,
+                      include_directories : inc,
+                      link_with : ciilib)
+
 subdir('xs')

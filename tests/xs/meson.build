@@ -8,7 +8,7 @@ test_xs = executable('test_xs',
                      include_directories : [
                      inc, xs_inc, test_inc, xs_test_inc],
                      dependencies : [glib_dep, m_dep],
-                     link_with : [testlib, ciilib, xslib])
+                     link_with : [testlib, ciilib, xslib, pantheralib])
 
 test('test_xs',
      test_xs, env: [

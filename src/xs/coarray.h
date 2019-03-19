@@ -1,14 +1,18 @@
 #ifndef XS_COARRAY_INCLUDED
 #define XS_COARRAY_INCLUDED
 
-#include "cii/except.h"
 #include "cii/list.h"
 #include "coordinate.h"
 #include <math.h>
+#include "panthera.h"
 
 #define T CoArray
 
-/* Except_T raised when coarray_new fails */
+/* Except_T raised when there are too few coordinates passed to an initializer
+ */
+extern const Except_T coarray_n_coords_Error;
+
+/* Except_T raised when the y-order of coordinates is incorrect */
 extern const Except_T coarray_y_order_Error;
 
 /* Coordinate array type definition */
