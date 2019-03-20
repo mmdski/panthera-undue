@@ -80,6 +80,17 @@ void coarray_test_subarray_y(CoArrayFixture *caf, gconstpointer test_data) {
     CoArray result = coarray_subarray_y(caf->ca, data.ylo, data.yhi);
 
     g_assert_true(coarray_eq(result, data.expected));
+    coarray_free(result);
+}
+
+/* coarray_subtract_z test functions */
+
+void coarray_test_subtract_z(CoArrayFixture *caf, gconstpointer test_data) {
+    CoArrayTestData data = *(const CoArrayTestData *)test_data;
+
+    CoArray result = coarray_subtract_z(caf->ca, data.ylo);
+    g_assert_true(coarray_eq(result, data.expected));
+    coarray_free(result);
 }
 
 /* test utility functions */
@@ -233,7 +244,7 @@ void add_subarray_y_tests(void) {
     CoArrayTestData *test_data_1 = new_coarray_test_data(n1, y1, z1, ylo1,
                                                          yhi1, expected1,
                                                          &no_Error);
-    g_test_add("/panthera/xs/coarray/interp_y/success 1", CoArrayFixture,
+    g_test_add("/panthera/xs/coarray/subarray_y/success 1", CoArrayFixture,
                test_data_1, coarray_new_setup, coarray_test_subarray_y,
                coarray_new_teardown);
 
@@ -247,7 +258,7 @@ void add_subarray_y_tests(void) {
     CoArrayTestData *test_data_2 = new_coarray_test_data(n1, y1, z1, ylo2,
                                                          yhi2, expected2,
                                                          &no_Error);
-    g_test_add("/panthera/xs/coarray/interp_y/success 2", CoArrayFixture,
+    g_test_add("/panthera/xs/coarray/subarray_y/success 2", CoArrayFixture,
                test_data_2, coarray_new_setup, coarray_test_subarray_y,
                coarray_new_teardown);
 
@@ -258,13 +269,29 @@ void add_subarray_y_tests(void) {
     CoArrayTestData *test_data_3 = new_coarray_test_data(n1, y1, z1, ylo3,
                                                          yhi3, expected3,
                                                          &no_Error);
-    g_test_add("/panthera/xs/coarray/interp_y/success 3", CoArrayFixture,
+    g_test_add("/panthera/xs/coarray/subarray_y/success 3", CoArrayFixture,
                test_data_3, coarray_new_setup, coarray_test_subarray_y,
                coarray_new_teardown);
+}
 
+void add_coarray_subtract_z_tests(void) {
+        int n1 = 4;
+        double y1[] = {0, 1, 2, 3};
+        double z1[] = {1.5, 1, 1, 1.5};
+        double ylo1 = 1;
+        double yhi1 = 0;
+        double expected_z1[] = {0.5, 0, 0, 0.5};
+        CoArray expected1 = coarray_new(n1, y1, expected_z1);
+        CoArrayTestData *test_data_1 = new_coarray_test_data(n1, y1, z1, ylo1,
+                                                             yhi1, expected1,
+                                                             &no_Error);
+        g_test_add("/panthera/xs/coarray/subtract_z/success", CoArrayFixture,
+                   test_data_1, coarray_new_setup, coarray_test_subtract_z,
+                   coarray_new_teardown);
 }
 
 void add_coarray_tests(void) {
     add_new_tests();
     add_subarray_y_tests();
+    add_coarray_subtract_z_tests();
 }

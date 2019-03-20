@@ -358,6 +358,23 @@ T coarray_subarray_z(T a, double z) {
     return sa;
 }
 
+CoArray coarray_subtract_z(CoArray ca, double subtract_z) {
+    if (!ca)
+        RAISE(null_ptr_arg_Error);
+
+    int n = ca->length;
+    double y[n];
+    double z[n];
+
+    int i;
+    for (i = 0; i < n; i++) {
+        y[i] = coord_y(*(ca->array + i));
+        z[i] = coord_z(*(ca->array + i)) - subtract_z;
+    }
+
+    return coarray_new(n, y, z);
+}
+
 void check_y_coordinates(int n, Coordinate *array) {
 
     assert(array);
