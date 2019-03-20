@@ -57,3 +57,6 @@ builddir/
 
 # trying out io.elementary.code
 *~
+
+# Doxygen
+doc/html/
