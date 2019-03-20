@@ -17,6 +17,8 @@ CrossSection xs_new(CoArray ca, int n_roughness, double *roughness,
 
     assert(n_roughness > 0);
 
+    int i; /* loop variable */
+
     /* cross section to return */
     CrossSection xs;
     NEW(xs);
@@ -24,26 +26,32 @@ CrossSection xs_new(CoArray ca, int n_roughness, double *roughness,
     xs->ref_elevation = coarray_min_z(ca);
     xs->n_subsections = n_roughness;
 
-    /* initialize y range to include -INFINITY to the first y value*/
-    double ylo = -INFINITY;
-    double yhi = *y_roughness;
+    /* CoArray with thalweg set to 0 elevation */
+    CoArray normal_ca = coarray_subtract_z(ca, xs->ref_elevation);
 
+    /* initialize y splits
+     * include first and last y-values of the CoArray
+     */
+    double y_splits[n_roughness + 1];
+    y_splits[0] = coarray_get_y(normal_ca, 0);
+    y_splits[n_roughness] = coarray_get_y(normal_ca,
+                                          coarray_length(normal_ca) - 1);
+    for (i = 1; i < n_roughness; i++) {
+        y_splits[i] = *(y_roughness + i);
+    }
+
+    /* set all activation depths to -inf */
     double activation_depth = -INFINITY;
 
-    CoArray subarray = coarray_subarray_y(ca, ylo, yhi);
-    *(xs->ss) = ss_new(subarray, *roughness, activation_depth);
-
-    int i; /* array variable */
-
-    for (i = 1; i < n_roughness; i++) {
-
-        coarray_free(subarray);
-        ylo = *(y_roughness + i - 1);
-        yhi = *(y_roughness + i);
-        subarray = coarray_subarray_y(ca, ylo, yhi);
+    /* create subsections from the roughness section breaks */
+    CoArray subarray;
+    for (i = 0; i < n_roughness; i++) {
+        subarray = coarray_subarray_y(normal_ca, y_splits[i], y_splits[i+1]);
         *(xs->ss + i) = ss_new(subarray, *(roughness + i), activation_depth);
+        coarray_free(subarray);
     }
-    coarray_free(subarray);
+
+    coarray_free(normal_ca);
 
     return xs;
 }
