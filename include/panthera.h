@@ -3,7 +3,7 @@
 
 #include "cii/except.h"
 
-/* exception raised when a function is passed a null pointer */
+/** exception raised when a function is passed a null pointer */
 extern const Except_T null_ptr_arg_Error;
 
 /* hydraulic properties */
@@ -18,16 +18,16 @@ typedef enum {
 
 typedef struct HydraulicProps *HydraulicProps;
 
-/* Allocates a space for a new HydraulicProps */
+/** Allocates a space for a new HydraulicProps */
 extern HydraulicProps hp_new(void);
 
-/* Frees a HydraulicProps */
+/** Frees a HydraulicProps */
 extern void hp_free(HydraulicProps hp);
 
-/* Gets a hyd_prop from a HydraulicProps */
+/** Gets a hyd_prop from a HydraulicProps */
 extern double hp_get_property(HydraulicProps hp, hyd_prop prop);
 
-/* Sets a hyd_prop in a HydraulicProps */
+/** Sets a hyd_prop in a HydraulicProps */
 extern void hp_set_property(HydraulicProps hp, hyd_prop prop, double value);
 
 #endif

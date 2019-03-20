@@ -4,29 +4,27 @@
 #include "coarray.h"
 #include "panthera.h"
 
-#define T Subsection
-
-typedef struct T *T;
+typedef struct Subsection *Subsection;
 
 /* Allocates memory and creates a new Subsection */
-extern T ss_new(CoArray ca, double roughness, double activation_depth);
+extern Subsection ss_new(CoArray ca, double roughness,
+                         double activation_depth);
 
 /* Frees memory from a previously allocated Subsection */
-extern void ss_free(T ss);
+extern void ss_free(Subsection ss);
 
 /* Calculates the area in the subsection */
-extern double ss_area(T ss, double z);
+extern double ss_area(Subsection ss, double z);
 
 /* Calculates the perimeter of the subsection */
-extern double ss_perimeter(T ss, double z);
+extern double ss_perimeter(Subsection ss, double z);
 
 /* Calculates the top width of the subsection */
-extern double ss_top_width(T ss, double z);
+extern double ss_top_width(Subsection ss, double z);
 
 /* Calculates hydraulic properties for the subsection.
  * Returns a new HydraulicProps.
  */
-extern HydraulicProps ss_hydraulic_properties(T ss, double z);
+extern HydraulicProps ss_hydraulic_properties(Subsection ss, double z);
 
-#undef T
 #endif

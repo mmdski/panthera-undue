@@ -1,6 +1,6 @@
-#include "coarray.h"
 #include "cii/assert.h"
 #include "cii/mem.h"
+#include "panthera/coarray.h"
 #include <stddef.h>
 #include <stdio.h>
 
@@ -14,6 +14,12 @@ struct T {
     double min_z;      /* minimum z value in coordinate array */
     Coordinate *array; /* array of coordinates */
 };
+
+/* Allocates memory and creates an array from an array of Coordinate */
+T coarray_from_array(int n, Coordinate *array);
+
+/* Allocates memory and creates an array from a List_T */
+T coarray_from_list(List_T list);
 
 void check_y_coordinates(int n, Coordinate *array);
 

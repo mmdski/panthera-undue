@@ -1,5 +1,5 @@
-#include "coarray.h"
-#include "subsection.h"
+#include "panthera/coarray.h"
+#include "panthera/subsection.h"
 #include <stdio.h>
 
 int main() {

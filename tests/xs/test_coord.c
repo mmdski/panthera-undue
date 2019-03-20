@@ -1,7 +1,7 @@
 #include "cii/mem.h"
-#include "coordinate.h"
-#include "testlib.h"
+#include "panthera/coordinate.h"
 #include <stdio.h>
+#include "testlib.h"
 
 #define ABS_TOL 1e-10
 #define REL_TOL 0
