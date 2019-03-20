@@ -1,5 +1,4 @@
-#include "cii/assert.h"
-#include "cii/mem.h"
+#include "panthera.h"
 #include "panthera/coarray.h"
 #include <stddef.h>
 #include <stdio.h>
@@ -244,7 +243,7 @@ T coarray_subarray_y(T a, double ylo, double yhi) {
     /* check the first coordinate, add it to the list if it's in the range */
     c1 = *(a->array);
     if (ylo <= coord_y(c1) && coord_y(c1) <= yhi)
-        list = List_push(list, c1);
+        list = List_push(list, coord_copy(c1));
 
     for (i = 1; i < a->length; i++) {
         c1 = *(a->array + i - 1);
@@ -258,7 +257,7 @@ T coarray_subarray_y(T a, double ylo, double yhi) {
 
         /* add c2 if it is in the range */
         if (ylo <= coord_y(c2) && coord_y(c2) <= yhi)
-            list = List_push(list, c2);
+            list = List_push(list, coord_copy(c2));
 
         /* add an interpolated point if yhi is between c1 and c2 */
         if (coord_y(c1) < yhi && yhi < coord_y(c2)) {
