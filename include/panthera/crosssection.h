@@ -13,4 +13,8 @@ extern CrossSection xs_new(CoArray ca, int n_roughness, double *roughness,
 
 extern void xs_free(CrossSection xs);
 
+CoArray xs_coarray(CrossSection xs);
+
+extern HydraulicProps xs_hydraulic_properties(CrossSection xs, double wse);
+
 #endif
