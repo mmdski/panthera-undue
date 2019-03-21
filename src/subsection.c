@@ -1,6 +1,7 @@
+#include "coordinate.h"
 #include <math.h>
 #include "panthera.h"
-#include "panthera/subsection.h"
+#include "subsection.h"
 #include <stddef.h>
 
 #define T Subsection
@@ -10,6 +11,8 @@ struct T {
     double n;         /* Manning's n */
     double min_depth; /* activation depth */
 };
+
+extern Coordinate coarray_get(CoArray a, int i);
 
 T ss_new(CoArray ca, double roughness, double activation_depth) {
 

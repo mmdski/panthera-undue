@@ -1,5 +1,6 @@
+#include "coordinate.h"
 #include "cii/mem.h"
-#include "panthera/coordinate.h"
+#include "panthera.h"
 
 #define T Coordinate
 

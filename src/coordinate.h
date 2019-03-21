@@ -1,5 +1,5 @@
-#ifndef XS_COORDINATE_INCLUDED
-#define XS_COORDINATE_INCLUDED
+#ifndef COORDINATE_INCLUDED
+#define COORDINATE_INCLUDED
 
 #include "panthera.h"
 

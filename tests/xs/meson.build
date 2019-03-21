@@ -6,7 +6,7 @@ test_xs = executable('test_xs',
                      'test_coarray.c'
                      ],
                      include_directories : [
-                     inc, test_inc, xs_test_inc],
+                     inc, src_inc, test_inc, xs_test_inc],
                      dependencies : [glib_dep, m_dep],
                      link_with : [testlib, ciilib, xslib, pantheralib])
 

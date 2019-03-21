@@ -1,7 +1,7 @@
+#include "coordinate.h"
+#include "cii/list.h"
 #include "panthera.h"
-#include "panthera/coarray.h"
 #include <stddef.h>
-#include <stdio.h>
 
 #define T CoArray
 

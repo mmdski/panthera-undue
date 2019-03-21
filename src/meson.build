@@ -1,5 +1,7 @@
 subdir('cii')
 
+src_inc = include_directories('.')
+
 hp_sources = ['hydraulicproperties.c']
 hplib = library('hp',
                 hp_sources,

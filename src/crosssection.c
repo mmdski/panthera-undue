@@ -1,6 +1,5 @@
 #include "panthera.h"
-#include "panthera/subsection.h"
-#include "panthera/crosssection.h"
+#include "subsection.h"
 #include <math.h>
 
 struct CrossSection {

@@ -1,7 +1,6 @@
 #ifndef XS_SS_INCLUDED
 #define XS_SS_INCLUDED
 
-#include "panthera/coarray.h"
 #include "panthera.h"
 
 typedef struct Subsection *Subsection;
