@@ -76,23 +76,30 @@ HydraulicProps xs_hydraulic_properties(CrossSection xs, double wse) {
     int n_subsections = xs->n_subsections;
     int i;
 
-    double area = 0;
+    double area      = 0;
+    double top_width = 0;
+    double perimeter = 0;
+    double hydraulic_depth;
 
     double depth = wse - xs->ref_elevation;
 
     HydraulicProps hp = hp_new();
-    HydraulicProps *hp_ss = Mem_calloc(n_subsections, sizeof(HydraulicProps),
-                                       __FILE__, __LINE__);
+    HydraulicProps hp_ss;
 
     for (i = 0; i < n_subsections; i++) {
-        *(hp_ss + i) = ss_hydraulic_properties(*(xs->ss + i), depth);
-        area += hp_get_property(*(hp_ss + i), HP_AREA);
-        hp_free(*(hp_ss + i));
+        hp_ss      = ss_hydraulic_properties(*(xs->ss + i), depth);
+        area      += hp_get_property(hp_ss, HP_AREA);
+        top_width += hp_get_property(hp_ss, HP_TOP_WIDTH);
+        perimeter += hp_get_property(hp_ss, HP_WETTED_PERIMETER);
+        hp_free(hp_ss);
     }
 
-    Mem_free(hp_ss, __FILE__, __LINE__);
+    hydraulic_depth = area/top_width;
 
-    hp_set_property(hp, HP_AREA, area);
+    hp_set_property(hp, HP_AREA,             area);
+    hp_set_property(hp, HP_TOP_WIDTH,        top_width);
+    hp_set_property(hp, HP_WETTED_PERIMETER, perimeter);
+    hp_set_property(hp, HP_HYDRAULIC_DEPTH,  hydraulic_depth);
 
     return hp;
 }
