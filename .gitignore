@@ -58,6 +58,7 @@ build/
 *~
 
 # hotdoc
+docs/built_docs
 hotdoc-*
 docs/include
 
