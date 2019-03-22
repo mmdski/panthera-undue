@@ -53,10 +53,13 @@ dkms.conf
 
 # build directory
 build/
-builddir/
 
 # trying out io.elementary.code
 *~
 
-# Doxygen
-doc/html/
+# hotdoc
+hotdoc-*
+docs/include
+
+# vscode
+.vscode/
