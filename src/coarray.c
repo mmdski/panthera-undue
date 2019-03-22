@@ -111,8 +111,8 @@ CoArray coarray_new(int n, double *y, double *z) {
         /* if on the first point or current coord y is less than minimum,
          * set minimum y to current point y
          */
-        if (coord_z(*(a->array + i)) < a->min_z)
-            a->min_z = coord_z(*(a->array + i));
+        if ((*(a->array + i))->z < a->min_z)
+            a->min_z = (*(a->array + i))->z;
     }
 
     check_y_coordinates(n, a->array);
@@ -142,8 +142,8 @@ CoArray coarray_from_array(int n, Coordinate *array) {
             *(a->array + i) = NULL;
         else {
             *(a->array + i) = coord_copy(*(array + i));
-            if (coord_z(*(a->array + i)) < a->min_z)
-                a->min_z = coord_z(*(a->array + i));
+            if ((*(a->array + i))->z < a->min_z)
+                a->min_z = (*(a->array + i))->z;
         }
     }
 
@@ -176,7 +176,7 @@ CoArray coarray_from_list(List_T list) {
         *(a->array) = NULL;
     else {
         *(a->array) = coord_copy(*(tmp));
-        a->min_z    = coord_z(*(tmp));
+        a->min_z    = (*(tmp))->z;
     }
 
     for (i = 1; i < n; i++) {
@@ -188,8 +188,8 @@ CoArray coarray_from_list(List_T list) {
         /* otherwise, add a copy of the corrdinate to this array */
         else {
             *(a->array + i) = coord_copy(*(tmp + i));
-            if (coord_z(*(a->array + i)) < a->min_z)
-                a->min_z = coord_z(*(a->array + i));
+            if ((*(a->array + i))->z < a->min_z)
+                a->min_z = (*(a->array + i))->z;
         }
     }
 
@@ -252,7 +252,7 @@ double coarray_get_y(CoArray a, int i) {
     assert((int)(0 <= i || i < a->length));
     Coordinate c = a->array[i];
     if (c)
-        return coord_y(c);
+        return c->y;
     else
         return NAN;
 }
@@ -264,7 +264,7 @@ double coarray_get_z(CoArray a, int i) {
     assert((int)(0 <= i || i < a->length));
     Coordinate c = a->array[i];
     if (c)
-        return coord_z(c);
+        return c->z;
     else
         return NAN;
 }
@@ -294,7 +294,7 @@ CoArray coarray_subarray_y(CoArray a, double ylo, double yhi) {
 
     /* check the first coordinate, add it to the list if it's in the range */
     c1 = *(a->array);
-    if (ylo <= coord_y(c1) && coord_y(c1) <= yhi)
+    if (ylo <= c1->y && c1->y <= yhi)
         list = List_push(list, coord_copy(c1));
 
     for (i = 1; i < a->length; i++) {
@@ -302,17 +302,17 @@ CoArray coarray_subarray_y(CoArray a, double ylo, double yhi) {
         c2 = *(a->array + i);
 
         /* add an interpolated point if ylo is between c1 and c2 */
-        if (coord_y(c1) < ylo && ylo < coord_y(c2)) {
+        if (c1->y < ylo && ylo < c2->y) {
             c_interp = coord_interp_y(c1, c2, ylo);
             list     = List_push(list, c_interp);
         }
 
         /* add c2 if it is in the range */
-        if (ylo <= coord_y(c2) && coord_y(c2) <= yhi)
+        if (ylo <= c2->y && c2->y <= yhi)
             list = List_push(list, coord_copy(c2));
 
         /* add an interpolated point if yhi is between c1 and c2 */
-        if (coord_y(c1) < yhi && yhi < coord_y(c2)) {
+        if (c1->y < yhi && yhi < c2->y) {
             c_interp = coord_interp_y(c1, c2, yhi);
             list     = List_push(list, c_interp);
         }
@@ -358,7 +358,7 @@ CoArray coarray_subarray_z(CoArray a, double z) {
     /* if the z of the coordinate is less than or equal to z, add the
      * coordinate to the list
      */
-    if (coord_z(c1) <= z) {
+    if (c1->z <= z) {
         c_last = coord_copy(c1);
         list   = List_push(list, c_last);
     }
@@ -371,14 +371,14 @@ CoArray coarray_subarray_z(CoArray a, double z) {
         /* add an interpolated coordinate if coordinates change from
          * above to below or below to above the z value
          */
-        if ((coord_z(c1) < z && z < coord_z(c2)) ||
-            (z < coord_z(c1) && coord_z(c2) < z)) {
+        if ((c1->z < z && z < c2->z) ||
+            (z < c1->z && c2->z < z)) {
             c_last = coord_interp_z(c1, c2, z);
             list   = List_push(list, c_last);
         }
 
         /* add c2 if c2.z is at or below z */
-        if (coord_z(c2) <= z) {
+        if (c2->z <= z) {
             c_last = coord_copy(c2);
             list   = List_push(list, c_last);
         }
@@ -388,7 +388,7 @@ CoArray coarray_subarray_z(CoArray a, double z) {
          * and c2 is above z,
          * add a NULL spot in the
          */
-        if (c_last != NULL && (i < (a->length) - 1) && (coord_z(c2) > z)) {
+        if (c_last != NULL && (i < (a->length) - 1) && (c2->z > z)) {
             c_last = NULL;
             list   = List_push(list, c_last);
         }
@@ -410,7 +410,7 @@ CoArray coarray_subarray_z(CoArray a, double z) {
     return sa;
 }
 
-CoArray coarray_subtract_z(CoArray ca, double subtract_z) {
+CoArray coarray_add_z(CoArray ca, double add_z) {
     if (!ca)
         RAISE(null_ptr_arg_Error);
 
@@ -420,8 +420,8 @@ CoArray coarray_subtract_z(CoArray ca, double subtract_z) {
 
     int i;
     for (i = 0; i < n; i++) {
-        y[i] = coord_y(*(ca->array + i));
-        z[i] = coord_z(*(ca->array + i)) - subtract_z;
+        y[i] = (*(ca->array + i))->y;
+        z[i] = (*(ca->array + i))->z + add_z;
     }
 
     return coarray_new(n, y, z);
@@ -442,7 +442,7 @@ void check_y_coordinates(int n, Coordinate *array) {
 
         /* skip if either this or the last coordinate is null */
         if (c && last_c) {
-            if (coord_y(c) < coord_y(last_c))
+            if (c->y < last_c->y)
                 RAISE(coarray_y_order_Error);
         }
 
