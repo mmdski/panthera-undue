@@ -69,11 +69,6 @@ extern int coarray_eq(CoArray a1, CoArray a2);
  */
 extern int coarray_length(CoArray a);
 
-/** Returns a copy of the i-th coordinate of the CoArray, or NULL, if the i-th
- *  element is NULL
- */
-// extern Coordinate coarray_get(CoArray a, int i);
-
 /** Returns the y value of the i-th coordinate, or NAN if the i-th value
  *  is NULL.
  */
@@ -113,10 +108,13 @@ typedef struct CrossSection *CrossSection;
 extern CrossSection xs_new(CoArray ca, int n_roughness, double *roughness,
                            double *y_roughness);
 
+/* Frees the memory used by a CrossSection */
 extern void xs_free(CrossSection xs);
 
+/* Returns a copy of the CoArray contained in xs */
 CoArray xs_coarray(CrossSection xs);
 
+/* Returns the hydraulic properties calculated by xs at elevation wse */
 extern HydraulicProps xs_hydraulic_properties(CrossSection xs, double wse);
 
 

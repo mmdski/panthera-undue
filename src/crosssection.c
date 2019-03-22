@@ -1,6 +1,4 @@
-#include "panthera.h"
 #include "subsection.h"
-#include <math.h>
 
 struct CrossSection {
     int n_coordinates;    /* number of coordinates */

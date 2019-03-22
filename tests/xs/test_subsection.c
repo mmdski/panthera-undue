@@ -1,8 +1,6 @@
-#include "cii/mem.h"
 #include "subsection.h"
 #include <stdio.h>
 #include "testlib.h"
-#include <math.h>
 
 #define ABS_TOL 1e-15
 #define REL_TOL 0

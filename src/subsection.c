@@ -1,21 +1,17 @@
-#include <math.h>
-#include "panthera.h"
 #include "subsection.h"
 #include <stddef.h>
 
-#define T Subsection
-
-struct T {
+struct Subsection {
     CoArray array;    /* coordinate array */
     double n;         /* Manning's n */
     double min_depth; /* activation depth */
 };
 
-T ss_new(CoArray ca, double roughness, double activation_depth) {
+Subsection ss_new(CoArray ca, double roughness, double activation_depth) {
 
     assert((int)(roughness > 0));
 
-    T ss;
+    Subsection ss;
     NEW(ss);
 
     ss->array     = coarray_copy(ca);
@@ -25,12 +21,12 @@ T ss_new(CoArray ca, double roughness, double activation_depth) {
     return ss;
 }
 
-void ss_free(T ss) {
+void ss_free(Subsection ss) {
     coarray_free(ss->array);
     FREE(ss);
 }
 
-double ss_area(T ss, double z) {
+double ss_area(Subsection ss, double z) {
 
     HydraulicProps hp = ss_hydraulic_properties(ss, z);
     double area       = hp_get_property(hp, HP_AREA);
@@ -38,21 +34,21 @@ double ss_area(T ss, double z) {
     return area;
 }
 
-double ss_perimeter(T ss, double z) {
+double ss_perimeter(Subsection ss, double z) {
     HydraulicProps hp = ss_hydraulic_properties(ss, z);
     double perimeter  = hp_get_property(hp, HP_WETTED_PERIMETER);
     hp_free(hp);
     return perimeter;
 }
 
-double ss_top_width(T ss, double z) {
+double ss_top_width(Subsection ss, double z) {
     HydraulicProps hp = ss_hydraulic_properties(ss, z);
     double width      = hp_get_property(hp, HP_TOP_WIDTH);
     hp_free(hp);
     return width;
 }
 
-HydraulicProps ss_hydraulic_properties(T ss, double z) {
+HydraulicProps ss_hydraulic_properties(Subsection ss, double z) {
 
     CoArray sa;
 
