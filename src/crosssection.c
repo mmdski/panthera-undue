@@ -31,7 +31,7 @@ CrossSection xs_new(CoArray ca, int n_roughness, double *roughness,
                                    __LINE__);
 
     /* CoArray with thalweg set to 0 elevation */
-    CoArray normal_ca = coarray_subtract_z(ca, xs->ref_elevation);
+    CoArray normal_ca = coarray_add_z(ca, -xs->ref_elevation);
     xs->ca            = normal_ca;
 
     /* initialize y splits
@@ -105,5 +105,5 @@ HydraulicProps xs_hydraulic_properties(CrossSection xs, double wse) {
 }
 
 CoArray xs_coarray(CrossSection xs) {
-    return coarray_subtract_z(xs->ca, -xs->ref_elevation);
+    return coarray_add_z(xs->ca, xs->ref_elevation);
 }

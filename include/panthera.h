@@ -93,7 +93,7 @@ extern CoArray coarray_subarray_z(CoArray a, double z);
 
 /*  Returns a CoArray z-translated by subtract-z
  */
-extern CoArray coarray_subtract_z(CoArray ca, double subtract_z);
+extern CoArray coarray_add_z(CoArray ca, double add_z);
 
 
 /* cross section */
