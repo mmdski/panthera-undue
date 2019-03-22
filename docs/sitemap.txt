@@ -1,2 +1,2 @@
 index.md
-	panthera.h
+	c-index

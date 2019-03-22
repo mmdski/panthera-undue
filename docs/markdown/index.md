@@ -8,6 +8,4 @@ Maybe it'll be something someday.
 
 * not much, tbh
 
-## API Documentation
-
-[panthera.h](panthera.h)
+## C API Documentation
