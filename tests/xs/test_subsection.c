@@ -1,10 +1,11 @@
 #include "cii/mem.h"
 #include "subsection.h"
-#include "testlib.h"
 #include <stdio.h>
+#include "testlib.h"
+#include <math.h>
 
-#define ABS_TOL 1e-10
-#define REL_TOL 1
+#define ABS_TOL 1e-15
+#define REL_TOL 0
 
 typedef struct {
     Subsection ss;
@@ -49,9 +50,9 @@ double calc_area(ss_test_data test_data, double depth) {
 double calc_perimeter(ss_test_data test_data, double depth) {
     double perimeter;
 
-    if (test_data.shape == 'r')
+    if (test_data.shape == 'r') {
         perimeter = test_data.b0 + 2 * depth;
-    else if (test_data.shape == 't')
+    } else if (test_data.shape == 't')
         perimeter = 2 * depth * sqrt(1 + (test_data.s * test_data.s));
     else if (test_data.shape == 'z')
         perimeter =
@@ -80,14 +81,18 @@ double calc_top_width(ss_test_data test_data, double depth) {
 void check_area(ss_fixture *ssf, ss_test_data test_data, double depth) {
     double calculated_area = ss_area(ssf->ss, depth);
     double expected_area   = calc_area(test_data, depth);
-    g_assert_true(
-        test_is_close(calculated_area, expected_area, ABS_TOL, REL_TOL));
+    bool is_close = test_is_close(calculated_area, expected_area,
+                                           ABS_TOL, REL_TOL);
+    g_assert_true(is_close);
 }
 
 void check_perimeter(ss_fixture *ssf, ss_test_data test_data, double depth) {
     double calculated = ss_perimeter(ssf->ss, depth);
     double expected   = calc_perimeter(test_data, depth);
-    g_assert_true(test_is_close(calculated, expected, ABS_TOL, REL_TOL));
+    bool is_close = test_is_close(calculated, expected, ABS_TOL, REL_TOL);
+    if (!is_close)
+        printf("calculated = %f\texpected = %f\n", calculated, expected);
+    g_assert_true(is_close);
 }
 
 void check_top_width(ss_fixture *ssf, ss_test_data test_data, double depth) {
@@ -107,6 +112,7 @@ ss_test_data *ss_test_data_new(int n, double *y, double *z, char shape) {
     test_data->roughness = 0.03;
     test_data->b0        = 1;
     test_data->s         = 0.5;
+    test_data->activation_depth = -INFINITY;
 
     for (int i = 0; i < test_data->n_coords; i++) {
         *(test_data->y + i) = y[i];
