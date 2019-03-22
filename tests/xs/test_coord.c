@@ -1,4 +1,3 @@
-#include "coordinate.h"
 #include "cii/mem.h"
 #include "panthera.h"
 #include <stdio.h>
@@ -6,6 +5,27 @@
 
 #define ABS_TOL 1e-10
 #define REL_TOL 0
+
+/* Except_T raised when coordinate interpolation fails */
+extern const Except_T coord_interp_Fail;
+
+typedef struct Coordinate *Coordinate;
+
+extern Coordinate coord_new(double y, double z);
+
+extern void coord_free(Coordinate c);
+
+extern Coordinate coord_copy(Coordinate c);
+
+extern int coord_eq(Coordinate c1, Coordinate c2);
+
+extern double coord_y(Coordinate c);
+
+extern double coord_z(Coordinate c);
+
+extern Coordinate coord_interp_y(Coordinate c1, Coordinate c2, double y);
+
+extern Coordinate coord_interp_z(Coordinate c1, Coordinate c2, double z);
 
 typedef struct {
     Coordinate c1;

@@ -15,7 +15,7 @@ int main() {
 
     CoArray xs_ca = xs_coarray(xs);
 
-    HydraulicProps hp = xs_hydraulic_properties(xs, 1);
+    HydraulicProps hp = xs_hydraulic_properties(xs, 0);
 
     printf("area             = %f\n", hp_get_property(hp, HP_AREA));
     printf("top_width        = %f\n", hp_get_property(hp, HP_TOP_WIDTH));

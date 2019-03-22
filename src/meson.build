@@ -14,7 +14,7 @@ pantheralib = library('panthera',
                       include_directories : inc,
                       link_with : ciilib)
 
-xs_sources = ['crosssection.c', 'coarray.c', 'coordinate.c', 'subsection.c']
+xs_sources = ['crosssection.c', 'coarray.c', 'subsection.c']
 xslib = library('xs',
                  xs_sources,
                  include_directories : inc,

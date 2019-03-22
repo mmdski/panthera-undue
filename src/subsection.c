@@ -1,4 +1,3 @@
-#include "coordinate.h"
 #include <math.h>
 #include "panthera.h"
 #include "subsection.h"
@@ -11,8 +10,6 @@ struct T {
     double n;         /* Manning's n */
     double min_depth; /* activation depth */
 };
-
-extern Coordinate coarray_get(CoArray a, int i);
 
 T ss_new(CoArray ca, double roughness, double activation_depth) {
 
@@ -57,8 +54,6 @@ double ss_top_width(T ss, double z) {
 
 HydraulicProps ss_hydraulic_properties(T ss, double z) {
 
-    Coordinate c1;
-    Coordinate c2;
     CoArray sa;
 
     double area      = 0;
@@ -70,7 +65,7 @@ HydraulicProps ss_hydraulic_properties(T ss, double z) {
     int n;
 
     /* return 0 subsection values if this subsection isn't activated */
-    if (z <= coarray_min_z(ss->array) || z <= ss->min_depth) {
+    if (z < coarray_min_z(ss->array) || z <= ss->min_depth) {
         sa = NULL;
         n  = 0;
     }
@@ -90,34 +85,37 @@ HydraulicProps ss_hydraulic_properties(T ss, double z) {
     double dy;
     double dz;
 
-    for (i = 1; i < n; i++) {
-        c1 = coarray_get(sa, i - 1);
-        c2 = coarray_get(sa, i);
+    double y1;
+    double z1;
 
-        /* if c1 or c2 is NULL, clean up and continue */
-        if (c1 == NULL || c2 == NULL) {
-            if (c1)
-                coord_free(c1);
-            if (c2)
-                coord_free(c2);
+    double y2;
+    double z2;
+
+    for (i = 1; i < n; i++) {
+        y1 = coarray_get_y(sa, i - 1);
+        z1 = coarray_get_z(sa, i - 1);
+
+        y2 = coarray_get_y(sa, i);
+        z2 = coarray_get_z(sa, i);
+
+        /* if y1 or y2 is NAN, continue */
+        if (isnan(y1) || isnan(y2)) {
             continue;
         }
 
         /* calculate area by trapezoidal integration */
-        d1 = z - coord_z(c1);
-        d2 = z - coord_z(c2);
-        area += 0.5 * (d1 + d2) * (coord_y(c2) - coord_y(c1));
+        d1 = z - z1;
+        d2 = z - z2;
+        area += 0.5 * (d1 + d2) * (y2 - y1);
 
         /* calculate perimeter */
-        dy = coord_y(c2) - coord_y(c1);
-        dz = coord_z(c2) - coord_z(c1);
+        dy = y2 - y1;
+        dz = z2 - z1;
         perimeter += sqrt(dy * dy + dz * dz);
 
         /* calculate top width */
-        top_width += coord_y(c2) - coord_y(c1);
+        top_width += y2 - y1;
 
-        coord_free(c1);
-        coord_free(c2);
     }
 
     hp_set_property(hp, HP_AREA, area);

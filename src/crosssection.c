@@ -13,7 +13,10 @@ struct CrossSection {
 CrossSection xs_new(CoArray ca, int n_roughness, double *roughness,
                     double *y_roughness) {
 
-    if (!roughness || !y_roughness)
+    if (!roughness)
+        RAISE(null_ptr_arg_Error);
+
+    if (n_roughness > 1 && !y_roughness)
         RAISE(null_ptr_arg_Error);
 
     assert(n_roughness > 0);
