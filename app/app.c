@@ -10,12 +10,14 @@ int main() {
     double roughness[]      = {0.03, 0.03};
     double y_roughness[]    = {1};
 
+    double depth = 1;
+
     CoArray ca = coarray_new(n, y, z);
     CrossSection xs = xs_new(ca, n_roughness, roughness, y_roughness);
 
     CoArray xs_ca = xs_coarray(xs);
 
-    HydraulicProps hp = xs_hydraulic_properties(xs, 0);
+    HydraulicProps hp = xs_hydraulic_properties(xs, depth);
 
     printf("area             = %f\n", hp_get_property(hp, HP_AREA));
     printf("top_width        = %f\n", hp_get_property(hp, HP_TOP_WIDTH));
