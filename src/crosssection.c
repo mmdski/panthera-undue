@@ -100,19 +100,20 @@ HydraulicProps xs_hydraulic_properties(CrossSection xs, double wse) {
     HydraulicProps hp_ss;
 
     for (i = 0; i < n_subsections; i++) {
-        hp_ss = ss_hydraulic_properties(*(xs->ss + i), depth);
-        area += hp_get_property(hp_ss, HP_AREA);
-        top_width += hp_get_property(hp_ss, HP_TOP_WIDTH);
-        perimeter += hp_get_property(hp_ss, HP_WETTED_PERIMETER);
+        hp_ss      = ss_hydraulic_properties(*(xs->ss + i), depth);
+        area      += hp_get(hp_ss, HP_AREA);
+        top_width += hp_get(hp_ss, HP_TOP_WIDTH);
+        perimeter += hp_get(hp_ss, HP_WETTED_PERIMETER);
         hp_free(hp_ss);
     }
 
     hydraulic_depth = area / top_width;
 
-    hp_set_property(hp, HP_AREA, area);
-    hp_set_property(hp, HP_TOP_WIDTH, top_width);
-    hp_set_property(hp, HP_WETTED_PERIMETER, perimeter);
-    hp_set_property(hp, HP_HYDRAULIC_DEPTH, hydraulic_depth);
+    hp_set(hp, HP_DEPTH, depth);
+    hp_set(hp, HP_AREA, area);
+    hp_set(hp, HP_TOP_WIDTH, top_width);
+    hp_set(hp, HP_WETTED_PERIMETER, perimeter);
+    hp_set(hp, HP_HYDRAULIC_DEPTH, hydraulic_depth);
 
     return hp;
 }

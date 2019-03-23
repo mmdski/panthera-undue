@@ -19,11 +19,10 @@ int main() {
 
     HydraulicProps hp = xs_hydraulic_properties(xs, depth);
 
-    printf("area             = %f\n", hp_get_property(hp, HP_AREA));
-    printf("top_width        = %f\n", hp_get_property(hp, HP_TOP_WIDTH));
-    printf("wetted perimeter = %f\n", hp_get_property(hp,
-                                                      HP_WETTED_PERIMETER));
-    printf("hydraulic depth  = %f\n", hp_get_property(hp, HP_HYDRAULIC_DEPTH));
+    printf("area             = %f\n", hp_get(hp, HP_AREA));
+    printf("top_width        = %f\n", hp_get(hp, HP_TOP_WIDTH));
+    printf("wetted perimeter = %f\n", hp_get(hp, HP_WETTED_PERIMETER));
+    printf("hydraulic depth  = %f\n", hp_get(hp, HP_HYDRAULIC_DEPTH));
 
     if (coarray_eq(ca, xs_ca)) {
         printf("CoArrays are equal\n");

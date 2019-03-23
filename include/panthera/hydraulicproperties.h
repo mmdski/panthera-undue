@@ -59,7 +59,7 @@ extern HydraulicProps hp_new(void);
 extern void hp_free(HydraulicProps hp);
 
 /**
- * hp_get_property:
+ * hp_get:
  * @hp:   a #HydraulicProps
  * @prop: a #hyd_prop
  *
@@ -69,10 +69,10 @@ extern void hp_free(HydraulicProps hp);
  *
  * Returns: the value of @prop contained in @hp
  */
-extern double hp_get_property(HydraulicProps hp, hyd_prop prop);
+extern double hp_get(HydraulicProps hp, hyd_prop prop);
 
 /**
- * hp_set_property:
+ * hp_set:
  * @hp:    a #HydraulicProps
  * @prop:  a #hyd_prop
  * @value: a value to set
@@ -85,6 +85,6 @@ extern double hp_get_property(HydraulicProps hp, hyd_prop prop);
  *
  * Returns: None
  */
-extern void hp_set_property(HydraulicProps hp, hyd_prop prop, double value);
+extern void hp_set(HydraulicProps hp, hyd_prop prop, double value);
 
 #endif

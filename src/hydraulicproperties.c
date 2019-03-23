@@ -20,13 +20,13 @@ void hp_free(HydraulicProps hp) {
     FREE(hp);
 }
 
-double hp_get_property(HydraulicProps hp, hyd_prop prop) {
+double hp_get(HydraulicProps hp, hyd_prop prop) {
     if (!hp)
         RAISE(null_ptr_arg_Error);
     return *(hp->properties + prop);
 }
 
-void hp_set_property(HydraulicProps hp, hyd_prop prop, double value) {
+void hp_set(HydraulicProps hp, hyd_prop prop, double value) {
     if (!hp)
         RAISE(null_ptr_arg_Error);
     *(hp->properties + prop) = value;
