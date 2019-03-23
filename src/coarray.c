@@ -1,5 +1,5 @@
-#include "cii/list.h"
 #include "panthera/coarray.h"
+#include "cii/list.h"
 #include "panthera/panthera.h"
 #include <stddef.h>
 
@@ -7,8 +7,8 @@
 const Except_T coord_interp_Fail = {"Coordinate interpolation failed"};
 
 const Except_T coarray_n_coords_Error = {"Too few coordinates"};
-const Except_T coarray_y_order_Error = {"Invalid y-value order"};
-const Except_T coarray_index_Error = {"Index out of bounds"};
+const Except_T coarray_y_order_Error  = {"Invalid y-value order"};
+const Except_T coarray_index_Error    = {"Index out of bounds"};
 
 struct Coordinate {
     double y; /* lateral coordinate */
@@ -36,7 +36,10 @@ Coordinate coord_new(double y, double z) {
 }
 
 /* Makes a copy and returns a new Coordinate */
-Coordinate coord_copy(Coordinate c) { return coord_new((c->y), (c->z)); }
+Coordinate coord_copy(Coordinate c) {
+    assert(c);
+    return coord_new((c->y), (c->z));
+}
 
 /* Frees space from a previously allocated Coordinate */
 void coord_free(Coordinate c) { FREE(c); }
@@ -45,11 +48,16 @@ void coord_free(Coordinate c) { FREE(c); }
 int coord_eq(Coordinate c1, Coordinate c2) {
     if (c1 == c2)
         return 1;
+    /* either coordinate is NULL */
+    if (!c1 || !c2)
+        return 0;
     return (c1->y == c2->y && c1->z == c2->z);
 }
 
 /* Linearly interpolates Coordinate given a y value */
 Coordinate coord_interp_y(Coordinate c1, Coordinate c2, double y) {
+
+    assert(c1 && c2);
 
     /* raise exception if y is outside fo the range of c1->y and c2->y
       (no extrapolation) */
@@ -64,6 +72,8 @@ Coordinate coord_interp_y(Coordinate c1, Coordinate c2, double y) {
 /* Linearly interpolates Coordinate given a z value */
 Coordinate coord_interp_z(Coordinate c1, Coordinate c2, double z) {
 
+    assert(c1 && c2);
+
     /* raise exception if z is outside fo the range of c1->z and c2->z
       (no extrapolation) */
     if ((z < c1->z && z < c2->z) || (c1->z < z && c2->z < z))
@@ -75,10 +85,16 @@ Coordinate coord_interp_z(Coordinate c1, Coordinate c2, double z) {
 }
 
 /* x value from Coordinate */
-double coord_y(Coordinate c) { return c->y; }
+double coord_y(Coordinate c) {
+    assert(c);
+    return c->y;
+}
 
 /* y value from Coordinate */
-double coord_z(Coordinate c) { return c->z; }
+double coord_z(Coordinate c) {
+    assert(c);
+    return c->z;
+}
 
 void check_y_coordinates(int n, Coordinate *array);
 
@@ -117,6 +133,8 @@ CoArray coarray_new(int n, double *y, double *z) {
 }
 
 CoArray coarray_from_array(int n, Coordinate *array) {
+
+    assert(array);
 
     int i;
 
@@ -191,6 +209,8 @@ CoArray coarray_from_list(List_T list) {
 }
 
 CoArray coarray_copy(CoArray ca) {
+    if (!ca)
+        RAISE(null_ptr_arg_Error);
     return coarray_from_array(ca->length, ca->array);
 }
 
@@ -220,6 +240,10 @@ int coarray_eq(CoArray a1, CoArray a2) {
 
     if (a1 == a2)
         return 1;
+
+    /* check for either NULL */
+    if (!a1 || !a2)
+        return 0;
 
     if (a1->length != a2->length)
         return 0;
@@ -269,7 +293,12 @@ double coarray_get_z(CoArray a, int i) {
         return NAN;
 }
 
-double coarray_min_z(CoArray a) { return a->min_z; }
+double coarray_min_z(CoArray a) {
+    if (!a)
+        RAISE(null_ptr_arg_Error);
+
+    return a->min_z;
+}
 
 CoArray coarray_subarray_y(CoArray a, double ylo, double yhi) {
 
@@ -371,8 +400,7 @@ CoArray coarray_subarray_z(CoArray a, double z) {
         /* add an interpolated coordinate if coordinates change from
          * above to below or below to above the z value
          */
-        if ((c1->z < z && z < c2->z) ||
-            (z < c1->z && c2->z < z)) {
+        if ((c1->z < z && z < c2->z) || (z < c1->z && c2->z < z)) {
             c_last = coord_interp_z(c1, c2, z);
             list   = List_push(list, c_last);
         }
@@ -448,6 +476,5 @@ void check_y_coordinates(int n, Coordinate *array) {
 
         if (c)
             last_c = c;
-
     }
 }

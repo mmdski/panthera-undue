@@ -1,5 +1,5 @@
-#include "coarray.h"
 #include "subsection.h"
+#include "coarray.h"
 #include <stddef.h>
 
 struct Subsection {
@@ -28,7 +28,7 @@ void ss_free(Subsection ss) {
 }
 
 double ss_area(Subsection ss, double z) {
-
+    assert(ss);
     HydraulicProps hp = ss_hydraulic_properties(ss, z);
     double area       = hp_get_property(hp, HP_AREA);
     hp_free(hp);
@@ -36,6 +36,7 @@ double ss_area(Subsection ss, double z) {
 }
 
 double ss_perimeter(Subsection ss, double z) {
+    assert(ss);
     HydraulicProps hp = ss_hydraulic_properties(ss, z);
     double perimeter  = hp_get_property(hp, HP_WETTED_PERIMETER);
     hp_free(hp);
@@ -43,6 +44,7 @@ double ss_perimeter(Subsection ss, double z) {
 }
 
 double ss_top_width(Subsection ss, double z) {
+    assert(ss);
     HydraulicProps hp = ss_hydraulic_properties(ss, z);
     double width      = hp_get_property(hp, HP_TOP_WIDTH);
     hp_free(hp);
@@ -50,6 +52,8 @@ double ss_top_width(Subsection ss, double z) {
 }
 
 HydraulicProps ss_hydraulic_properties(Subsection ss, double z) {
+
+    assert(ss);
 
     CoArray sa;
 
@@ -112,7 +116,6 @@ HydraulicProps ss_hydraulic_properties(Subsection ss, double z) {
 
         /* calculate top width */
         top_width += y2 - y1;
-
     }
 
     hp_set_property(hp, HP_AREA, area);
