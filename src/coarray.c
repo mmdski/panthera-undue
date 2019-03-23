@@ -8,6 +8,7 @@ const Except_T coord_interp_Fail = {"Coordinate interpolation failed"};
 
 const Except_T coarray_n_coords_Error = {"Too few coordinates"};
 const Except_T coarray_y_order_Error = {"Invalid y-value order"};
+const Except_T coarray_index_Error = {"Index out of bounds"};
 
 struct Coordinate {
     double y; /* lateral coordinate */
@@ -79,12 +80,6 @@ double coord_y(Coordinate c) { return c->y; }
 /* y value from Coordinate */
 double coord_z(Coordinate c) { return c->z; }
 
-/* Allocates memory and creates an array from an array of Coordinate */
-CoArray coarray_from_array(int n, Coordinate *array);
-
-/* Allocates memory and creates an array from a List_T */
-CoArray coarray_from_list(List_T list);
-
 void check_y_coordinates(int n, Coordinate *array);
 
 CoArray coarray_new(int n, double *y, double *z) {
@@ -119,10 +114,6 @@ CoArray coarray_new(int n, double *y, double *z) {
     check_y_coordinates(n, a->array);
 
     return a;
-}
-
-CoArray coarray_copy(CoArray ca) {
-    return coarray_from_array(ca->length, ca->array);
 }
 
 CoArray coarray_from_array(int n, Coordinate *array) {
@@ -199,6 +190,10 @@ CoArray coarray_from_list(List_T list) {
     return a;
 }
 
+CoArray coarray_copy(CoArray ca) {
+    return coarray_from_array(ca->length, ca->array);
+}
+
 void coarray_free(CoArray a) {
 
     if (!a)
@@ -250,7 +245,9 @@ double coarray_get_y(CoArray a, int i) {
     if (!a)
         RAISE(null_ptr_arg_Error);
 
-    assert((int)(0 <= i || i < a->length));
+    if (i < 0 || a->length <= i)
+        RAISE(coarray_index_Error);
+
     Coordinate c = a->array[i];
     if (c)
         return c->y;
@@ -262,7 +259,9 @@ double coarray_get_z(CoArray a, int i) {
     if (!a)
         RAISE(null_ptr_arg_Error);
 
-    assert((int)(0 <= i || i < a->length));
+    if (i < 0 || a->length <= i)
+        RAISE(coarray_index_Error);
+
     Coordinate c = a->array[i];
     if (c)
         return c->z;
