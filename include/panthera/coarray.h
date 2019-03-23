@@ -13,7 +13,6 @@
  * Array of cross section coordinates
  *
  * A cross section coordinate is a point in y (lateral) and z (vertical) space.
- *
  */
 
 /**
@@ -30,11 +29,17 @@ typedef struct CoArray *CoArray;
  * @z: pointer to an array of @n z-values
  *
  * Creates a new coordinate array with length @n and y- and z-values of @y and
- * @z. @n must be greater than 2. This function raises #coarray_n_coords_Error
- * otherwise. Each value of @y beyond the first element must be greater than or
- * equal to the previous element. This function raises #coarray_y_order_Error
- * otherwise. The resulting coordinate array is newly allocated and must be
- * freed with coarray_free().
+ * @z. The resulting coordinate array is newly allocated and must be freed
+ * with coarray_free().
+ *
+ * **Raises**:
+ *
+ * #null_ptr_arg_Error if @y or @z is `NULL`
+ *
+ * #coarray_n_coords_Error if @n is less than 2
+ *
+ * #coarray_y_order_Error if the values in @y are not in acending (or equal)
+ * order
  *
  * Returns: a new #CoArray
  */
@@ -72,7 +77,7 @@ extern void coarray_free(CoArray a);
  *
  * #null_ptr_arg_Error if @a1 or @a2 are `NULL`
  *
- * Returns: 1 if a1 and a2 are equal, 0 if they are not.
+ * Returns: 1 if a1 and a2 are equal, 0 if they are not
  */
 extern int coarray_eq(CoArray a1, CoArray a2);
 
@@ -84,7 +89,7 @@ extern int coarray_eq(CoArray a1, CoArray a2);
  *
  * #null_ptr_arg_Error if @a is `NULL`
  *
- * Returns: the length of @a.
+ * Returns: the length of @a
  */
 extern int coarray_length(CoArray a);
 
@@ -97,9 +102,9 @@ extern int coarray_length(CoArray a);
  *
  * **Raises:**
  *
- * * #null_ptr_arg_Error if @a is `NULL`
- * * #index_Error if `i < 0` or `i >= length`, where `length` is the length of
- *   @a
+ * #null_ptr_arg_Error if @a is `NULL`
+ *
+ * #index_Error if `i < 0` or `i >= length`, where `length` is the length of @a
  *
  * Returns: y-value of `i`-th coordinate
  */
@@ -114,9 +119,9 @@ extern double coarray_get_y(CoArray a, int i);
  *
  * **Raises:**
  *
- * * #null_ptr_arg_Error if @a is `NULL`
- * * #index_Error if `i < 0` or `i >= length`, where `length` is the length of
- *   @a
+ * #null_ptr_arg_Error if @a is `NULL`
+ *
+ * #index_Error if `i < 0` or `i >= length`, where `length` is the length of @a
  *
  * Returns: z-value of `i`-th coordinate
  */
