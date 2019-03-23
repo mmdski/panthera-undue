@@ -1,4 +1,4 @@
-#include "panthera.h"
+#include "panthera/panthera.h"
 #include <stdio.h>
 #include "testlib.h"
 

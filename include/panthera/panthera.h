@@ -5,7 +5,6 @@
 #include "cii/except.h"
 #include "cii/mem.h"
 #include <math.h>
-// #include "panthera/coarray.h"
 
 /* exception raised when a function is passed a null pointer */
 extern const Except_T null_ptr_arg_Error;

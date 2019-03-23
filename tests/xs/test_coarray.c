@@ -1,5 +1,5 @@
-#include "panthera.h"
-#include "panthera/coarray.h"
+#include "coarray.h"
+#include "panthera/panthera.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include "testlib.h"

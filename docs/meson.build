@@ -1,16 +1,17 @@
 project('panthera documentation', version: '0.0.0')
 
-sources = ['../include/*.h', '../include/panthera/*.h']
+sources = ['../include/panthera/*.h']
 
 hotdoc = import('hotdoc')
 documentation = hotdoc.generate_doc(meson.project_name(),
     project_version: meson.project_version(),
     sitemap: 'sitemap.txt',
-    build_by_default: true,
+    build_by_default: false,
     index: 'markdown/index.md',
     c_smart_index : true,
     c_sources : sources,
-    c_include_directories : '../include',
+    c_include_directories : '@0@/../include'.format(meson.current_source_dir()),
+    c_index : 'markdown/c-index.md',
     install: false,
     languages : ['c'],
     include_paths: ['markdown'],

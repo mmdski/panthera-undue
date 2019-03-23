@@ -1,6 +1,6 @@
 #include "cii/list.h"
-#include "panthera.h"
 #include "panthera/coarray.h"
+#include "panthera/panthera.h"
 #include <stddef.h>
 
 /* Except_T raised when coordinate interpolation fails */

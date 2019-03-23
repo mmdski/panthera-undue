@@ -1,7 +1,7 @@
 #ifndef XS_SS_INCLUDED
 #define XS_SS_INCLUDED
 
-#include "panthera.h"
+#include "panthera/panthera.h"
 #include "panthera/coarray.h"
 #include "panthera/hydraulicproperties.h"
 
