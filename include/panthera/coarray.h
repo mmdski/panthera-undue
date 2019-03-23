@@ -1,7 +1,7 @@
 #ifndef COARRAY_INCLUDED
 #define COARRAY_INCLUDED
 
-#include "panthera.h"
+#include "../panthera.h"
 
 /*  Exception raised when there are too few coordinates passed to an
  *  initializer

@@ -1,8 +1,8 @@
 #ifndef CROSS_SECTION_INCLUDED
 #define CROSS_SECTION_INCLUDED
 
-#include "panthera/coarray.h"
-#include "panthera/hydraulicproperties.h"
+#include "coarray.h"
+#include "hydraulicproperties.h"
 
 typedef struct CrossSection *CrossSection;
 
