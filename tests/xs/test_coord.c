@@ -1,4 +1,4 @@
-#include "panthera/panthera.h"
+#include <panthera/exceptions.h>
 #include <stdio.h>
 #include "testlib.h"
 

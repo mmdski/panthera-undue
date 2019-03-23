@@ -1,14 +1,10 @@
-#include "panthera/coarray.h"
-#include "cii/list.h"
-#include "panthera/panthera.h"
+#include <cii/list.h>
+#include <panthera/coarray.h>
+#include <panthera/exceptions.h>
 #include <stddef.h>
 
 /* Except_T raised when coordinate interpolation fails */
 const Except_T coord_interp_Fail = {"Coordinate interpolation failed"};
-
-const Except_T coarray_n_coords_Error = {"Too few coordinates"};
-const Except_T coarray_y_order_Error  = {"Invalid y-value order"};
-const Except_T coarray_index_Error    = {"Index out of bounds"};
 
 struct Coordinate {
     double y; /* lateral coordinate */
@@ -270,7 +266,7 @@ double coarray_get_y(CoArray a, int i) {
         RAISE(null_ptr_arg_Error);
 
     if (i < 0 || a->length <= i)
-        RAISE(coarray_index_Error);
+        RAISE(index_Error);
 
     Coordinate c = a->array[i];
     if (c)
@@ -284,7 +280,7 @@ double coarray_get_z(CoArray a, int i) {
         RAISE(null_ptr_arg_Error);
 
     if (i < 0 || a->length <= i)
-        RAISE(coarray_index_Error);
+        RAISE(index_Error);
 
     Coordinate c = a->array[i];
     if (c)

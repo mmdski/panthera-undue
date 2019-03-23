@@ -1,9 +1,9 @@
 #ifndef XS_SS_INCLUDED
 #define XS_SS_INCLUDED
 
-#include "panthera/panthera.h"
-#include "panthera/coarray.h"
-#include "panthera/hydraulicproperties.h"
+#include <panthera/coarray.h>
+#include <panthera/exceptions.h>
+#include <panthera/hydraulicproperties.h>
 
 typedef struct Subsection *Subsection;
 

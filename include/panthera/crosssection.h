@@ -1,8 +1,8 @@
 #ifndef CROSS_SECTION_INCLUDED
 #define CROSS_SECTION_INCLUDED
 
-#include "coarray.h"
-#include "hydraulicproperties.h"
+#include <panthera/coarray.h>
+#include <panthera/hydraulicproperties.h>
 
 /**
  * SECTION: crosssection.h

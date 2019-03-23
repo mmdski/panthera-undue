@@ -1,6 +1,6 @@
 subdir('cii')
 
-panthera_sources = ['panthera.c', 'crosssection.c', 'coarray.c',
+panthera_sources = ['exceptions.c', 'crosssection.c', 'coarray.c',
                     'subsection.c', 'hydraulicproperties.c']
 pantheralib = library('panthera',
                       panthera_sources,

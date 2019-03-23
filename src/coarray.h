@@ -1,7 +1,7 @@
 #ifndef SRC_COARRAY_INCLUDE
 #define SRC_COARRAY_INCLUDE
 
-#include "panthera/coarray.h"
+#include <panthera/coarray.h>
 
 extern CoArray coarray_subarray_y(CoArray a, double ylo, double yhi);
 extern CoArray coarray_subarray_z(CoArray a, double z);

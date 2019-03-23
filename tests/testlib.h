@@ -1,3 +1,4 @@
+#include <cii/mem.h>
 #include <glib.h>
 #include <math.h>
 #include <stdbool.h>

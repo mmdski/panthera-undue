@@ -1,7 +1,7 @@
 #ifndef HYDRAULICPROPS_INCLUDED
 #define HYDRAULICPROPS_INCLUDED
 
-#include "panthera.h"
+#include <panthera/exceptions.h>
 
 /**
  * SECTION: hydraulicproperties.h
