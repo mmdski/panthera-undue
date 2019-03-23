@@ -4,6 +4,15 @@
 #include "panthera.h"
 
 /**
+ * SECTION: hydraulicproperties.h
+ * @short_description: Hydraulic properties
+ * @title: HydraulitProps
+ *
+ * Hydraulic property data
+ *
+ */
+
+/**
  * hyd_prop:
  * @HP_DEPTH:            Depth of cross section these properties are
  *                          computed at
@@ -22,18 +31,60 @@ typedef enum {
     N_HP
 } hyd_prop;
 
+/**
+ * HydraulicProps:
+ *
+ * Hydraulic properties calculated with a #CrossSection using
+ * xs_hydraulic_properties()
+ */
 typedef struct HydraulicProps *HydraulicProps;
 
-/* Allocates a space for a new HydraulicProps */
+/**
+ * hp_new:
+ *
+ * Creates a new #HydraulicProps
+ *
+ * Returns: a new #HydraulicProps
+ */
 extern HydraulicProps hp_new(void);
 
-/* Frees a HydraulicProps */
+/**
+ * hp_free:
+ * @hp: a #HydraulicProps
+ *
+ * Frees a #HydraulicProps
+ *
+ * Returns: None
+ */
 extern void hp_free(HydraulicProps hp);
 
-/* Gets a hyd_prop from a HydraulicProps */
+/**
+ * hp_get_property:
+ * @hp:   a #HydraulicProps
+ * @prop: a #hyd_prop
+ *
+ * **Raises:**
+ *
+ * #null_ptr_arg_Error if @hp is `NULL`
+ *
+ * Returns: the value of @prop contained in @hp
+ */
 extern double hp_get_property(HydraulicProps hp, hyd_prop prop);
 
-/* Sets a hyd_prop in a HydraulicProps */
+/**
+ * hp_set_property:
+ * @hp:    a #HydraulicProps
+ * @prop:  a #hyd_prop
+ * @value: a value to set
+ *
+ * Sets the @prop in @hp to @value
+ *
+ * **Raises:**
+ *
+ * #null_ptr_arg_Error if @hp is `NULL`
+ *
+ * Returns: None
+ */
 extern void hp_set_property(HydraulicProps hp, hyd_prop prop, double value);
 
 #endif

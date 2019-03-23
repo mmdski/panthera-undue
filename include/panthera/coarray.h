@@ -4,6 +4,17 @@
 #include "panthera.h"
 
 /**
+ * SECTION: coarray.h
+ * @short_description: Coordinate array
+ * @title: CoArray
+ *
+ * Array of cross section coordinates
+ *
+ * A cross section coordinate is a point in y (lateral) and z (vertical) space.
+ *
+ */
+
+/**
  * coarray_n_coords_Error:
  *
  * Exception raised when there are too few coordinates passed to coarray_new()
@@ -56,6 +67,10 @@ extern CoArray coarray_new(int n, double *y, double *z);
  * Returns a new copy of @ca. The returned #CoArray is newly allocated and
  * should be freed using coarray_free().
  *
+ * **Raises:**
+ *
+ * #null_ptr_arg_Error if @ca is `NULL`
+ *
  * Returns: a copy of @ca
  */
 extern CoArray coarray_copy(CoArray ca);
@@ -73,6 +88,10 @@ extern void coarray_free(CoArray a);
  * @a1: a #CoArray
  * @a2: another #CoArray
  *
+ * **Raises:**
+ *
+ * #null_ptr_arg_Error if @a1 or @a2 are `NULL`
+ *
  * Returns: 1 if a1 and a2 are equal, 0 if they are not.
  */
 extern int coarray_eq(CoArray a1, CoArray a2);
@@ -80,6 +99,10 @@ extern int coarray_eq(CoArray a1, CoArray a2);
 /**
  * coarray_length:
  * @a: a #CoArray
+ *
+ * **Raises:**
+ *
+ * #null_ptr_arg_Error if @a is `NULL`
  *
  * Returns: the length of @a.
  */
@@ -94,6 +117,10 @@ extern int coarray_length(CoArray a);
  * `i >= length`, where `length` is the length of @a, this function raises
  * #coarray_index_Error. Use coarray_length() to get the length of @a.
  *
+ * **Raises:**
+ *
+ * #null_ptr_arg_Error if @a is `NULL`
+ *
  * Returns: y-value of `i`-th coordinate
  */
 extern double coarray_get_y(CoArray a, int i);
@@ -106,6 +133,10 @@ extern double coarray_get_y(CoArray a, int i);
  * Returns z-value of the `i`-th coordinate of an array. If `i < 0` or
  * `i >= length`, where `length` is the length of @a, this function raises
  * #coarray_index_Error. Use coarray_length() to get the length of @a.
+ *
+ * **Raises:**
+ *
+ * #null_ptr_arg_Error if @a is `NULL`
  *
  * Returns: z-value of `i`-th coordinate
  */
