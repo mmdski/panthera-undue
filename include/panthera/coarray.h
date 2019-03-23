@@ -25,7 +25,10 @@ extern const Except_T coarray_y_order_Error;
  */
 extern const Except_T coarray_index_Error;
 
-/*  Coordinate array type definition
+/**
+ * CoArray:
+ *
+ * Coordinate array used with xs_new() for the creation of #CrossSection.
  */
 typedef struct CoArray *CoArray;
 
