@@ -1,3 +1,4 @@
+#include "panthera/coarray.h"
 #include "subsection.h"
 #include <stddef.h>
 

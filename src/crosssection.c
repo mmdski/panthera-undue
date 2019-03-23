@@ -1,3 +1,4 @@
+#include "panthera/crosssection.h"
 #include "subsection.h"
 
 struct CrossSection {

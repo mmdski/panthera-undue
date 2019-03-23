@@ -1,4 +1,5 @@
 #include "panthera.h"
+#include "panthera/hydraulicproperties.h"
 
 struct HydraulicProps {
     double *properties;

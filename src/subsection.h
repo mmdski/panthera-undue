@@ -2,6 +2,8 @@
 #define XS_SS_INCLUDED
 
 #include "panthera.h"
+#include "panthera/coarray.h"
+#include "panthera/hydraulicproperties.h"
 
 typedef struct Subsection *Subsection;
 
