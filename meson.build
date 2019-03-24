@@ -1,8 +1,6 @@
-project('panthera-undue', 'c')
-
-add_global_arguments('-Wall', language : 'c')
-add_global_arguments('-g', language : 'c')
-add_global_arguments('-O0', language : 'c')
+project('panthera-undue', 'c',
+    default_options : ['c_std=c99', 'c_args=-Wall'],
+    version : '0.0.0')
 
 inc = include_directories('include')
 
@@ -11,4 +9,7 @@ m_dep = cc.find_library('m', required : false)
 
 subdir('src')
 subdir('app')
-subdir('tests')
+
+if get_option('buildtype').startswith('debug')
+    subdir('tests')
+endif
