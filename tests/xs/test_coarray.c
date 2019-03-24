@@ -7,9 +7,6 @@
 #define ABS_TOL 1e-10
 #define REL_TOL 0
 
-/* no exception placeholder */
-const Except_T no_Error;
-
 typedef struct {
     CoArray ca;
     const Except_T *caught_exception;

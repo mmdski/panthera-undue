@@ -9,6 +9,7 @@ void add_xs_tests(void) {
     add_coord_tests();
     add_coarray_tests();
     add_subsection_tests();
+    add_crosssection_tests();
 }
 
 xs_test_data *xs_test_data_new(int n, double *y, double *z, char shape) {

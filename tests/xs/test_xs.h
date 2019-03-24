@@ -23,6 +23,7 @@ typedef struct {
     /* dimensions for analytical solutions */
     double b0; /* bottom width */
     double s;  /* slope */
+    const Except_T *exception;
 } xs_test_data;
 
 extern xs_test_data *xs_test_data_new(int n, double *y, double *z, char shape);
