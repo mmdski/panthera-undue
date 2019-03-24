@@ -64,7 +64,8 @@ void add_rect_test() {
     int n                        = 5;
     double y[]                   = {0, 0, 0.5, 1, 1};
     double z[]                   = {1, 0, 0, 0, 1};
-    xs_test_data *rect_test_data = xs_test_data_new(n, y, z, 'r');
+    double r[]                   = {0.030}; /* roughness */
+    xs_test_data *rect_test_data = xs_test_data_new(n, y, z, 1, r, 'r');
     g_test_add("/panthera/xs/subsection/results test - simple rectangle",
                ss_fixture, rect_test_data, ss_setup, test_h_properties,
                ss_teardown);
@@ -74,7 +75,8 @@ void add_triangle_test() {
     int n                            = 5;
     double y[]                       = {0, 0.25, 0.5, 0.75, 1};
     double z[]                       = {1, 0.5, 0, 0.5, 1};
-    xs_test_data *triangle_test_data = xs_test_data_new(n, y, z, 't');
+    double r[]                       = {0.030};
+    xs_test_data *triangle_test_data = xs_test_data_new(n, y, z, 1, r, 't');
     g_test_add("/panthera/xs/subsection/results test - simple triangle",
                ss_fixture, triangle_test_data, ss_setup, test_h_properties,
                ss_teardown);
@@ -84,7 +86,8 @@ void add_trapezoid_test() {
     int n                             = 6;
     double y[]                        = {0, 0.25, 0.5, 1.5, 1.75, 2};
     double z[]                        = {1, 0.5, 0, 0, 0.5, 1};
-    xs_test_data *trapezoid_test_data = xs_test_data_new(n, y, z, 'z');
+    double r[]                        = {0.030};
+    xs_test_data *trapezoid_test_data = xs_test_data_new(n, y, z, 1, r, 'z');
     g_test_add("/panthera/xs/subsection/results test - simple trapezoid",
                ss_fixture, trapezoid_test_data, ss_setup, test_h_properties,
                ss_teardown);

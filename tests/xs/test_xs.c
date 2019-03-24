@@ -12,7 +12,8 @@ void add_xs_tests(void) {
     add_crosssection_tests();
 }
 
-xs_test_data *xs_test_data_new(int n, double *y, double *z, char shape) {
+xs_test_data *xs_test_data_new(int n, double *y, double *z, int n_roughness,
+                               double *roughness, char shape) {
 
     xs_test_data *test_data =
         (xs_test_data *)Mem_alloc(sizeof(xs_test_data), __FILE__, __LINE__);
@@ -20,21 +21,29 @@ xs_test_data *xs_test_data_new(int n, double *y, double *z, char shape) {
     test_data->y           = Mem_calloc(n, sizeof(double), __FILE__, __LINE__);
     test_data->z           = Mem_calloc(n, sizeof(double), __FILE__, __LINE__);
     test_data->shape       = shape;
-    test_data->n_roughness = 1;
+    test_data->n_roughness = n_roughness;
     test_data->roughness   = Mem_calloc(test_data->n_roughness, sizeof(double),
                                         __FILE__, __LINE__);
-    // test_data->y_roughness  = Mem_calloc(test_data->n_roughness,
-                                         // sizeof(double), __FILE__, __LINE__);
-    test_data->y_roughness = NULL;
+    if (n_roughness > 1)
+        test_data->y_roughness  = Mem_calloc(test_data->n_roughness,
+                                             sizeof(double), __FILE__,
+                                             __LINE__);
+    else
+        test_data->y_roughness = NULL;
     test_data->b0          = 1;
     test_data->s           = 0.5;
     test_data->activation_depth = -INFINITY;
+    test_data->factor      = 1;
 
-    *(test_data->roughness) = 0.030;
+    int i;
 
-    for (int i = 0; i < test_data->n_coords; i++) {
+    for (i = 0; i < n; i++) {
         *(test_data->y + i) = y[i];
         *(test_data->z + i) = z[i];
+    }
+
+    for (i = 0; i < n_roughness; i++) {
+        *(test_data->roughness + i) = roughness[i];
     }
 
     return test_data;
@@ -50,6 +59,7 @@ void xs_test_data_free(xs_test_data *test_data) {
 
 double calc_area(xs_test_data test_data, double depth) {
     double area;
+    double factor = test_data.factor;
 
     if (test_data.shape == 'r')
         area = test_data.b0 * depth;
@@ -59,11 +69,12 @@ double calc_area(xs_test_data test_data, double depth) {
         area = (test_data.b0 + test_data.s * depth) * depth;
     else
         g_assert_not_reached();
-    return area;
+    return factor*area;
 }
 
 double calc_perimeter(xs_test_data test_data, double depth) {
     double perimeter;
+    double factor = test_data.factor;
 
     if (test_data.shape == 'r') {
         perimeter = test_data.b0 + 2 * depth;
@@ -75,11 +86,12 @@ double calc_perimeter(xs_test_data test_data, double depth) {
     else
         g_assert_not_reached();
 
-    return perimeter;
+    return factor*perimeter;
 }
 
 double calc_top_width(xs_test_data test_data, double depth) {
     double top_width;
+    double factor = test_data.factor;
 
     if (test_data.shape == 'r')
         top_width = test_data.b0;
@@ -90,7 +102,7 @@ double calc_top_width(xs_test_data test_data, double depth) {
     else
         g_assert_not_reached();
 
-    return top_width;
+    return factor*top_width;
 }
 
 double calc_hydraulic_radius(xs_test_data test_data, double depth) {

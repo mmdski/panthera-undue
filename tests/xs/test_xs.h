@@ -24,9 +24,12 @@ typedef struct {
     double b0; /* bottom width */
     double s;  /* slope */
     const Except_T *exception;
+    double factor;
 } xs_test_data;
 
-extern xs_test_data *xs_test_data_new(int n, double *y, double *z, char shape);
+extern xs_test_data *xs_test_data_new(int n, double *y, double *z,
+                                      int n_roughness, double *roughness,
+                                      char shape);
 extern void xs_test_data_free(xs_test_data *test_data);
 
 extern double calc_area(xs_test_data test_data, double depth);
