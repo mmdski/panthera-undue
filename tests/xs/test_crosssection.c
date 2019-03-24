@@ -162,6 +162,26 @@ void add_xs_rect_test() {
                test_simple_h_properties, xs_teardown);
 }
 
+void add_xs_triangle_test() {
+    int n                            = 5;
+    double y[]                       = {0, 0.25, 0.5, 0.75, 1};
+    double z[]                       = {1, 0.5, 0, 0.5, 1};
+    xs_test_data *triangle_test_data = xs_test_data_new(n, y, z, 't');
+    g_test_add("/panthera/xs/crosssection/hydraulic_properties/"
+               "simple triangle", xs_fixture, triangle_test_data, xs_setup,
+               test_simple_h_properties, xs_teardown);
+}
+
+void add_xs_trapezoid_test() {
+    int n                             = 6;
+    double y[]                        = {0, 0.25, 0.5, 1.5, 1.75, 2};
+    double z[]                        = {1, 0.5, 0, 0, 0.5, 1};
+    xs_test_data *trapezoid_test_data = xs_test_data_new(n, y, z, 'z');
+    g_test_add("/panthera/xs/crosssection/hydraulic_properties/"
+               "simple trapezoid", xs_fixture, trapezoid_test_data, xs_setup,
+               test_simple_h_properties, xs_teardown);
+}
+
 void add_xs_coarray_test() {
     g_test_add_func("/panthera/xs/crosssection/xs_coarray/null arg fail",
                     test_xs_coarray_fail);
@@ -171,5 +191,7 @@ void add_crosssection_tests() {
     add_xs_new_test();
     add_xs_hp_tests();
     add_xs_rect_test();
+    add_xs_triangle_test();
+    add_xs_trapezoid_test();
     add_xs_coarray_test();
 }
