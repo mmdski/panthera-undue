@@ -1,5 +1,7 @@
 #include <panthera/crosssection.h>
 
+#define DEPTH_INTERP_DELTA 0.1
+
 /* hydraulic properties interface */
 
 struct HydraulicProps {
@@ -143,14 +145,60 @@ HydraulicProps ss_hydraulic_properties(Subsection ss, double z) {
     return hp;
 }
 
+/* results cache interface */
+typedef struct ResultsCache {
+    int size;
+    double max_depth;
+    HydraulicProps *results;
+} ResultsCache;
+
+ResultsCache *res_new(double max_depth) {
+    ResultsCache *res;
+    NEW(res);
+
+    int size = (int) (max_depth / DEPTH_INTERP_DELTA + 1);
+
+    /* allocate space for HydraulicProps pointers */
+    HydraulicProps *results = Mem_calloc(size, sizeof(HydraulicProps),
+                                         __FILE__, __LINE__);
+
+    /* set results to NULL */
+    int i;
+    for (i = 0; i < size; i++) {
+        *(results + i) = NULL;
+    }
+
+    res->size      = size;
+    res->max_depth = max_depth;
+    res->results   = results;
+
+    return res;
+}
+
+void res_free(ResultsCache *res) {
+    assert(res);
+
+    int i;
+    int size = res->size;
+    HydraulicProps hp;
+    for (i = 0; i < size; i++) {
+        if ((hp = *(res->results + i))) {
+            hp_free(hp);
+        }
+    }
+    Mem_free(res->results, __FILE__, __LINE__);
+    FREE(res);
+}
+
 /* cross section interface */
 
 struct CrossSection {
-    int n_coordinates;    /* number of coordinates */
-    int n_subsections;    /* number of subsections */
-    double ref_elevation; /* reference elevation */
-    CoArray ca;           /* coordinate array */
-    Subsection *ss;       /* array of subsections */
+    int n_coordinates;     /* number of coordinates */
+    int n_subsections;     /* number of subsections */
+    double ref_elevation;  /* reference elevation */
+    CoArray ca;            /* coordinate array */
+    Subsection *ss;        /* array of subsections */
+    ResultsCache *results; /* results cache */
 };
 
 CrossSection xs_new(CoArray ca, int n_roughness, double *roughness,
@@ -182,6 +230,10 @@ CrossSection xs_new(CoArray ca, int n_roughness, double *roughness,
     /* CoArray with thalweg set to 0 elevation */
     CoArray normal_ca = coarray_add_z(ca, -xs->ref_elevation);
     xs->ca            = normal_ca;
+
+    /* initialize a results cache to store depths up to 2 * DEPTH_INTERP_DELTA
+     */
+    xs->results = res_new(2 * DEPTH_INTERP_DELTA);
 
     /* initialize y splits
      * include first and last y-values of the CoArray
@@ -216,11 +268,17 @@ void xs_free(CrossSection xs) {
     int i;
     int n = xs->n_subsections;
 
+    /* free the coordinate array */
     coarray_free(xs->ca);
+
+    /* free the subsections and subsection array */
     for (i = 0; i < n; i++) {
         ss_free(*(xs->ss + i));
     }
     Mem_free(xs->ss, __FILE__, __LINE__);
+
+    /* free the results cache */
+    res_free(xs->results);
     FREE(xs);
 }
 
