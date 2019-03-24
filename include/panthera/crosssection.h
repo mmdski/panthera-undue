@@ -56,8 +56,9 @@ typedef struct CrossSection *CrossSection;
  *   * @n_roughness is less than or equal to 0 or
  *   * any value in @roughness is less than or equal to 0.
  *
- * * #null_ptr_arg_Error if @n_roughness is greater than 1 and @y_roughness
- * is `NULL`.
+ * #null_ptr_arg_Error if
+ *   * @roughness is `NULL`
+ *   * @n_roughness is greater than 1 and @y_roughness  is `NULL`
  *
  * Returns: a new #CrossSection
  */
@@ -70,6 +71,10 @@ extern CrossSection xs_new(CoArray ca, int n_roughness, double *roughness,
  *
  * Frees a #CrossSection.
  *
+ * **Raises:**
+ *
+ * #null_ptr_arg_Error if @xs is `NULL`
+ *
  * Returns: None
  */
 extern void xs_free(CrossSection xs);
@@ -80,6 +85,10 @@ extern void xs_free(CrossSection xs);
  *
  * The resulting coordinate array is newly created and should be freed with
  * coarray_free() after use.
+ *
+ * **Raises:**
+ *
+ * #null_ptr_arg_Error if @xs is `NULL`
  *
  * Returns: a copy of the #CoArray contained in @xs
  */
