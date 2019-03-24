@@ -93,6 +93,7 @@ HydraulicProps xs_hydraulic_properties(CrossSection xs, double wse) {
     double top_width = 0;
     double perimeter = 0;
     double hydraulic_depth;
+    double hydraulic_radius;
 
     double depth = wse - xs->ref_elevation;
 
@@ -107,13 +108,15 @@ HydraulicProps xs_hydraulic_properties(CrossSection xs, double wse) {
         hp_free(hp_ss);
     }
 
-    hydraulic_depth = area / top_width;
+    hydraulic_depth  = area / top_width;
+    hydraulic_radius = area / perimeter;
 
     hp_set(hp, HP_DEPTH, depth);
     hp_set(hp, HP_AREA, area);
     hp_set(hp, HP_TOP_WIDTH, top_width);
     hp_set(hp, HP_WETTED_PERIMETER, perimeter);
     hp_set(hp, HP_HYDRAULIC_DEPTH, hydraulic_depth);
+    hp_set(hp, HP_HYDRAULIC_RADIUS, hydraulic_radius);
 
     return hp;
 }

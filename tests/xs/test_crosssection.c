@@ -64,6 +64,11 @@ void check_simple_hp(xs_fixture *xsf, xs_test_data test_data, double depth) {
     expected   = calc_hydraulic_depth(test_data, depth);
     is_close   = test_is_close(calculated, expected, ABS_TOL, REL_TOL);
     g_assert_true(is_close);
+
+    calculated = hp_get(hp, HP_HYDRAULIC_RADIUS);
+    expected   = calc_hydraulic_radius(test_data, depth);
+    is_close   = test_is_close(calculated, expected, ABS_TOL, REL_TOL);
+    g_assert_true(is_close);
 }
 
 void test_simple_h_properties(xs_fixture *xsf, gconstpointer test_data) {
