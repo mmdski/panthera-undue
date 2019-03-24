@@ -1,4 +1,4 @@
-#include "coarray.h"
+#include <panthera/coarray.h>
 #include <panthera/exceptions.h>
 #include <stdbool.h>
 #include <stdio.h>

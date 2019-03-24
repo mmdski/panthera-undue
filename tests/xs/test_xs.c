@@ -6,9 +6,7 @@ extern void add_subsection_tests(void);
 extern void add_crosssection_tests(void);
 
 void add_xs_tests(void) {
-    add_coord_tests();
     add_coarray_tests();
-    add_subsection_tests();
     add_crosssection_tests();
 }
 
