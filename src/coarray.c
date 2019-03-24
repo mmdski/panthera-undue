@@ -3,6 +3,8 @@
 #include <panthera/exceptions.h>
 #include <stddef.h>
 
+/* coordinate */
+
 /* Except_T raised when coordinate interpolation fails */
 const Except_T coord_interp_Fail = {"Coordinate interpolation failed"};
 
@@ -12,12 +14,6 @@ struct Coordinate {
 };
 
 typedef struct Coordinate *Coordinate;
-
-struct CoArray {
-    int length;        /* number of coordinates in this array */
-    double min_z;      /* minimum z value in coordinate array */
-    Coordinate *array; /* array of coordinates */
-};
 
 /* Creates and allocate space for a new Coordinate */
 Coordinate coord_new(double y, double z) {
@@ -92,6 +88,14 @@ double coord_z(Coordinate c) {
     return c->z;
 }
 
+/* coordinate array */
+
+struct CoArray {
+    int length;        /* number of coordinates in this array */
+    double min_z;      /* minimum z value in coordinate array */
+    Coordinate *array; /* array of coordinates */
+};
+
 void check_y_coordinates(int n, Coordinate *array);
 
 CoArray coarray_new(int n, double *y, double *z) {
@@ -158,8 +162,7 @@ CoArray coarray_from_array(int n, Coordinate *array) {
 
 CoArray coarray_from_list(List_T list) {
 
-    if (!list)
-        RAISE(null_ptr_arg_Error);
+    assert(list);
 
     int i;
     int n;

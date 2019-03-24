@@ -48,24 +48,30 @@ extern CoArray coarray_new(int n, double *y, double *z);
 
 /**
  * coarray_copy:
- * @ca: a #CoArray
+ * @a: a #CoArray
  *
- * Returns a new copy of @ca. The returned #CoArray is newly allocated and
+ * Returns a new copy of @a. The returned #CoArray is newly allocated and
  * should be freed using coarray_free().
  *
  * **Raises:**
  *
- * #null_ptr_arg_Error if @ca is `NULL`
+ * #null_ptr_arg_Error if @a is `NULL`
  *
- * Returns: a copy of @ca
+ * Returns: a copy of @a
  */
-extern CoArray coarray_copy(CoArray ca);
+extern CoArray coarray_copy(CoArray a);
 
 /**
  * coarray_free:
  * @a: a #CoArray
  *
  * Frees a coordinate array.
+ *
+ * **Raises:**
+ *
+ * #null_ptr_arg_Error if @a is `NULL`
+ *
+ * Returns: None
  */
 extern void coarray_free(CoArray a);
 
@@ -78,7 +84,7 @@ extern void coarray_free(CoArray a);
  *
  * #null_ptr_arg_Error if @a1 or @a2 are `NULL`
  *
- * Returns: 1 if a1 and a2 are equal, 0 if they are not
+ * Returns: 1 if @a1 and @a2 are equal, 0 if they are not
  */
 extern int coarray_eq(CoArray a1, CoArray a2);
 
@@ -128,28 +134,73 @@ extern double coarray_get_y(CoArray a, int i);
  */
 extern double coarray_get_z(CoArray a, int i);
 
+/**
+ * coarray_subarray_y:
+ * @a:   a #CoArray
+ * @ylo: low y-value of coordinate range
+ * @yhi: high y-value of coordinate range
+ *
+ * Returns a subset of the coordinates in @a as a new #CoArray. The subset is
+ * selected so that the y-values of the coordinates are between @ylo and @yhi.
+ * Interpolated coordinates are added to the ends of the subarray if @ylo and
+ * @yhi don't exactly define the y-values of the first and last coordinates in
+ * @a. The resulting #CoArray is newly created and should be freed with
+ * coarray_free() when no longer needed.
+ *
+ * **Raises:**
+ *
+ * #null_ptr_arg_Error if @a is `NULL`
+ *
+ * Returns: a subset of @a
+ */
 extern CoArray coarray_subarray_y(CoArray a, double ylo, double yhi);
-extern CoArray coarray_subarray_z(CoArray a, double z);
+
+/**
+ * coarray_subarray_z:
+ * @a:   a #CoArray
+ * @zhi: high z-value of coordinate range
+ *
+ * Returns a subset of the coordinates in @a as a new #CoArray. The subset is
+ * selected so that the z-values of the coordinates are less than @zhi.
+ * Interpolated coordinates are added to the ends of the subarray if @zhi
+ * doesn't exactly define the z-values of the first and last coordinates in
+ * @a. The resulting #CoArray is newly created and should be freed with
+ * coarray_free() when no longer needed.
+ *
+ * **Raises:**
+ *
+ * #null_ptr_arg_Error if @a is `NULL`
+ *
+ * Returns: a subset of @a
+ */
+extern CoArray coarray_subarray_z(CoArray a, double zhi);
 
 /**
  * coarray_min_z:
  * @a: a #CoArray
  *
- * Returns: the minimum z value in @a.
+ * **Raises**:
+ *
+ * #null_ptr_arg_Error if @a is `NULL`
+ *
+ * Returns: the minimum z value in @a
  */
 double coarray_min_z(CoArray a);
 
 /**
  * coarray_add_z:
- * @ca:    a #CoArray
- * @add_z: z-value to add to @ca
+ * @a:     a #CoArray
+ * @add_z: z-value to add to @a
  *
- * Translates @ca in the z-direction by @add_z. The resulting coordinate array
- * is newly allocated and should be freed using coarray_free() when no longer
- * needed.
+ * Translates @a in the z-direction by @add_z. The returned #CoArray is newly
+ * allocated and should be freed using coarray_free() when no longer needed.
  *
- * Returns: a new copy of @ca translated in the z-direction by @add_z
+ * **Raises:**
+ *
+ * #null_ptr_arg_Error if @a is `NULL`
+ *
+ * Returns: @a translated in the z-direction by @add_z
  */
-extern CoArray coarray_add_z(CoArray ca, double add_z);
+extern CoArray coarray_add_z(CoArray a, double add_z);
 
 #endif
