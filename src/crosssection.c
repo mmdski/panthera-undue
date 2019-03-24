@@ -89,9 +89,9 @@ HydraulicProps xs_hydraulic_properties(CrossSection xs, double wse) {
     int n_subsections = xs->n_subsections;
     int i;
 
-    double area      = 0;
-    double top_width = 0;
-    double perimeter = 0;
+    double area             = 0;
+    double top_width        = 0;
+    double perimeter        = 0;
     double hydraulic_depth;
     double hydraulic_radius;
 
@@ -108,8 +108,16 @@ HydraulicProps xs_hydraulic_properties(CrossSection xs, double wse) {
         hp_free(hp_ss);
     }
 
-    hydraulic_depth  = area / top_width;
-    hydraulic_radius = area / perimeter;
+    /* if area is zero, assume top_width and perimeter are also 0 and set
+     * hydraulic_depth and hydraulic_radius to 0.
+     */
+    if (area == 0) {
+        hydraulic_depth = 0;
+        hydraulic_radius = 0;
+    } else {
+        hydraulic_depth  = area / top_width;
+        hydraulic_radius = area / perimeter;
+    }
 
     hp_set(hp, HP_DEPTH, depth);
     hp_set(hp, HP_AREA, area);
