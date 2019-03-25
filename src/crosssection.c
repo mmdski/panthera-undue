@@ -1,8 +1,4 @@
 #include <panthera/crosssection.h>
-#include <stdio.h>
-
-#define DEPTH_INTERP_DELTA 0.1
-#define CACHE_RESIZE_RATE 1.5
 
 /* hydraulic properties interface */
 
@@ -38,10 +34,24 @@ void hp_set(HydraulicProps hp, hyd_prop prop, double value) {
 
 HydraulicProps hp_interp_depth(HydraulicProps hp1, HydraulicProps hp2,
                                double depth) {
-    assert(*(hp1->properties + HP_DEPTH) <= depth &&
-           depth <= *(hp2->properties + HP_DEPTH));
+    double d1 = *(hp1->properties + HP_DEPTH);
+    double d2 = *(hp2->properties + HP_DEPTH);
+
+    assert(d1 <= depth && depth <= d2);
 
     HydraulicProps hp = hp_new();
+
+    double prop1;
+    double prop2;
+
+    int i;
+
+    for (i = 0; i < N_HP; i++) {
+        prop1 = *(hp1->properties + i);
+        prop2 = *(hp2->properties + i);
+        *(hp->properties + i) = (prop2 - prop1) / (d2 - d1) * (depth - d1) +
+            prop1;
+    }
 
     return hp;
 }
@@ -161,32 +171,37 @@ HydraulicProps ss_hydraulic_properties(Subsection ss, double z) {
 typedef struct ResultsCache {
     int size;
     double max_depth;
-    HydraulicProps *results;
+    HydraulicProps *hp;
 } ResultsCache;
 
-#define calc_depth_index(depth) (int) (depth / DEPTH_INTERP_DELTA)
+#define DEPTH_INTERP_DELTA 0.1  /* depth interpolation step size */
+#define CACHE_RESIZE_RATE 1.5   /* rate to grow array */
+
+#define calc_index(depth) (int) (depth / DEPTH_INTERP_DELTA)
+#define calc_depth(index) DEPTH_INTERP_DELTA * index
 
 ResultsCache *res_new(double max_depth) {
+
     assert(max_depth > 0);
 
     ResultsCache *res;
     NEW(res);
 
-    int size = calc_depth_index(max_depth) + 1;
+    int size = calc_index(max_depth) + 1;
 
     /* allocate space for HydraulicProps pointers */
-    HydraulicProps *results = Mem_calloc(size, sizeof(HydraulicProps),
+    HydraulicProps *hp = Mem_calloc(size, sizeof(HydraulicProps),
                                          __FILE__, __LINE__);
 
     /* set results to NULL */
     int i;
     for (i = 0; i < size; i++) {
-        *(results + i) = NULL;
+        *(hp + i) = NULL;
     }
 
     res->size      = size;
     res->max_depth = max_depth;
-    res->results   = results;
+    res->hp   = hp;
 
     return res;
 }
@@ -198,11 +213,11 @@ void res_free(ResultsCache *res) {
     int size = res->size;
     HydraulicProps hp;
     for (i = 0; i < size; i++) {
-        if ((hp = *(res->results + i))) {
+        if ((hp = *(res->hp + i))) {
             hp_free(hp);
         }
     }
-    Mem_free(res->results, __FILE__, __LINE__);
+    Mem_free(res->hp, __FILE__, __LINE__);
     FREE(res);
 }
 
@@ -215,9 +230,9 @@ ResultsCache *res_resize(double max_depth, ResultsCache *old_res) {
     ResultsCache *new_res = res_new(max_depth);
 
     for (i = 0; i < n; i++)
-        *(new_res->results + i) = *(old_res->results + i);
+        *(new_res->hp + i) = *(old_res->hp + i);
 
-    Mem_free(old_res->results, __FILE__, __LINE__);
+    Mem_free(old_res->hp, __FILE__, __LINE__);
     FREE(old_res);
 
     return new_res;
@@ -282,11 +297,35 @@ HydraulicProps _calc_hydraulic_properties(CrossSection xs, double depth) {
 /* interfacing function between results cache and cross section */
 HydraulicProps xs_get_properties_from_res(CrossSection xs, double depth) {
 
-    if (depth > xs->results->max_depth) {
+    assert(xs);
+
+    if (depth > xs->results->max_depth - DEPTH_INTERP_DELTA) {
         xs->results = res_resize(CACHE_RESIZE_RATE * depth, xs->results);
     }
 
-    return _calc_hydraulic_properties(xs, depth);
+    int indlo = calc_index(depth);
+    int indhi = indlo + 1;
+
+    double dlo;
+    double dhi;
+
+    HydraulicProps hplo = *(xs->results->hp + indlo);
+    if (!hplo) {
+        dlo  = calc_depth(indlo);
+        hplo = _calc_hydraulic_properties(xs, dlo);
+        *(xs->results->hp + indlo) = hplo;
+    }
+
+    HydraulicProps hphi = *(xs->results->hp + indhi);
+    if (!hphi) {
+        dhi  = calc_depth(indhi);
+        hphi = _calc_hydraulic_properties(xs, dhi);
+        *(xs->results->hp + indhi) = hphi;
+    }
+
+    HydraulicProps hp = hp_interp_depth(hplo, hphi, depth);
+
+    return hp;
 }
 
 CrossSection xs_new(CoArray ca, int n_roughness, double *roughness,
