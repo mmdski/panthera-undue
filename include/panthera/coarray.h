@@ -105,15 +105,16 @@ extern int coarray_length(CoArray a);
  * @a: a #CoArray
  * @i: index
  *
- * Returns y-value of the `i`-th coordinate of an array.
+ * Returns y-value of the @i-th coordinate of an array.
  *
  * **Raises:**
  *
  * #null_ptr_arg_Error if @a is `NULL`
  *
- * #index_Error if `i < 0` or `i >= length`, where `length` is the length of @a
+ * #index_Error if `i < 0` or `i >= length`, where `length` is the length of
+ * @a
  *
- * Returns: y-value of `i`-th coordinate
+ * Returns: y-value of @i-th coordinate
  */
 extern double coarray_get_y(CoArray a, int i);
 
@@ -122,7 +123,7 @@ extern double coarray_get_y(CoArray a, int i);
  * @a: a #CoArray
  * @i: index
  *
- * Returns z-value of the `i`-th coordinate of an array.
+ * Returns z-value of the @i-th coordinate of an array.
  *
  * **Raises:**
  *
@@ -130,7 +131,7 @@ extern double coarray_get_y(CoArray a, int i);
  *
  * #index_Error if `i < 0` or `i >= length`, where `length` is the length of @a
  *
- * Returns: z-value of `i`-th coordinate
+ * Returns: z-value of @i-th coordinate
  */
 extern double coarray_get_z(CoArray a, int i);
 

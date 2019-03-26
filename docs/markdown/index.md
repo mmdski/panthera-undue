@@ -1,3 +1,8 @@
+---
+short-description: panthera-undue
+...
+
+# panthera-undue
 ```
 /*
  *
@@ -14,3 +19,23 @@
 ```
 
 [panthera GitHub project](https://github.com/mmdski/panthera-undue)
+
+### Completed features
+* Cross section computations
+  * Area
+  * Top width
+  * Wetted perimeter
+  * Hydraulic depth
+  * Hydraulic radius
+
+### Planned features
+* Cross section computations
+  * Conveyance
+* Reach scale computations
+  * Critical depth
+  * Normal depth
+* Steady flow
+* Unsteady flow
+  * Method of characteritics
+* Python extensions to major features
+* HDF5 storage
