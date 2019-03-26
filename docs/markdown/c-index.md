@@ -1,5 +1,5 @@
 ---
-short-description: Panthera C API
+short-description: C API
 ...
 
-## Panthera C API
+## panthera API
