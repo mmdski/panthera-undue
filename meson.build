@@ -1,5 +1,5 @@
 project('panthera-undue', 'c',
-    default_options : ['c_std=c99', 'c_args=-Wall'],
+    default_options : ['c_std=c99', 'c_args=-Wall', 'b_ndebug=if-release'],
     version : '0.0.0')
 
 inc = include_directories('include')
@@ -9,7 +9,4 @@ m_dep = cc.find_library('m', required : false)
 
 subdir('src')
 subdir('app')
-
-if get_option('buildtype').startswith('debug')
-    subdir('tests')
-endif
+subdir('tests')
