@@ -23,11 +23,11 @@ xs_test_data *xs_test_data_new(int n, double *y, double *z, int n_roughness,
     test_data->roughness   = Mem_calloc(test_data->n_roughness, sizeof(double),
                                         __FILE__, __LINE__);
     if (n_roughness > 1)
-        test_data->y_roughness  = Mem_calloc(test_data->n_roughness,
+        test_data->z_roughness  = Mem_calloc(test_data->n_roughness,
                                              sizeof(double), __FILE__,
                                              __LINE__);
     else
-        test_data->y_roughness = NULL;
+        test_data->z_roughness = NULL;
     test_data->b0          = 1;
     test_data->s           = 0.5;
     test_data->activation_depth = -INFINITY;
@@ -50,7 +50,7 @@ xs_test_data *xs_test_data_new(int n, double *y, double *z, int n_roughness,
 void xs_test_data_free(xs_test_data *test_data) {
     Mem_free(test_data->y, __FILE__, __LINE__);
     Mem_free(test_data->z, __FILE__, __LINE__);
-    Mem_free(test_data->y_roughness, __FILE__, __LINE__);
+    Mem_free(test_data->z_roughness, __FILE__, __LINE__);
     Mem_free(test_data->roughness, __FILE__, __LINE__);
     Mem_free(test_data, __FILE__, __LINE__);
 }

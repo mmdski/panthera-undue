@@ -39,9 +39,9 @@ extern const Except_T coarray_n_coords_Error;
 /**
  * coarray_y_order_Error:
  *
- * Exception raised when the order of @y passed to coarray_new() is incorrect
+ * Exception raised when the order of @z passed to coarray_new() is incorrect
  */
-extern const Except_T coarray_y_order_Error;
+extern const Except_T coarray_z_order_Error;
 
 /**
  * index_Error:

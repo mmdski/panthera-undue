@@ -90,7 +90,7 @@ void ss_free(Subsection ss) {
 /* Calculates hydraulic properties for the subsection.
  * Returns a new HydraulicProps.
  */
-HydraulicProps ss_hydraulic_properties(Subsection ss, double z) {
+HydraulicProps ss_hydraulic_properties(Subsection ss, double y) {
 
     assert(ss);
 
@@ -105,13 +105,13 @@ HydraulicProps ss_hydraulic_properties(Subsection ss, double z) {
     int n;
 
     /* return 0 subsection values if this subsection isn't activated */
-    if (z < coarray_min_z(ss->array) || z <= ss->min_depth) {
+    if (y < coarray_min_y(ss->array) || y <= ss->min_depth) {
         sa = NULL;
         n = 0;
     }
     /* otherwise calculate the values */
     else {
-        sa = coarray_subarray_z(ss->array, z);
+        sa = coarray_subarray_y(ss->array, y);
         n = coarray_length(sa);
     }
 
@@ -144,9 +144,9 @@ HydraulicProps ss_hydraulic_properties(Subsection ss, double z) {
         }
 
         /* calculate area by trapezoidal integration */
-        d1 = z - z1;
-        d2 = z - z2;
-        area += 0.5 * (d1 + d2) * (y2 - y1);
+        d1 = y - y1;
+        d2 = y - y2;
+        area += 0.5 * (d1 + d2) * (z2 - z1);
 
         /* calculate perimeter */
         dy = y2 - y1;
@@ -154,7 +154,7 @@ HydraulicProps ss_hydraulic_properties(Subsection ss, double z) {
         perimeter += sqrt(dy * dy + dz * dz);
 
         /* calculate top width */
-        top_width += y2 - y1;
+        top_width += z2 - z1;
     }
 
     hp_set(hp, HP_AREA, area);
@@ -249,7 +249,7 @@ struct CrossSection {
     ResultsCache *results; /* results cache */
 };
 
-HydraulicProps _calc_hydraulic_properties(CrossSection xs, double depth) {
+HydraulicProps _calc_hydraulic_properties(CrossSection xs, double h) {
 
     assert(xs);
 
@@ -266,7 +266,7 @@ HydraulicProps _calc_hydraulic_properties(CrossSection xs, double depth) {
     HydraulicProps hp_ss;
 
     for (i = 0; i < n_subsections; i++) {
-        hp_ss = ss_hydraulic_properties(*(xs->ss + i), depth);
+        hp_ss = ss_hydraulic_properties(*(xs->ss + i), h);
         area += hp_get(hp_ss, HP_AREA);
         top_width += hp_get(hp_ss, HP_TOP_WIDTH);
         perimeter += hp_get(hp_ss, HP_WETTED_PERIMETER);
@@ -284,7 +284,7 @@ HydraulicProps _calc_hydraulic_properties(CrossSection xs, double depth) {
         hydraulic_radius = area / perimeter;
     }
 
-    hp_set(hp, HP_DEPTH, depth);
+    hp_set(hp, HP_DEPTH, h);
     hp_set(hp, HP_AREA, area);
     hp_set(hp, HP_TOP_WIDTH, top_width);
     hp_set(hp, HP_WETTED_PERIMETER, perimeter);
@@ -329,7 +329,7 @@ HydraulicProps xs_get_properties_from_res(CrossSection xs, double depth) {
 }
 
 CrossSection xs_new(CoArray ca, int n_roughness, double *roughness,
-                    double *y_roughness) {
+                    double *z_roughness) {
 
     if (n_roughness < 1)
         RAISE(value_arg_Error);
@@ -337,7 +337,7 @@ CrossSection xs_new(CoArray ca, int n_roughness, double *roughness,
     if (!roughness)
         RAISE(null_ptr_arg_Error);
 
-    if (n_roughness > 1 && !y_roughness)
+    if (n_roughness > 1 && !z_roughness)
         RAISE(null_ptr_arg_Error);
 
     int i; /* loop variable */
@@ -351,27 +351,27 @@ CrossSection xs_new(CoArray ca, int n_roughness, double *roughness,
     NEW(xs);
     xs->n_coordinates = coarray_length(ca);
     xs->n_subsections = n_roughness;
-    xs->ref_elevation = coarray_min_z(ca);
+    xs->ref_elevation = coarray_min_y(ca);
     xs->ss = Mem_calloc(n_roughness, sizeof(Subsection), __FILE__, __LINE__);
 
     /* CoArray with thalweg set to 0 elevation */
-    CoArray normal_ca = coarray_add_z(ca, -xs->ref_elevation);
+    CoArray normal_ca = coarray_add_y(ca, -xs->ref_elevation);
     xs->ca = normal_ca;
 
     /* initialize a results cache to store depths up to 2 * DEPTH_INTERP_DELTA
      */
     xs->results = res_new(2 * DEPTH_INTERP_DELTA);
 
-    /* initialize y splits
-     * include first and last y-values of the CoArray
+    /* initialize z splits
+     * include first and last z-values of the CoArray
      */
-    double *y_splits =
+    double *z_splits =
         Mem_calloc(n_roughness + 1, sizeof(double), __FILE__, __LINE__);
-    y_splits[0] = coarray_get_y(normal_ca, 0);
-    y_splits[n_roughness] =
-        coarray_get_y(normal_ca, coarray_length(normal_ca) - 1);
+    z_splits[0] = coarray_get_z(normal_ca, 0);
+    z_splits[n_roughness] =
+        coarray_get_z(normal_ca, coarray_length(normal_ca) - 1);
     for (i = 1; i < n_roughness; i++) {
-        y_splits[i] = *(y_roughness + i - 1);
+        z_splits[i] = *(z_roughness + i - 1);
     }
 
     /* set all activation depths to -inf */
@@ -380,12 +380,12 @@ CrossSection xs_new(CoArray ca, int n_roughness, double *roughness,
     /* create subsections from the roughness section breaks */
     CoArray subarray;
     for (i = 0; i < n_roughness; i++) {
-        subarray = coarray_subarray_y(normal_ca, y_splits[i], y_splits[i + 1]);
+        subarray = coarray_subarray_z(normal_ca, z_splits[i], z_splits[i + 1]);
         *(xs->ss + i) = ss_new(subarray, *(roughness + i), activation_depth);
         coarray_free(subarray);
     }
 
-    Mem_free(y_splits, __FILE__, __LINE__);
+    Mem_free(z_splits, __FILE__, __LINE__);
 
     return xs;
 }
@@ -425,5 +425,5 @@ CoArray xs_coarray(CrossSection xs) {
     if (!xs)
         RAISE(null_ptr_arg_Error);
 
-    return coarray_add_z(xs->ca, xs->ref_elevation);
+    return coarray_add_y(xs->ca, xs->ref_elevation);
 }

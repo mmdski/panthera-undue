@@ -17,8 +17,8 @@ typedef struct CoArrayTestData {
     double *y1;
     double *z1;
 
-    double ylo;
-    double yhi;
+    double zlo;
+    double zhi;
 
     CoArray expected;
 
@@ -26,7 +26,7 @@ typedef struct CoArrayTestData {
 } CoArrayTestData;
 
 CoArrayTestData *new_coarray_test_data(int n1, double *y1, double *z1,
-                                       double ylo, double yhi,
+                                       double zlo, double zhi,
                                        CoArray expected,
                                        const Except_T *exception);
 void coarray_test_free(CoArrayTestData *cat);
@@ -44,8 +44,8 @@ void init_coarray_new(CoArrayFixture *caf, CoArrayTestData test_data) {
         caf->caught_exception = &null_ptr_arg_Error;
     EXCEPT(coarray_n_coords_Error)
         caf->caught_exception = &coarray_n_coords_Error;
-    EXCEPT(coarray_y_order_Error)
-        caf->caught_exception = &coarray_y_order_Error;
+    EXCEPT(coarray_z_order_Error)
+        caf->caught_exception = &coarray_z_order_Error;
     END_TRY;
 
 }
@@ -70,10 +70,10 @@ void coarray_test_new(CoArrayFixture *caf, gconstpointer test_data) {
 
 /* coarray_subarray_y test functions */
 
-void coarray_test_subarray_y(CoArrayFixture *caf, gconstpointer test_data) {
+void coarray_test_subarray_z(CoArrayFixture *caf, gconstpointer test_data) {
     CoArrayTestData data = *(const CoArrayTestData *)test_data;
 
-    CoArray result = coarray_subarray_y(caf->ca, data.ylo, data.yhi);
+    CoArray result = coarray_subarray_z(caf->ca, data.zlo, data.zhi);
 
     g_assert_true(coarray_eq(result, data.expected));
     coarray_free(result);
@@ -81,10 +81,10 @@ void coarray_test_subarray_y(CoArrayFixture *caf, gconstpointer test_data) {
 
 /* coarray_add_z test functions */
 
-void coarray_test_add_z(CoArrayFixture *caf, gconstpointer test_data) {
+void coarray_test_add_y(CoArrayFixture *caf, gconstpointer test_data) {
     CoArrayTestData data = *(const CoArrayTestData *)test_data;
 
-    CoArray result = coarray_add_z(caf->ca, data.ylo);
+    CoArray result = coarray_add_y(caf->ca, data.zlo);
     g_assert_true(coarray_eq(result, data.expected));
     coarray_free(result);
 }
@@ -92,7 +92,7 @@ void coarray_test_add_z(CoArrayFixture *caf, gconstpointer test_data) {
 /* test utility functions */
 
 CoArrayTestData *new_coarray_test_data(int n1, double *y1, double *z1,
-                                       double ylo, double yhi,
+                                       double zlo, double zhi,
                                        CoArray expected,
                                        const Except_T *exception) {
     int i;
@@ -118,8 +118,8 @@ CoArrayTestData *new_coarray_test_data(int n1, double *y1, double *z1,
         cat->z1 = NULL;
     }
 
-    cat->ylo = ylo;
-    cat->yhi = yhi;
+    cat->zlo = zlo;
+    cat->zhi = zhi;
 
     cat->expected = expected;
     cat->exception = exception;
@@ -173,8 +173,8 @@ void add_new_tests(void) {
 
     /* test succesful initialization */
     int n1 = 4;
-    double y1[] = {0, 0.25, 0.5, 1};
-    double z1[] = {1, 1.5, 1.25, 1};
+    double y1[] = {1, 1.5, 1.25, 1};
+    double z1[] = {0, 0.25, 0.5, 1};
     CoArrayTestData *test_data_1 =  new_coarray_test_data(n1, y1, z1, NAN, NAN,
                                                           NULL, &no_Error);
     g_test_add("/panthera/xs/coarray/new/success", CoArrayFixture,
@@ -217,77 +217,77 @@ void add_new_tests(void) {
                coarray_new_teardown);
 
     /* test failed initialization with out of order y values */
-    double y6[] = {0, 0.5, 0.25, 1};
+    double z6[] = {0, 0.5, 0.25, 1};
     CoArrayTestData *test_data_6 = new_coarray_test_data(
-                                                n1, y6, z1, NAN, NAN, NULL,
-                                                &coarray_y_order_Error);
+                                                n1, y1, z6, NAN, NAN, NULL,
+                                                &coarray_z_order_Error);
     g_test_add("/panthera/xs/coarray/new/fail/y_order", CoArrayFixture,
                test_data_6, coarray_new_setup, coarray_test_new,
                coarray_new_teardown);
 }
 
-void add_subarray_y_tests(void) {
+void add_subarray_z_tests(void) {
 
     /* two points inside array */
     int n1 = 4;
-    double y1[] = {0, 1, 2, 3};
-    double z1[] = {1.5, 1, 1, 1.5};
-    double ylo1 = 0.5;
-    double yhi1 = 2.5;
-    double expected_y1[] = {0.5, 1, 2, 2.5};
-    double expected_z1[] = {1.25, 1, 1, 1.25};
+    double z1[] = {0, 1, 2, 3};
+    double y1[] = {1.5, 1, 1, 1.5};
+    double zlo1 = 0.5;
+    double zhi1 = 2.5;
+    double expected_z1[] = {0.5, 1, 2, 2.5};
+    double expected_y1[] = {1.25, 1, 1, 1.25};
     CoArray expected1 = coarray_new(n1, expected_y1, expected_z1);
-    CoArrayTestData *test_data_1 = new_coarray_test_data(n1, y1, z1, ylo1,
-                                                         yhi1, expected1,
+    CoArrayTestData *test_data_1 = new_coarray_test_data(n1, y1, z1, zlo1,
+                                                         zhi1, expected1,
                                                          &no_Error);
-    g_test_add("/panthera/xs/coarray/subarray_y/success 1", CoArrayFixture,
-               test_data_1, coarray_new_setup, coarray_test_subarray_y,
+    g_test_add("/panthera/xs/coarray/subarray_z/success 1", CoArrayFixture,
+               test_data_1, coarray_new_setup, coarray_test_subarray_z,
                coarray_new_teardown);
 
     /* two points exactly equal to y values */
     int n2 = 2;
-    double ylo2 = 1;
-    double yhi2 = 2;
-    double expected_y2[] = {1, 2};
-    double expected_z2[] = {1, 1};
+    double zlo2 = 1;
+    double zhi2 = 2;
+    double expected_z2[] = {1, 2};
+    double expected_y2[] = {1, 1};
     CoArray expected2 = coarray_new(n2, expected_y2, expected_z2);
-    CoArrayTestData *test_data_2 = new_coarray_test_data(n1, y1, z1, ylo2,
-                                                         yhi2, expected2,
+    CoArrayTestData *test_data_2 = new_coarray_test_data(n1, y1, z1, zlo2,
+                                                         zhi2, expected2,
                                                          &no_Error);
-    g_test_add("/panthera/xs/coarray/subarray_y/success 2", CoArrayFixture,
-               test_data_2, coarray_new_setup, coarray_test_subarray_y,
+    g_test_add("/panthera/xs/coarray/subarray_z/success 2", CoArrayFixture,
+               test_data_2, coarray_new_setup, coarray_test_subarray_z,
                coarray_new_teardown);
 
     /* two points outside y values */
-    double ylo3 = -INFINITY;
-    double yhi3 = INFINITY;
+    double zlo3 = -INFINITY;
+    double zhi3 = INFINITY;
     CoArray expected3 = coarray_new(n1, y1, z1);
-    CoArrayTestData *test_data_3 = new_coarray_test_data(n1, y1, z1, ylo3,
-                                                         yhi3, expected3,
+    CoArrayTestData *test_data_3 = new_coarray_test_data(n1, y1, z1, zlo3,
+                                                         zhi3, expected3,
                                                          &no_Error);
-    g_test_add("/panthera/xs/coarray/subarray_y/success 3", CoArrayFixture,
-               test_data_3, coarray_new_setup, coarray_test_subarray_y,
+    g_test_add("/panthera/xs/coarray/subarray_z/success 3", CoArrayFixture,
+               test_data_3, coarray_new_setup, coarray_test_subarray_z,
                coarray_new_teardown);
 }
 
-void add_coarray_add_z_tests(void) {
+void add_coarray_add_y_tests(void) {
         int n1 = 4;
-        double y1[] = {0, 1, 2, 3};
-        double z1[] = {1.5, 1, 1, 1.5};
-        double ylo1 = -1;
-        double yhi1 = 0;
-        double expected_z1[] = {0.5, 0, 0, 0.5};
-        CoArray expected1 = coarray_new(n1, y1, expected_z1);
-        CoArrayTestData *test_data_1 = new_coarray_test_data(n1, y1, z1, ylo1,
-                                                             yhi1, expected1,
+        double z1[] = {0, 1, 2, 3};
+        double y1[] = {1.5, 1, 1, 1.5};
+        double zlo1 = -1;
+        double zhi1 = 0;
+        double expected_y1[] = {0.5, 0, 0, 0.5};
+        CoArray expected1 = coarray_new(n1, expected_y1, z1);
+        CoArrayTestData *test_data_1 = new_coarray_test_data(n1, y1, z1, zlo1,
+                                                             zhi1, expected1,
                                                              &no_Error);
-        g_test_add("/panthera/xs/coarray/subtract_z/success", CoArrayFixture,
-                   test_data_1, coarray_new_setup, coarray_test_add_z,
+        g_test_add("/panthera/xs/coarray/subtract_y/success", CoArrayFixture,
+                   test_data_1, coarray_new_setup, coarray_test_add_y,
                    coarray_new_teardown);
 }
 
 void add_coarray_tests(void) {
     add_new_tests();
-    add_subarray_y_tests();
-    add_coarray_add_z_tests();
+    add_subarray_z_tests();
+    add_coarray_add_y_tests();
 }

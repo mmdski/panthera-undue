@@ -13,7 +13,7 @@ void init_xs(xs_fixture *xsf, xs_test_data test_data) {
     TRY
         CoArray ca = coarray_new(test_data.n_coords, test_data.y, test_data.z);
         xsf->xs = xs_new(ca, test_data.n_roughness, test_data.roughness,
-                         test_data.y_roughness);
+                         test_data.z_roughness);
         coarray_free(ca);
         xsf->caught_exception = &no_Error;
     EXCEPT(null_ptr_arg_Error)
@@ -100,8 +100,8 @@ void test_xs_coarray_fail(void) {
 
 void add_xs_new_test() {
     int n                        = 5;
-    double y[]                   = {0, 0, 0.5, 1, 1};
-    double z[]                   = {1, 0, 0, 0, 1};
+    double z[]                   = {0, 0, 0.5, 1, 1};
+    double y[]                   = {1, 0, 0, 0, 1};
     double r[]                   = {0.030};
     double zero_r[]              = {0};
     double neg_r[]               = {-0.030};
@@ -144,9 +144,9 @@ void add_xs_new_test() {
     xs_test_data *null_y_roughness_test_data =
         xs_test_data_new(n, y, z, 2, r, 'r');
     null_y_roughness_test_data->n_roughness = 2;
-    null_y_roughness_test_data->y_roughness = NULL;
+    null_y_roughness_test_data->z_roughness = NULL;
     null_y_roughness_test_data->exception = &null_ptr_arg_Error;
-    g_test_add("/panthera/xs/crosssection/new/null y_roughness",
+    g_test_add("/panthera/xs/crosssection/new/null z_roughness",
                xs_fixture, null_y_roughness_test_data, xs_setup, test_xs_new,
                xs_teardown);
 }
@@ -159,8 +159,8 @@ void add_xs_hp_tests() {
 void add_xs_rect_test() {
 
     int n                        = 5;
-    double y[]                   = {0, 0, 0.5, 1, 1};
-    double z[]                   = {1, 0, 0, 0, 1};
+    double z[]                   = {0, 0, 0.5, 1, 1};
+    double y[]                   = {1, 0, 0, 0, 1};
     double r[]                   = {0.030};
     xs_test_data *rect_test_data = xs_test_data_new(n, y, z, 1, r, 'r');
     rect_test_data->exception = &no_Error;
@@ -171,8 +171,8 @@ void add_xs_rect_test() {
 
 void add_xs_triangle_test() {
     int n                            = 5;
-    double y[]                       = {0, 0.25, 0.5, 0.75, 1};
-    double z[]                       = {1, 0.5, 0, 0.5, 1};
+    double z[]                       = {0, 0.25, 0.5, 0.75, 1};
+    double y[]                       = {1, 0.5, 0, 0.5, 1};
     double r[]                       = {0.030};
     xs_test_data *triangle_test_data = xs_test_data_new(n, y, z, 1, r, 't');
     g_test_add("/panthera/xs/crosssection/hydraulic_properties/"
@@ -182,8 +182,8 @@ void add_xs_triangle_test() {
 
 void add_xs_trapezoid_test() {
     int n                             = 6;
-    double y[]                        = {0, 0.25, 0.5, 1.5, 1.75, 2};
-    double z[]                        = {1, 0.5, 0, 0, 0.5, 1};
+    double z[]                        = {0, 0.25, 0.5, 1.5, 1.75, 2};
+    double y[]                        = {1, 0.5, 0, 0, 0.5, 1};
     double r[]                        = {0.030};
     xs_test_data *trapezoid_test_data = xs_test_data_new(n, y, z, 1, r, 'z');
     g_test_add("/panthera/xs/crosssection/hydraulic_properties/"
@@ -193,13 +193,13 @@ void add_xs_trapezoid_test() {
 
 void add_xs_double_triangle_test() {
     int n                            = 9;
-    double y[]                       = {0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75,
+    double z[]                       = {0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75,
                                         2};
-    double z[]                       = {1, 0.5, 0, 0.5, 1, 0.5, 0, 0.5, 1};
+    double y[]                       = {1, 0.5, 0, 0.5, 1, 0.5, 0, 0.5, 1};
     double r[]                       = {0.030, 0.030};
     xs_test_data *triangle_test_data = xs_test_data_new(n, y, z, 2, r, 't');
     triangle_test_data->factor       = 2;
-    *(triangle_test_data->y_roughness) = 1;
+    *(triangle_test_data->z_roughness) = 1;
     g_test_add("/panthera/xs/crosssection/hydraulic_properties/"
                "simple double triangle", xs_fixture, triangle_test_data,
                xs_setup, test_simple_h_properties, xs_teardown);

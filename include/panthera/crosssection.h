@@ -85,30 +85,31 @@ typedef struct CrossSection *CrossSection;
  * @ca:          a #CoArray
  * @n_roughness: number of roughness values in cross section
  * @roughness:   array of @n_roughness values
- * @y_roughness: array of y-locations of roughness section
+ * @z_roughness: array of z-locations of roughness section
  *
  * Creates a new #CrossSection consisting of
  * * the coordinates in @ca,
  * * @n_roughness subsections,
  * * @roughness[`i`] for the `i`-th subsection,
- * * and lateral subsection boundaries in @y_roughness.
+ * * and lateral subsection boundaries in @z_roughness.
  *
  * A new copy of @ca is made, so @ca should be freed using coarray_free() after
- * use. If @n_roughness is 1, @y_roughness is ignored and may be `NULL`.
+ * use. If @n_roughness is 1, @z_roughness is ignored and may be `NULL`.
+ * Otherwise, the length of @z_roughness is @n_roughness `- 1`.
  *
  * *Subsections*
  *
  * The number of subsections created is equal to @n_roughness. The lateral
  * subsection boundaries are described by the first and last coordinates in @ca
- * and the values in @y_roughness.
+ * and the values in @z_roughness.
  * * For a cross section with one subsection, the subsection is defined by the
  * first and last coordinates in @ca.
  * * For a cross section with more than one subsection, the lateral boundaries
- * of the first subsection are coarray_get_y()(@ca, `0`) and @y_roughness[`0`].
- * The lateral boundaries of the `i`-th subsection are @y_roughness[`i`] and
- * @y_roughness[`i + 1`]. The last subsection is bounded by
- * @y_roughness[@n_roughness `- 2`] and coarray_get_y()(@ca, `length - 1`),
- * where `length` is the length of @ca.
+ * of the first subsection are coarray_get_z()( @ca, `0`) and
+ * @z_roughness[`0`]. The lateral boundaries of the `i`-th subsection are
+ * @z_roughness[`i`] and @z_roughness[`i + 1`]. The last subsection is bounded
+ * by @z_roughness[ @n_roughness `- 2`] and
+ * coarray_get_z()( @ca, `length - 1`), where `length` is the length of @ca.
  *
  * **Raises:**
  *
@@ -118,12 +119,12 @@ typedef struct CrossSection *CrossSection;
  *
  * #null_ptr_arg_Error if
  *   * @roughness is `NULL`
- *   * @n_roughness is greater than 1 and @y_roughness  is `NULL`
+ *   * @n_roughness is greater than 1 and @z_roughness  is `NULL`
  *
  * Returns: a new #CrossSection
  */
 extern CrossSection xs_new(CoArray ca, int n_roughness, double *roughness,
-                           double *y_roughness);
+                           double *z_roughness);
 
 /**
  * xs_free:

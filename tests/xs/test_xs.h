@@ -11,7 +11,7 @@ typedef struct {
     double *z;
     double n_roughness;
     double *roughness;
-    double *y_roughness;
+    double *z_roughness;
     double activation_depth;
 
     /* shape information */

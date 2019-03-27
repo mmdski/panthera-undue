@@ -9,8 +9,8 @@
 const Except_T coord_interp_Fail = {"Coordinate interpolation failed"};
 
 struct Coordinate {
-    double y; /* lateral coordinate */
-    double z; /* vertical coordinate */
+    double y; /* vertical coordinate */
+    double z; /* lateral coordinate */
 };
 
 typedef struct Coordinate *Coordinate;
@@ -92,11 +92,11 @@ double coord_z(Coordinate c) {
 
 struct CoArray {
     int length;        /* number of coordinates in this array */
-    double min_z;      /* minimum z value in coordinate array */
+    double min_y;      /* minimum y value in coordinate array */
     Coordinate *array; /* array of coordinates */
 };
 
-void check_y_coordinates(int n, Coordinate *array);
+void check_z_coordinates(int n, Coordinate *array, const char *file, int line);
 
 CoArray coarray_new(int n, double *y, double *z) {
 
@@ -113,7 +113,7 @@ CoArray coarray_new(int n, double *y, double *z) {
     NEW(a);
 
     a->length = n;
-    a->min_z = INFINITY;
+    a->min_y = INFINITY;
     a->array = Mem_calloc(n, sizeof(Coordinate), __FILE__, __LINE__);
 
     int i;
@@ -123,11 +123,11 @@ CoArray coarray_new(int n, double *y, double *z) {
         /* if on the first point or current coord y is less than minimum,
          * set minimum y to current point y
          */
-        if ((*(a->array + i))->z < a->min_z)
-            a->min_z = (*(a->array + i))->z;
+        if ((*(a->array + i))->y < a->min_y)
+            a->min_y = (*(a->array + i))->y;
     }
 
-    check_y_coordinates(n, a->array);
+    check_z_coordinates(n, a->array, __FILE__, __LINE__);
 
     return a;
 }
@@ -140,11 +140,11 @@ CoArray coarray_from_array(int n, Coordinate *array) {
 
     CoArray a;
 
-    check_y_coordinates(n, array);
+    check_z_coordinates(n, array, __FILE__, __LINE__);
 
     NEW(a);
     a->length = n;
-    a->min_z = INFINITY;
+    a->min_y = INFINITY;
     a->array = Mem_calloc(n, sizeof(Coordinate), __FILE__, __LINE__);
 
     for (i = 0; i < n; i++) {
@@ -152,8 +152,8 @@ CoArray coarray_from_array(int n, Coordinate *array) {
             *(a->array + i) = NULL;
         else {
             *(a->array + i) = coord_copy(*(array + i));
-            if ((*(a->array + i))->z < a->min_z)
-                a->min_z = (*(a->array + i))->z;
+            if ((*(a->array + i))->y < a->min_y)
+                a->min_y = (*(a->array + i))->y;
         }
     }
 
@@ -174,18 +174,18 @@ CoArray coarray_from_list(List_T list) {
 
     NEW(a);
     a->length = n;
-    a->min_z = INFINITY;
+    a->min_y = INFINITY;
     a->array = Mem_calloc(n, sizeof(Coordinate), __FILE__, __LINE__);
 
     tmp = (Coordinate *)List_toArray(list, NULL);
 
-    check_y_coordinates(n, tmp);
+    check_z_coordinates(n, tmp, __FILE__, __LINE__);
 
     if (*(tmp) == NULL)
         *(a->array) = NULL;
     else {
         *(a->array) = coord_copy(*(tmp));
-        a->min_z = (*(tmp))->z;
+        a->min_y = (*(tmp))->y;
     }
 
     for (i = 1; i < n; i++) {
@@ -197,8 +197,8 @@ CoArray coarray_from_list(List_T list) {
         /* otherwise, add a copy of the corrdinate to this array */
         else {
             *(a->array + i) = coord_copy(*(tmp + i));
-            if ((*(a->array + i))->z < a->min_z)
-                a->min_z = (*(a->array + i))->z;
+            if ((*(a->array + i))->y < a->min_y)
+                a->min_y = (*(a->array + i))->y;
         }
     }
 
@@ -292,20 +292,20 @@ double coarray_get_z(CoArray a, int i) {
         return NAN;
 }
 
-double coarray_min_z(CoArray a) {
+double coarray_min_y(CoArray a) {
     if (!a)
         RAISE(null_ptr_arg_Error);
 
-    return a->min_z;
+    return a->min_y;
 }
 
-CoArray coarray_subarray_y(CoArray a, double ylo, double yhi) {
+CoArray coarray_subarray_z(CoArray a, double zlo, double zhi) {
 
     if (!a)
         RAISE(null_ptr_arg_Error);
 
-    assert((int)(ylo < yhi));
-    assert((int)(ylo != yhi));
+    if (zhi <= zlo)
+        RAISE(value_arg_Error);
 
     /* subarray to return */
     CoArray sa;
@@ -322,7 +322,7 @@ CoArray coarray_subarray_y(CoArray a, double ylo, double yhi) {
 
     /* check the first coordinate, add it to the list if it's in the range */
     c1 = *(a->array);
-    if (ylo <= c1->y && c1->y <= yhi)
+    if (zlo <= c1->z && c1->z <= zhi)
         list = List_push(list, coord_copy(c1));
 
     for (i = 1; i < a->length; i++) {
@@ -330,18 +330,18 @@ CoArray coarray_subarray_y(CoArray a, double ylo, double yhi) {
         c2 = *(a->array + i);
 
         /* add an interpolated point if ylo is between c1 and c2 */
-        if (c1->y < ylo && ylo < c2->y) {
-            c_interp = coord_interp_y(c1, c2, ylo);
+        if (c1->z < zlo && zlo < c2->z) {
+            c_interp = coord_interp_z(c1, c2, zlo);
             list = List_push(list, c_interp);
         }
 
         /* add c2 if it is in the range */
-        if (ylo <= c2->y && c2->y <= yhi)
+        if (zlo <= c2->z && c2->z <= zhi)
             list = List_push(list, coord_copy(c2));
 
         /* add an interpolated point if yhi is between c1 and c2 */
-        if (c1->y < yhi && yhi < c2->y) {
-            c_interp = coord_interp_y(c1, c2, yhi);
+        if (c1->z < zhi && zhi < c2->z) {
+            c_interp = coord_interp_z(c1, c2, zhi);
             list = List_push(list, c_interp);
         }
     }
@@ -362,7 +362,7 @@ CoArray coarray_subarray_y(CoArray a, double ylo, double yhi) {
     return sa;
 }
 
-CoArray coarray_subarray_z(CoArray a, double z) {
+CoArray coarray_subarray_y(CoArray a, double y) {
 
     if (!a)
         RAISE(null_ptr_arg_Error);
@@ -383,10 +383,10 @@ CoArray coarray_subarray_z(CoArray a, double z) {
     /* check the first coordinate */
     c1 = *(a->array);
 
-    /* if the z of the coordinate is less than or equal to z, add the
+    /* if the y of the coordinate is less than or equal to y, add the
      * coordinate to the list
      */
-    if (c1->z <= z) {
+    if (c1->y <= y) {
         c_last = coord_copy(c1);
         list = List_push(list, c_last);
     }
@@ -397,25 +397,25 @@ CoArray coarray_subarray_z(CoArray a, double z) {
         c2 = *(a->array + i);
 
         /* add an interpolated coordinate if coordinates change from
-         * above to below or below to above the z value
+         * above to below or below to above the y value
          */
-        if ((c1->z < z && z < c2->z) || (z < c1->z && c2->z < z)) {
-            c_last = coord_interp_z(c1, c2, z);
+        if ((c1->y < y && y < c2->y) || (y < c1->y && c2->y < y)) {
+            c_last = coord_interp_y(c1, c2, y);
             list = List_push(list, c_last);
         }
 
         /* add c2 if c2.z is at or below z */
-        if (c2->z <= z) {
+        if (c2->y <= y) {
             c_last = coord_copy(c2);
             list = List_push(list, c_last);
         }
 
         /* if the last coordinate added wasn't NULL,
          * c2 isn't the last coordinate in the array,
-         * and c2 is above z,
+         * and c2 is above y,
          * add a NULL spot in the
          */
-        if (c_last != NULL && (i < (a->length) - 1) && (c2->z > z)) {
+        if (c_last != NULL && (i < (a->length) - 1) && (c2->y > y)) {
             c_last = NULL;
             list = List_push(list, c_last);
         }
@@ -437,7 +437,7 @@ CoArray coarray_subarray_z(CoArray a, double z) {
     return sa;
 }
 
-CoArray coarray_add_z(CoArray ca, double add_z) {
+CoArray coarray_add_y(CoArray ca, double add_y) {
     if (!ca)
         RAISE(null_ptr_arg_Error);
 
@@ -447,8 +447,8 @@ CoArray coarray_add_z(CoArray ca, double add_z) {
 
     int i;
     for (i = 0; i < n; i++) {
-        y[i] = (*(ca->array + i))->y;
-        z[i] = (*(ca->array + i))->z + add_z;
+        y[i] = (*(ca->array + i))->y + add_y;
+        z[i] = (*(ca->array + i))->z;
     }
 
     CoArray new_a = coarray_new(n, y, z);
@@ -459,7 +459,8 @@ CoArray coarray_add_z(CoArray ca, double add_z) {
     return new_a;
 }
 
-void check_y_coordinates(int n, Coordinate *array) {
+void check_z_coordinates(int n, Coordinate *array, const char *file,
+                         int line) {
 
     assert(array);
 
@@ -474,8 +475,8 @@ void check_y_coordinates(int n, Coordinate *array) {
 
         /* skip if either this or the last coordinate is null */
         if (c && last_c) {
-            if (c->y < last_c->y)
-                RAISE(coarray_y_order_Error);
+            if (c->z < last_c->z)
+                Except_raise(&coarray_z_order_Error, file, line);
         }
 
         if (c)
