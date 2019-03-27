@@ -57,7 +57,7 @@ Coordinate coord_interp_y(Coordinate c1, Coordinate c2, double y) {
         RAISE(coord_interp_Fail);
 
     double slope = (c2->z - c1->z) / (c2->y - c1->y);
-    double z     = slope * (y - c1->y) + c1->z;
+    double z = slope * (y - c1->y) + c1->z;
     return coord_new(y, z);
 }
 
@@ -72,7 +72,7 @@ Coordinate coord_interp_z(Coordinate c1, Coordinate c2, double z) {
         RAISE(coord_interp_Fail);
 
     double slope = (c2->y - c1->y) / (c2->z - c1->z);
-    double y     = slope * (z - c1->z) + c1->y;
+    double y = slope * (z - c1->z) + c1->y;
     return coord_new(y, z);
 }
 
@@ -113,8 +113,8 @@ CoArray coarray_new(int n, double *y, double *z) {
     NEW(a);
 
     a->length = n;
-    a->min_z  = INFINITY;
-    a->array  = Mem_calloc(n, sizeof(Coordinate), __FILE__, __LINE__);
+    a->min_z = INFINITY;
+    a->array = Mem_calloc(n, sizeof(Coordinate), __FILE__, __LINE__);
 
     int i;
     for (i = 0; i < n; i++) {
@@ -144,8 +144,8 @@ CoArray coarray_from_array(int n, Coordinate *array) {
 
     NEW(a);
     a->length = n;
-    a->min_z  = INFINITY;
-    a->array  = Mem_calloc(n, sizeof(Coordinate), __FILE__, __LINE__);
+    a->min_z = INFINITY;
+    a->array = Mem_calloc(n, sizeof(Coordinate), __FILE__, __LINE__);
 
     for (i = 0; i < n; i++) {
         if (*(array + i) == NULL)
@@ -174,8 +174,8 @@ CoArray coarray_from_list(List_T list) {
 
     NEW(a);
     a->length = n;
-    a->min_z  = INFINITY;
-    a->array  = Mem_calloc(n, sizeof(Coordinate), __FILE__, __LINE__);
+    a->min_z = INFINITY;
+    a->array = Mem_calloc(n, sizeof(Coordinate), __FILE__, __LINE__);
 
     tmp = (Coordinate *)List_toArray(list, NULL);
 
@@ -185,7 +185,7 @@ CoArray coarray_from_list(List_T list) {
         *(a->array) = NULL;
     else {
         *(a->array) = coord_copy(*(tmp));
-        a->min_z    = (*(tmp))->z;
+        a->min_z = (*(tmp))->z;
     }
 
     for (i = 1; i < n; i++) {
@@ -332,7 +332,7 @@ CoArray coarray_subarray_y(CoArray a, double ylo, double yhi) {
         /* add an interpolated point if ylo is between c1 and c2 */
         if (c1->y < ylo && ylo < c2->y) {
             c_interp = coord_interp_y(c1, c2, ylo);
-            list     = List_push(list, c_interp);
+            list = List_push(list, c_interp);
         }
 
         /* add c2 if it is in the range */
@@ -342,7 +342,7 @@ CoArray coarray_subarray_y(CoArray a, double ylo, double yhi) {
         /* add an interpolated point if yhi is between c1 and c2 */
         if (c1->y < yhi && yhi < c2->y) {
             c_interp = coord_interp_y(c1, c2, yhi);
-            list     = List_push(list, c_interp);
+            list = List_push(list, c_interp);
         }
     }
 
@@ -352,7 +352,7 @@ CoArray coarray_subarray_y(CoArray a, double ylo, double yhi) {
     if (n == 0) {
         sa->array = NULL;
     } else {
-        list      = List_reverse(list);
+        list = List_reverse(list);
         sa->array = (Coordinate *)List_toArray(list, NULL);
     }
 
@@ -376,8 +376,8 @@ CoArray coarray_subarray_z(CoArray a, double z) {
 
     /* loop variables */
     int i;
-    Coordinate c1     = NULL;
-    Coordinate c2     = NULL;
+    Coordinate c1 = NULL;
+    Coordinate c2 = NULL;
     Coordinate c_last = NULL; /* keep track of the last coordinate added */
 
     /* check the first coordinate */
@@ -388,7 +388,7 @@ CoArray coarray_subarray_z(CoArray a, double z) {
      */
     if (c1->z <= z) {
         c_last = coord_copy(c1);
-        list   = List_push(list, c_last);
+        list = List_push(list, c_last);
     }
 
     for (i = 1; i < a->length; i++) {
@@ -401,13 +401,13 @@ CoArray coarray_subarray_z(CoArray a, double z) {
          */
         if ((c1->z < z && z < c2->z) || (z < c1->z && c2->z < z)) {
             c_last = coord_interp_z(c1, c2, z);
-            list   = List_push(list, c_last);
+            list = List_push(list, c_last);
         }
 
         /* add c2 if c2.z is at or below z */
         if (c2->z <= z) {
             c_last = coord_copy(c2);
-            list   = List_push(list, c_last);
+            list = List_push(list, c_last);
         }
 
         /* if the last coordinate added wasn't NULL,
@@ -417,7 +417,7 @@ CoArray coarray_subarray_z(CoArray a, double z) {
          */
         if (c_last != NULL && (i < (a->length) - 1) && (c2->z > z)) {
             c_last = NULL;
-            list   = List_push(list, c_last);
+            list = List_push(list, c_last);
         }
     }
 
@@ -427,7 +427,7 @@ CoArray coarray_subarray_z(CoArray a, double z) {
     if (n == 0) {
         sa->array = NULL;
     } else {
-        list      = List_reverse(list);
+        list = List_reverse(list);
         sa->array = (Coordinate *)List_toArray(list, NULL);
     }
 
@@ -442,8 +442,8 @@ CoArray coarray_add_z(CoArray ca, double add_z) {
         RAISE(null_ptr_arg_Error);
 
     int n = ca->length;
-    double y[n];
-    double z[n];
+    double *y = Mem_calloc(n, sizeof(double), __FILE__, __LINE__);
+    double *z = Mem_calloc(n, sizeof(double), __FILE__, __LINE__);
 
     int i;
     for (i = 0; i < n; i++) {
@@ -451,7 +451,12 @@ CoArray coarray_add_z(CoArray ca, double add_z) {
         z[i] = (*(ca->array + i))->z + add_z;
     }
 
-    return coarray_new(n, y, z);
+    CoArray new_a = coarray_new(n, y, z);
+
+    Mem_free(y, __FILE__, __LINE__);
+    Mem_free(z, __FILE__, __LINE__);
+
+    return new_a;
 }
 
 void check_y_coordinates(int n, Coordinate *array) {
