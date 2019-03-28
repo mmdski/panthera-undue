@@ -46,6 +46,8 @@ void init_coarray_new(CoArrayFixture *caf, CoArrayTestData test_data) {
         caf->caught_exception = &coarray_n_coords_Error;
     EXCEPT(coarray_z_order_Error)
         caf->caught_exception = &coarray_z_order_Error;
+    EXCEPT(value_arg_Error)
+        caf->caught_exception = &value_arg_Error;
     END_TRY;
 
 }
@@ -73,10 +75,16 @@ void coarray_test_new(CoArrayFixture *caf, gconstpointer test_data) {
 void coarray_test_subarray_z(CoArrayFixture *caf, gconstpointer test_data) {
     CoArrayTestData data = *(const CoArrayTestData *)test_data;
 
-    CoArray result = coarray_subarray_z(caf->ca, data.zlo, data.zhi);
+    TRY
+        CoArray result = coarray_subarray_z(caf->ca, data.zlo, data.zhi);
+        g_assert_true(coarray_eq(result, data.expected));
+        caf->caught_exception = &no_Error;
+        coarray_free(result);
+    EXCEPT(value_arg_Error)
+        caf->caught_exception = &value_arg_Error;
+    END_TRY;
 
-    g_assert_true(coarray_eq(result, data.expected));
-    coarray_free(result);
+    g_assert_true(caf->caught_exception == data.exception);
 }
 
 /* coarray_add_z test functions */
@@ -268,6 +276,23 @@ void add_subarray_z_tests(void) {
     g_test_add("/panthera/xs/coarray/subarray_z/success 3", CoArrayFixture,
                test_data_3, coarray_new_setup, coarray_test_subarray_z,
                coarray_new_teardown);
+
+    /* zlo and zhi equal to each other */
+    CoArrayTestData *test_data_4 = new_coarray_test_data(n1, y1, z1, zlo2,
+                                                         zlo2, NULL,
+                                                         &value_arg_Error);
+    g_test_add("/panthera/xs/coarray/subarray_z/fail-zlo=zhi", CoArrayFixture,
+               test_data_4, coarray_new_setup, coarray_test_subarray_z,
+               coarray_new_teardown);
+
+    /* zhi < zlo */
+    CoArrayTestData *test_data_5 = new_coarray_test_data(n1, y1, z1, zhi2,
+                                                         zlo2, NULL,
+                                                         &value_arg_Error);
+    g_test_add("/panthera/xs/coarray/subarray_z/fail-zhi<zlo", CoArrayFixture,
+               test_data_5, coarray_new_setup, coarray_test_subarray_z,
+               coarray_new_teardown);
+
 }
 
 void add_coarray_add_y_tests(void) {
