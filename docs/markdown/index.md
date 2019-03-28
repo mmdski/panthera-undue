@@ -27,10 +27,10 @@ short-description: panthera-undue
   * Wetted perimeter
   * Hydraulic depth
   * Hydraulic radius
+  * Conveyance
+  * Results caching
 
 ### Planned features
-* Cross section computations
-  * Conveyance
 * Reach scale computations
   * Critical depth
   * Normal depth

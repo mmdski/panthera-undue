@@ -170,24 +170,21 @@ HydraulicProps ss_hydraulic_properties(Subsection ss, double y) {
 /* results cache interface */
 typedef struct ResultsCache {
     int size;
-    double max_depth;
     HydraulicProps *hp;
 } ResultsCache;
 
-#define DEPTH_INTERP_DELTA 0.1 /* depth interpolation step size */
-#define CACHE_RESIZE_RATE 1.5  /* rate to grow array */
+#define DEPTH_INTERP_DELTA 0.1  /* depth interpolation step size */
+#define CACHE_EXPANSION_TERM 10 /* rate to grow array */
 
 #define calc_index(depth) (int)(depth / DEPTH_INTERP_DELTA)
-#define calc_depth(index) DEPTH_INTERP_DELTA *index
+#define calc_depth(index) DEPTH_INTERP_DELTA * index
 
-ResultsCache *res_new(double max_depth) {
+ResultsCache *res_new(int size) {
 
-    assert(max_depth > 0);
+    assert(size > 0);
 
     ResultsCache *res;
     NEW(res);
-
-    int size = calc_index(max_depth) + 1;
 
     /* allocate space for HydraulicProps pointers */
     HydraulicProps *hp =
@@ -200,7 +197,6 @@ ResultsCache *res_new(double max_depth) {
     }
 
     res->size = size;
-    res->max_depth = max_depth;
     res->hp = hp;
 
     return res;
@@ -221,13 +217,14 @@ void res_free(ResultsCache *res) {
     FREE(res);
 }
 
-ResultsCache *res_resize(double max_depth, ResultsCache *old_res) {
+ResultsCache *res_resize(int new_size, ResultsCache *old_res) {
     assert(old_res);
+    assert(new_size > old_res->size);
 
     int i;
     int n = old_res->size;
 
-    ResultsCache *new_res = res_new(max_depth);
+    ResultsCache *new_res = res_new(new_size);
 
     for (i = 0; i < n; i++)
         *(new_res->hp + i) = *(old_res->hp + i);
@@ -261,15 +258,19 @@ HydraulicProps _calc_hydraulic_properties(CrossSection xs, double h) {
     double perimeter = 0;
     double hydraulic_depth;
     double hydraulic_radius;
+    double conveyance = 0;
 
     HydraulicProps hp = hp_new();
     HydraulicProps hp_ss;
+    Subsection ss;
 
     for (i = 0; i < n_subsections; i++) {
-        hp_ss = ss_hydraulic_properties(*(xs->ss + i), h);
-        area += hp_get(hp_ss, HP_AREA);
-        top_width += hp_get(hp_ss, HP_TOP_WIDTH);
-        perimeter += hp_get(hp_ss, HP_WETTED_PERIMETER);
+        ss          = *(xs->ss + i);
+        hp_ss       = ss_hydraulic_properties(ss, h);
+        area       += hp_get(hp_ss, HP_AREA);
+        top_width  += hp_get(hp_ss, HP_TOP_WIDTH);
+        perimeter  += hp_get(hp_ss, HP_WETTED_PERIMETER);
+        conveyance += 1/ss->n * area * pow(area / perimeter, 2.0/3.0);
         hp_free(hp_ss);
     }
 
@@ -279,6 +280,7 @@ HydraulicProps _calc_hydraulic_properties(CrossSection xs, double h) {
     if (area == 0) {
         hydraulic_depth = 0;
         hydraulic_radius = 0;
+        conveyance = 0;
     } else {
         hydraulic_depth = area / top_width;
         hydraulic_radius = area / perimeter;
@@ -290,6 +292,7 @@ HydraulicProps _calc_hydraulic_properties(CrossSection xs, double h) {
     hp_set(hp, HP_WETTED_PERIMETER, perimeter);
     hp_set(hp, HP_HYDRAULIC_DEPTH, hydraulic_depth);
     hp_set(hp, HP_HYDRAULIC_RADIUS, hydraulic_radius);
+    hp_set(hp, HP_CONVEYANCE, conveyance);
 
     return hp;
 }
@@ -299,12 +302,13 @@ HydraulicProps xs_get_properties_from_res(CrossSection xs, double depth) {
 
     assert(xs);
 
-    if (depth > xs->results->max_depth - DEPTH_INTERP_DELTA) {
-        xs->results = res_resize(CACHE_RESIZE_RATE * depth, xs->results);
-    }
-
     int indlo = calc_index(depth);
     int indhi = indlo + 1;
+
+    if (indhi > (xs->results->size - 1)) {
+        int new_size = indhi + CACHE_EXPANSION_TERM;
+        xs->results = res_resize(new_size, xs->results);
+    }
 
     double dlo;
     double dhi;
@@ -360,7 +364,7 @@ CrossSection xs_new(CoArray ca, int n_roughness, double *roughness,
 
     /* initialize a results cache to store depths up to 2 * DEPTH_INTERP_DELTA
      */
-    xs->results = res_new(2 * DEPTH_INTERP_DELTA);
+    xs->results = res_new(1);
 
     /* initialize z splits
      * include first and last z-values of the CoArray
