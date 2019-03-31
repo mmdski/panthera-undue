@@ -99,6 +99,8 @@ HydraulicProps ss_hydraulic_properties(Subsection ss, double y) {
     double area = 0;
     double perimeter = 0;
     double top_width = 0;
+    double hydraulic_radius;
+    double conveyance;
 
     HydraulicProps hp = hp_new();
 
@@ -157,9 +159,19 @@ HydraulicProps ss_hydraulic_properties(Subsection ss, double y) {
         top_width += z2 - z1;
     }
 
+    if (area <= 0) {
+        conveyance = 0;
+        hydraulic_radius = 0;
+    } else {
+        hydraulic_radius = area / perimeter;
+        conveyance = 1/ss->n * area * pow(hydraulic_radius, 2.0/3.0);
+    }
+
     hp_set(hp, HP_AREA, area);
     hp_set(hp, HP_TOP_WIDTH, top_width);
     hp_set(hp, HP_WETTED_PERIMETER, perimeter);
+    hp_set(hp, HP_HYDRAULIC_RADIUS, hydraulic_radius);
+    hp_set(hp, HP_CONVEYANCE, conveyance);
 
     if (sa)
         coarray_free(sa);
@@ -270,17 +282,16 @@ HydraulicProps _calc_hydraulic_properties(CrossSection xs, double h) {
         area       += hp_get(hp_ss, HP_AREA);
         top_width  += hp_get(hp_ss, HP_TOP_WIDTH);
         perimeter  += hp_get(hp_ss, HP_WETTED_PERIMETER);
-        conveyance += 1/ss->n * area * pow(area / perimeter, 2.0/3.0);
+        conveyance += hp_get(hp_ss, HP_CONVEYANCE);
         hp_free(hp_ss);
     }
 
     /* if area is zero, assume top_width and perimeter are also 0 and set
      * hydraulic_depth and hydraulic_radius to 0.
      */
-    if (area == 0) {
+    if (area <= 0) {
         hydraulic_depth = 0;
         hydraulic_radius = 0;
-        conveyance = 0;
     } else {
         hydraulic_depth = area / top_width;
         hydraulic_radius = area / perimeter;

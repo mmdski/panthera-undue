@@ -1,8 +1,177 @@
 #include <panthera/crosssection.h>
-#include "test_xs.h"
+#include "testlib.h"
 
-#define ABS_TOL 1e-15
+#define ABS_TOL 1e-14
 #define REL_TOL 0
+
+typedef struct {
+
+    /* initialization data */
+    int n_coords;
+    double *y;
+    double *z;
+    double n_roughness;
+    double *roughness;
+    double *z_roughness;
+    double activation_depth;
+
+    /* shape information */
+    /* r - rectangle */
+    /* t - triangle */
+    /* z - trapezoid */
+    char shape;
+
+    /* dimensions for analytical solutions */
+    double b0; /* bottom width */
+    double s;  /* slope */
+    const Except_T *exception;
+    double factor;
+} xs_test_data;
+
+xs_test_data *xs_test_data_new(int n, double *y, double *z, int n_roughness,
+                               double *roughness, char shape) {
+
+    xs_test_data *test_data =
+        (xs_test_data *)Mem_alloc(sizeof(xs_test_data), __FILE__, __LINE__);
+    test_data->n_coords    = n;
+    test_data->y           = Mem_calloc(n, sizeof(double), __FILE__, __LINE__);
+    test_data->z           = Mem_calloc(n, sizeof(double), __FILE__, __LINE__);
+    test_data->shape       = shape;
+    test_data->n_roughness = n_roughness;
+    test_data->roughness   = Mem_calloc(test_data->n_roughness, sizeof(double),
+                                        __FILE__, __LINE__);
+    if (n_roughness > 1)
+        test_data->z_roughness  = Mem_calloc(test_data->n_roughness,
+                                             sizeof(double), __FILE__,
+                                             __LINE__);
+    else
+        test_data->z_roughness = NULL;
+    test_data->b0          = 1;
+    test_data->s           = 0.5;
+    test_data->activation_depth = -INFINITY;
+    test_data->factor      = 1;
+
+    int i;
+
+    for (i = 0; i < n; i++) {
+        *(test_data->y + i) = y[i];
+        *(test_data->z + i) = z[i];
+    }
+
+    for (i = 0; i < n_roughness; i++) {
+        *(test_data->roughness + i) = roughness[i];
+    }
+
+    return test_data;
+}
+
+void xs_test_data_free(xs_test_data *test_data) {
+    Mem_free(test_data->y, __FILE__, __LINE__);
+    Mem_free(test_data->z, __FILE__, __LINE__);
+    Mem_free(test_data->z_roughness, __FILE__, __LINE__);
+    Mem_free(test_data->roughness, __FILE__, __LINE__);
+    Mem_free(test_data, __FILE__, __LINE__);
+}
+
+double calc_area(xs_test_data test_data, double depth) {
+    double area;
+    double factor = test_data.factor;
+
+    if (test_data.shape == 'r')
+        area = test_data.b0 * depth;
+    else if (test_data.shape == 't')
+        area = test_data.s * depth * depth;
+    else if (test_data.shape == 'z')
+        area = (test_data.b0 + test_data.s * depth) * depth;
+    else
+        g_assert_not_reached();
+    return factor*area;
+}
+
+double calc_perimeter(xs_test_data test_data, double depth) {
+    double perimeter;
+    double factor = test_data.factor;
+
+    if (test_data.shape == 'r') {
+        perimeter = test_data.b0 + 2 * depth;
+    } else if (test_data.shape == 't')
+        perimeter = 2 * depth * sqrt(1 + (test_data.s * test_data.s));
+    else if (test_data.shape == 'z')
+        perimeter =
+            test_data.b0 + 2 * depth * sqrt(1 + (test_data.s * test_data.s));
+    else
+        g_assert_not_reached();
+
+    return factor*perimeter;
+}
+
+double calc_top_width(xs_test_data test_data, double depth) {
+    double top_width;
+    double factor = test_data.factor;
+
+    if (test_data.shape == 'r')
+        top_width = test_data.b0;
+    else if (test_data.shape == 't')
+        top_width = 2 * test_data.s * depth;
+    else if (test_data.shape == 'z')
+        top_width = test_data.b0 + 2 * test_data.s * depth;
+    else
+        g_assert_not_reached();
+
+    return factor*top_width;
+}
+
+double calc_hydraulic_radius(xs_test_data test_data, double depth) {
+    double hydraulic_radius;
+    double b0 = test_data.b0;
+    double s = test_data.s;
+
+    if (test_data.shape == 'r')
+        hydraulic_radius = b0*depth/(b0 + 2*depth);
+    else if (test_data.shape == 't')
+        hydraulic_radius = s*depth/(2*sqrt(1 + s*s));
+    else if (test_data.shape == 'z') {
+        double a, b;
+        a = (b0 + s*depth) * depth;
+        b = b0 + 2*depth*sqrt(1 + s*s);
+        hydraulic_radius = a/b;
+    } else
+        g_assert_not_reached();
+
+    return hydraulic_radius;
+}
+
+double calc_hydraulic_depth(xs_test_data test_data, double depth) {
+    double hydraulic_depth;
+    double b0 = test_data.b0;
+    double s = test_data.s;
+
+    if (test_data.shape == 'r')
+        hydraulic_depth = depth;
+    else if (test_data.shape == 't')
+        hydraulic_depth = 0.5*depth;
+    else if (test_data.shape == 'z') {
+        double a, b;
+        a = (b0 + s*depth)*depth;
+        b = b0 + 2*s*depth;
+        hydraulic_depth = a/b;
+    } else
+        g_assert_not_reached();
+
+    return hydraulic_depth;
+}
+
+double calc_conveyance(xs_test_data test_data, double depth) {
+
+    /* only works for non-compound roughness cases */
+    g_assert_true(test_data.n_roughness == 1);
+
+    double area             = calc_area(test_data, depth);
+    double hydraulic_radius = calc_hydraulic_radius(test_data, depth);
+    double roughness        = *test_data.roughness;
+
+    return 1/roughness * area * pow(hydraulic_radius, 2.0/3.0);
+}
 
 typedef struct {
     CrossSection xs;
@@ -68,6 +237,15 @@ void check_simple_hp(xs_fixture *xsf, xs_test_data test_data, double depth) {
     double expected_hr   = calc_hydraulic_radius(test_data, depth);
     is_close   = test_is_close(calculated_hr, expected_hr, ABS_TOL, REL_TOL);
     g_assert_true(is_close);
+
+    /* only test cross sections that contain a single subsection */
+    if (test_data.n_roughness == 1) {
+        double calculated_conveyance = hp_get(hp, HP_CONVEYANCE);
+        double expected_conveyance   = calc_conveyance(test_data, depth);
+        is_close = test_is_close(calculated_conveyance, expected_conveyance,
+                                 ABS_TOL, REL_TOL);
+        g_assert_true(is_close);
+    }
 }
 
 void test_simple_h_properties(xs_fixture *xsf, gconstpointer test_data) {
