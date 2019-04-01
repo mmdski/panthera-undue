@@ -265,45 +265,56 @@ HydraulicProps _calc_hydraulic_properties(CrossSection xs, double h) {
     int n_subsections = xs->n_subsections;
     int i;
 
-    double area = 0;
-    double top_width = 0;
-    double perimeter = 0;
-    double hydraulic_depth;
-    double hydraulic_radius;
-    double conveyance = 0;
+    double a    = 0; /* area */
+    double a_ss = 0; /* subsection area */
+    double t    = 0; /* top width */
+    double w    = 0; /* wetted perimeter */
+    double d;        /* hydraulic depth */
+    double r;        /* hydraulic radius */
+    double k    = 0; /* conveyance */
+    double k_ss = 0; /* subsection conveyance */
+    double sum  = 0; /* sum for velocity coefficient */
+    double alpha;    /* velocity coefficient */
 
     HydraulicProps hp = hp_new();
     HydraulicProps hp_ss;
     Subsection ss;
 
     for (i = 0; i < n_subsections; i++) {
-        ss          = *(xs->ss + i);
-        hp_ss       = ss_hydraulic_properties(ss, h);
-        area       += hp_get(hp_ss, HP_AREA);
-        top_width  += hp_get(hp_ss, HP_TOP_WIDTH);
-        perimeter  += hp_get(hp_ss, HP_WETTED_PERIMETER);
-        conveyance += hp_get(hp_ss, HP_CONVEYANCE);
+        ss     = *(xs->ss + i);
+        hp_ss = ss_hydraulic_properties(ss, h);
+        a_ss  = hp_get(hp_ss, HP_AREA);
+        k_ss  = hp_get(hp_ss, HP_CONVEYANCE);
+        t    += hp_get(hp_ss, HP_TOP_WIDTH);
+        w    += hp_get(hp_ss, HP_WETTED_PERIMETER);
+        sum  += (k_ss * k_ss * k_ss)/(a_ss * a_ss);
         hp_free(hp_ss);
+
+        a += a_ss;
+        k += k_ss;
     }
 
     /* if area is zero, assume top_width and perimeter are also 0 and set
      * hydraulic_depth and hydraulic_radius to 0.
      */
-    if (area <= 0) {
-        hydraulic_depth = 0;
-        hydraulic_radius = 0;
+    if (a <= 0) {
+        d = 0;
+        r = 0;
     } else {
-        hydraulic_depth = area / top_width;
-        hydraulic_radius = area / perimeter;
+        d = a / t;
+        r = a / w;
     }
 
+    alpha = (a * a) * sum / (k * k * k);
+
     hp_set(hp, HP_DEPTH, h);
-    hp_set(hp, HP_AREA, area);
-    hp_set(hp, HP_TOP_WIDTH, top_width);
-    hp_set(hp, HP_WETTED_PERIMETER, perimeter);
-    hp_set(hp, HP_HYDRAULIC_DEPTH, hydraulic_depth);
-    hp_set(hp, HP_HYDRAULIC_RADIUS, hydraulic_radius);
-    hp_set(hp, HP_CONVEYANCE, conveyance);
+    hp_set(hp, HP_AREA, a);
+    hp_set(hp, HP_TOP_WIDTH, t);
+    hp_set(hp, HP_WETTED_PERIMETER, w);
+    hp_set(hp, HP_HYDRAULIC_DEPTH, d);
+    hp_set(hp, HP_HYDRAULIC_RADIUS, r);
+    hp_set(hp, HP_CONVEYANCE, k);
+    hp_set(hp, HP_VELOCITY_COEFF, alpha);
 
     return hp;
 }

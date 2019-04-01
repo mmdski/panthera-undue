@@ -245,6 +245,13 @@ void check_simple_hp(xs_fixture *xsf, xs_test_data test_data, double depth) {
         is_close = test_is_close(calculated_conveyance, expected_conveyance,
                                  ABS_TOL, REL_TOL);
         g_assert_true(is_close);
+
+        double calculated_velocity_coeff = hp_get(hp, HP_VELOCITY_COEFF);
+        double expected_velocity_coeff   = 1;
+        is_close = test_is_close(calculated_velocity_coeff,
+                                 expected_velocity_coeff, ABS_TOL, REL_TOL);
+        if (depth > 0)
+            g_assert_true(is_close);
     }
 }
 

@@ -30,6 +30,7 @@ int main() {
         printf("wetted perimeter = %f\n", hp_get(hp, HP_WETTED_PERIMETER));
         printf("hydraulic depth  = %f\n", hp_get(hp, HP_HYDRAULIC_DEPTH));
         printf("conveyance       = %f\n", hp_get(hp, HP_CONVEYANCE));
+        printf("velocity coeff.  = %f\n", hp_get(hp, HP_VELOCITY_COEFF));
         hp_free(hp);
     }
 
