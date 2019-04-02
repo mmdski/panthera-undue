@@ -1,5 +1,5 @@
 ---
-short-description: panthera-undue
+short-description: panthera docs
 ...
 
 # panthera-undue
@@ -28,12 +28,12 @@ short-description: panthera-undue
   * Hydraulic depth
   * Hydraulic radius
   * Conveyance
+  * Velocity coefficient (energy flux correction coefficient)
+  * Critical flow
   * Results caching
 
 ### Planned features
-* Reach scale computations
-  * Critical depth
-  * Normal depth
+* Normal depth
 * Steady flow
 * Unsteady flow
   * Method of characteritics

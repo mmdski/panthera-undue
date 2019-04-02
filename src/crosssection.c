@@ -1,4 +1,5 @@
 #include <panthera/crosssection.h>
+#include <panthera/constants.h>
 
 /* hydraulic properties interface */
 
@@ -275,6 +276,7 @@ HydraulicProps _calc_hydraulic_properties(CrossSection xs, double h) {
     double k_ss = 0; /* subsection conveyance */
     double sum  = 0; /* sum for velocity coefficient */
     double alpha;    /* velocity coefficient */
+    double qc;       /* critical flow */
 
     HydraulicProps hp = hp_new();
     HydraulicProps hp_ss;
@@ -287,7 +289,11 @@ HydraulicProps _calc_hydraulic_properties(CrossSection xs, double h) {
         k_ss  = hp_get(hp_ss, HP_CONVEYANCE);
         t    += hp_get(hp_ss, HP_TOP_WIDTH);
         w    += hp_get(hp_ss, HP_WETTED_PERIMETER);
-        sum  += (k_ss * k_ss * k_ss)/(a_ss * a_ss);
+
+        if (a_ss > 0) {
+            sum  += (k_ss * k_ss * k_ss)/(a_ss * a_ss);
+        }
+
         hp_free(hp_ss);
 
         a += a_ss;
@@ -298,14 +304,16 @@ HydraulicProps _calc_hydraulic_properties(CrossSection xs, double h) {
      * hydraulic_depth and hydraulic_radius to 0.
      */
     if (a <= 0) {
-        d = 0;
-        r = 0;
+        d     = 0;
+        r     = 0;
+        alpha = NAN;
+        qc    = NAN;
     } else {
         d = a / t;
         r = a / w;
+        alpha = (a * a) * sum / (k * k * k);
+        qc    = a * sqrt(GRAVITY * a / (alpha * t));
     }
-
-    alpha = (a * a) * sum / (k * k * k);
 
     hp_set(hp, HP_DEPTH, h);
     hp_set(hp, HP_AREA, a);
@@ -315,6 +323,7 @@ HydraulicProps _calc_hydraulic_properties(CrossSection xs, double h) {
     hp_set(hp, HP_HYDRAULIC_RADIUS, r);
     hp_set(hp, HP_CONVEYANCE, k);
     hp_set(hp, HP_VELOCITY_COEFF, alpha);
+    hp_set(hp, HP_CRITICAL_FLOW, qc);
 
     return hp;
 }

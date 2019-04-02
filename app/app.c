@@ -31,6 +31,7 @@ int main() {
         printf("hydraulic depth  = %f\n", hp_get(hp, HP_HYDRAULIC_DEPTH));
         printf("conveyance       = %f\n", hp_get(hp, HP_CONVEYANCE));
         printf("velocity coeff.  = %f\n", hp_get(hp, HP_VELOCITY_COEFF));
+        printf("critical flow    = %f\n", hp_get(hp, HP_CRITICAL_FLOW));
         hp_free(hp);
     }
 

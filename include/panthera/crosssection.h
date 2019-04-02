@@ -23,6 +23,7 @@
  * @HP_HYDRAULIC_RADIUS: Hydraulic radius
  * @HP_CONVEYANCE:       Conveyance
  * @HP_VELOCITY_COEFF:   Velocity coefficient
+ * @HP_CRITICAL_FLOW:    Critical flow
  * @N_HP:                Number of hydraulic properties
  */
 typedef enum {
@@ -34,6 +35,7 @@ typedef enum {
     HP_HYDRAULIC_RADIUS,
     HP_CONVEYANCE,
     HP_VELOCITY_COEFF,
+    HP_CRITICAL_FLOW,
     N_HP
 } hyd_prop;
 
