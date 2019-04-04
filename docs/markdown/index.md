@@ -2,7 +2,7 @@
 short-description: panthera docs
 ...
 
-# panthera-undue
+# panthera docs
 ```
 /*
  *
@@ -33,9 +33,13 @@ short-description: panthera docs
   * Results caching
 
 ### Planned features
-* Normal depth
 * Steady flow
-* Unsteady flow
+  * Normal
+  * Gradually varied
+    * Standard step
+    * Single step
+    * Simultaneous solution
+* Gradually varied unsteady flow
   * Method of characteritics
 * Python extensions to major features
 * HDF5 storage
