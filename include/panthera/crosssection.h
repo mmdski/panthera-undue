@@ -6,7 +6,7 @@
 /**
  * SECTION: Hydraulic Properties
  * @short_description: Hydraulic properties
- * @title: HydraulitProps
+ * @title: HydraulicProps
  *
  * Hydraulic property data
  *
