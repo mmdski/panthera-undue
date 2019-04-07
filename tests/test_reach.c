@@ -71,13 +71,17 @@ void test_reach_put_mulit_xs(void) {
 }
 
 void test_reach_get(void) {
-    double x = 0;
+    double x     = 0;
+    double not_x = 1;
 
     Reach reach = reach_new();
     CrossSection xs = new_cross_section();
     reach_put(reach, x, xs);
     CrossSection xs1 = reach_get(reach, x);
     g_assert_true(xs == xs1);
+
+    CrossSection xs2 = reach_get(reach, not_x);
+    g_assert_true(xs2 == NULL);
 
     /* test that an error is raised when a null reach is passed to get */
     TRY
