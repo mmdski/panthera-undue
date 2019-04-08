@@ -94,6 +94,17 @@ extern CrossSection reach_get(Reach reach, double x);
 extern void reach_put(Reach reach, double x, CrossSection xs);
 
 /**
+ * reach_delete:
+ * @reach: a #Reach
+ * @x:     distance downstream
+ *
+ * Removes and frees the cross section associated with @x from the reach.
+ *
+ * Returns: None
+ */
+extern void reach_delete(Reach reach, double x);
+
+/**
  * reach_stream_distance:
  * @reach: a #Reach
  * @x:     a reference to a double array

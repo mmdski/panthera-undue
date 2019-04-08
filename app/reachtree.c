@@ -38,14 +38,6 @@ int main(void) {
     for (i = 0; i < n_x; i++)
         printf("x = %f\n", *(x_array + i));
 
-    xs = reach_get(reach, x[3]);
-    if (xs)
-        printf("x = %f: xs is not NULL\n", x[3]);
-
-    xs = reach_get(reach, 2.5);
-    if (!xs)
-        printf("x = 2.5: xs is NULL\n");
-
     Mem_free(x_array, __FILE__, __LINE__);
     coarray_free(ca);
     reach_free(reach);

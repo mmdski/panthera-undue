@@ -51,4 +51,11 @@ extern const Except_T coarray_z_order_Error;
  */
 extern const Except_T index_Error;
 
+/**
+ * empty_reach_Error:
+ *
+ * Raised when an unsupported operation is performed on an empty #Reach.
+ */
+extern const Except_T empty_reach_Error;
+
 #endif
