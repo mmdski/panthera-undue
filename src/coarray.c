@@ -34,7 +34,10 @@ Coordinate coord_copy(Coordinate c) {
 }
 
 /* Frees space from a previously allocated Coordinate */
-void coord_free(Coordinate c) { FREE(c); }
+void coord_free(Coordinate c) {
+    if (c)
+        FREE(c);
+}
 
 /* Returns 1 if c1 and c2 are equal, 0 otherwise */
 int coord_eq(Coordinate c1, Coordinate c2) {

@@ -2,6 +2,7 @@
 #define REACH_INCLUDED
 
 #include <panthera/crosssection.h>
+#include <stdbool.h>
 
 /**
  * SECTION: reach.h
@@ -94,11 +95,30 @@ extern CrossSection reach_get(Reach reach, double x);
 extern void reach_put(Reach reach, double x, CrossSection xs);
 
 /**
+ * reach_contains:
+ * @reach: a #Reach
+ * @x:     distance downstream
+ *
+ * Returns `true` if @reach contains a cross section at @x, `false` otherwise.
+ *
+ * **Raises:**
+ *
+ * #null_ptr_arg_Error if @reach is `NULL`
+ *
+ * Returns: `true` or `false`
+ */
+extern bool reach_contains(Reach reach, double x);
+
+/**
  * reach_delete:
  * @reach: a #Reach
  * @x:     distance downstream
  *
  * Removes and frees the cross section associated with @x from the reach.
+ *
+ * **Raises:**
+ *
+ * #null_ptr_arg_Error if @reach or @xs is `NULL`
  *
  * Returns: None
  */
@@ -112,6 +132,11 @@ extern void reach_delete(Reach reach, double x);
  * Inserts the stream distances of cross sections contained in @reach into the
  * array referenced by @x and returns the length of the referenced array. The
  * array referenced by @x is newly allocated and should be freed.
+ *
+ *
+ * **Raises:**
+ *
+ * #null_ptr_arg_Error if @reach or @x is `NULL`
  *
  * Returns: the length of the array referenced by @x
  */

@@ -1,6 +1,7 @@
 #include <panthera/reach.h>
 #include "testlib.h"
 
+
 CrossSection new_cross_section(void) {
 
     int n_coords = 5;
@@ -120,6 +121,89 @@ void test_reach_get_multi_xs(void) {
 
     reach_free(reach);
     Mem_free(xs_in_reach, __FILE__, __LINE__);
+}
+
+
+void test_reach_delete(void) {
+    int i;
+    int n_xs = 5;
+    double x[] = {0, 1, 2, 3, 4};
+
+    CrossSection  xs;
+    CrossSection *xs_in_reach = Mem_calloc(n_xs, sizeof(CrossSection),
+                                           __FILE__, __LINE__);
+
+    Reach reach = reach_new();
+
+    for (i = 0; i < n_xs; i++) {
+        *(xs_in_reach + i) = new_cross_section();
+    }
+
+    for (i = 0; i < n_xs; i++) {
+        reach_put(reach, x[i], *(xs_in_reach + i));
+    }
+
+    /* test deleting non-existent node */
+    reach_delete(reach, 10);
+    g_assert_true(reach_size(reach) == n_xs);
+
+    for (i = 0; i < n_xs; i++) {
+        reach_delete(reach, x[i]);
+        xs = reach_get(reach, x[i]);
+        g_assert_true(xs == NULL);
+        g_assert_true(reach_size(reach) == n_xs - (i + 1));
+    }
+
+    TRY
+        reach_delete(NULL, x[0]);
+        g_assert_not_reached();
+    EXCEPT(null_ptr_arg_Error);
+        ;
+    END_TRY;
+
+    reach_free(reach);
+    Mem_free(xs_in_reach, __FILE__, __LINE__);
+}
+
+/* test random add and deletes of cross sections from a reach */
+void test_reach_delete_random(void) {
+    int i;
+    int n_xs = 50;
+    double random_x;
+    double *x_array = NULL;
+
+    CrossSection  xs;
+
+    Reach reach = reach_new();
+
+    while (reach_size(reach) < n_xs) {
+        random_x = (float)rand()/(float)(RAND_MAX/1e3);
+        xs = new_cross_section();
+        reach_put(reach, random_x, xs);
+    }
+
+    n_xs = reach_stream_distance(reach, &x_array);
+    while (reach_size(reach) > n_xs / 2) {
+        i = rand() % n_xs;
+        reach_delete(reach, x_array[i]);
+    }
+    Mem_free(x_array, __FILE__, __LINE__);
+    x_array = NULL;
+
+    while (reach_size(reach) < 10 * n_xs) {
+        random_x = (float)rand()/(float)(RAND_MAX/1e3);
+        xs = new_cross_section();
+        reach_put(reach, random_x, xs);
+    }
+
+    n_xs = reach_stream_distance(reach, &x_array);
+    while (reach_size(reach) > n_xs) {
+        i = rand() % n_xs;
+        reach_delete(reach, x_array[i]);
+    }
+    Mem_free(x_array, __FILE__, __LINE__);
+
+    reach_free(reach);
 }
 
 void test_reach_stream_distance(void) {
@@ -257,6 +341,9 @@ int main(int argc, char *argv[]) {
     g_test_add_func("/panthera/reach/put multi", test_reach_put_mulit_xs);
     g_test_add_func("/panthera/reach/get",       test_reach_get);
     g_test_add_func("/panthera/reach/get multi", test_reach_get_multi_xs);
+    g_test_add_func("/panthera/reach/delete",    test_reach_delete);
+    g_test_add_func("/panthera/reach/delete random",
+                    test_reach_delete_random);
     g_test_add_func("/panthera/reach/stream distance",
                     test_reach_stream_distance);
     g_test_add_func("/panthera/reach/stream distance unordered",

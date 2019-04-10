@@ -1,14 +1,13 @@
 #include <cii/mem.h>
 #include <panthera/reach.h>
-#include <stdbool.h>
 
 typedef struct TreeNode TreeNode;
 
 enum color {BLACK, RED};
 
 struct TreeNode {
-    double x;        /* key */
-    CrossSection xs; /* value */
+    double key;
+    CrossSection value;
 
     int size;
     bool color; /* red or black */
@@ -17,20 +16,21 @@ struct TreeNode {
     TreeNode *r; /* right */
 };
 
-static TreeNode *tree_node_new(double x, CrossSection xs) {
+static TreeNode *tree_node_new(double key, CrossSection value) {
     TreeNode *node;
     NEW(node);
     node->size  = 1;
     node->color = RED;
-    node->x     = x;
-    node->xs    = xs;
+    node->key   = key;
+    node->value = value;
     node->l     = NULL;
     node->r     = NULL;
     return node;
 }
 
 static void tree_node_free(TreeNode *node) {
-    xs_free(node->xs);
+    if (node->value)
+        xs_free(node->value);
     FREE(node);
 }
 
@@ -53,23 +53,30 @@ static TreeNode *tree_min(TreeNode *node) {
     if (node->l == NULL)
         return node;
     else
-        return tree_min(node);
+        return tree_min(node->l);
 }
 
-static TreeNode *tree_get(TreeNode *node, double x) {
+static TreeNode *tree_max(TreeNode *node) {
+    if (node->r == NULL)
+        return node;
+    else
+        return tree_max(node->r);
+}
+
+static TreeNode *tree_get(TreeNode *node, double key) {
     if (node == NULL)
         return NULL;
 
-    if (x < node->x)
-        return tree_get(node->l, x);
-    else if (x > node->x)
-        return tree_get(node->r, x);
+    if (key < node->key)
+        return tree_get(node->l, key);
+    else if (key > node->key)
+        return tree_get(node->r, key);
     else
         return node;
 }
 
-static bool tree_contains(TreeNode *node, double x) {
-    return tree_get(node, x) != NULL;
+static bool tree_contains(TreeNode *node, double key) {
+    return tree_get(node, key) != NULL;
 }
 
 static int tree_is_red(TreeNode *node) {
@@ -162,6 +169,7 @@ static TreeNode *tree_move_red_right(TreeNode *node) {
 
 /* delete the node with the minimum x rooted at node */
 static TreeNode *tree_delete_min(TreeNode *node) {
+
     if (node->l == NULL) {
         tree_node_free(node);
         return NULL;
@@ -175,59 +183,61 @@ static TreeNode *tree_delete_min(TreeNode *node) {
 }
 
 /* delete the node with the given key rooted at node */
-static TreeNode *tree_delete(TreeNode *node, double x) {
-    assert(tree_get(node, x) != NULL);
+static TreeNode *tree_delete(TreeNode *node, double key) {
+    assert(tree_get(node, key) != NULL);
 
-    if (x < node->x) {
+    if (key < node->key) {
         if (!tree_is_red(node->l) && !tree_is_red(node->l->l))
             node = tree_move_red_left(node);
-        node->l = tree_delete(node->l, x);
+        node->l = tree_delete(node->l, key);
     } else {
         if(tree_is_red(node->l))
             node = tree_rotate_right(node);
-        if (x == node->x && node->r == NULL) {
+        if (key == node->key && node->r == NULL) {
             tree_node_free(node);
             return NULL;
         }
         if (!tree_is_red(node->r) && !tree_is_red(node->r->l))
             node = tree_move_red_right(node);
-        if (x == node->x) {
-            TreeNode *n = tree_min(node->r);
-            node->x = n->x;
-            node->xs = n->xs;
+        if (key == node->key) {
+            TreeNode *min_r = tree_min(node->r);
+            node->key   = min_r->key;
+            xs_free(node->value);
+            node->value = min_r->value;
+            min_r->value = NULL;
             node->r = tree_delete_min(node->r);
         } else
-            node->r = tree_delete(node->r, x);
+            node->r = tree_delete(node->r, key);
     }
     return tree_balance(node);
 }
 
-static int tree_keys(TreeNode* node, int i, double *x_array) {
+static int tree_keys(TreeNode* node, int i, double *key_array) {
     if (node) {
-        i = tree_keys(node->l, i, x_array);
-        *(x_array + i++) = node->x;
-        i = tree_keys(node->r, i, x_array);
+        i = tree_keys(node->l, i, key_array);
+        *(key_array + i++) = node->key;
+        i = tree_keys(node->r, i, key_array);
     }
     return i;
 }
 
-static TreeNode *tree_put(TreeNode* node, double x, CrossSection xs) {
+static TreeNode *tree_put(TreeNode* node, double key, CrossSection value) {
     if (!node)
-        return tree_node_new(x, xs);
+        return tree_node_new(key, value);
 
-    if (x < node->x)
-        node->l = tree_put(node->l, x, xs);
-    else if (x > node->x)
-        node->r = tree_put(node->r, x, xs);
+    if (key < node->key)
+        node->l = tree_put(node->l, key, value);
+    else if (key > node->key)
+        node->r = tree_put(node->r, key, value);
     else {
-        xs_free(node->xs);
-        node->xs = xs;
+        xs_free(node->value);
+        node->value = value;
     }
 
     /* fix any right-leaning links */
     if (tree_is_red(node->r) && !tree_is_red(node->l))
         node = tree_rotate_left(node);
-    if (tree_is_red(node->l) && tree_is_red((node->l)->l))
+    if (tree_is_red(node->l) && tree_is_red(node->l->l))
         node = tree_rotate_right(node);
     if (tree_is_red(node->l) && (tree_is_red(node->r)))
         tree_flip_colors(node);
@@ -264,7 +274,17 @@ double reach_min_x(Reach reach) {
         RAISE(empty_reach_Error);
 
     TreeNode *min = tree_min(reach->root);
-    return min->x;
+    return min->key;
+}
+
+double reach_max_x(Reach reach) {
+    if (!reach)
+        RAISE(null_ptr_arg_Error);
+    if (reach_size(reach) == 0)
+        RAISE(empty_reach_Error);
+
+    TreeNode *max = tree_max(reach->root);
+    return max->key;
 }
 
 CrossSection reach_get(Reach reach, double x) {
@@ -272,7 +292,7 @@ CrossSection reach_get(Reach reach, double x) {
         RAISE(null_ptr_arg_Error);
     TreeNode *node = tree_get(reach->root, x);
     if (node)
-        return node->xs;
+        return node->value;
     else
         return NULL;
 }
@@ -285,7 +305,15 @@ void reach_put(Reach reach, double x, CrossSection xs) {
     reach->root->color = BLACK;
 }
 
+bool reach_contains(Reach reach, double x) {
+    if (!reach)
+        RAISE(null_ptr_arg_Error);
+    return tree_contains(reach->root, x);
+}
+
 void reach_delete(Reach reach, double x) {
+    if (!reach)
+        RAISE(null_ptr_arg_Error);
     if (!tree_contains(reach->root, x))
         return;
 
@@ -294,7 +322,7 @@ void reach_delete(Reach reach, double x) {
         reach->root->color = RED;
 
     reach->root = tree_delete(reach->root, x);
-    if (reach_size(reach) == 0)
+    if (reach_size(reach) > 0)
         reach->root->color = BLACK;
 }
 
