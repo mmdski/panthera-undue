@@ -245,8 +245,38 @@ static TreeNode *tree_put(TreeNode* node, double key, CrossSection value) {
     return node;
 }
 
+struct ReachNode {
+    TreeNode *node;
+};
+
+static ReachNode reach_node_new(void) {
+    ReachNode node;
+    NEW(node);
+    return node;
+}
+
+void reach_node_free(ReachNode node) {
+    if (!node)
+        RAISE(null_ptr_arg_Error);
+    FREE(node);
+}
+
+double reach_node_x(ReachNode node) {
+    if (!node)
+        RAISE(null_ptr_arg_Error);
+    return node->node->key;
+}
+
+CrossSection reach_node_xs(ReachNode node) {
+    if (!node)
+        RAISE(null_ptr_arg_Error);
+    return node->node->value;
+}
+
 struct Reach {
     TreeNode *root;
+    ReachNode *reach_node_array;
+    int n_reach_nodes;
 };
 
 Reach reach_new(void) {
@@ -254,12 +284,48 @@ Reach reach_new(void) {
     NEW(reach);
 
     reach->root = NULL;
+    reach->reach_node_array = NULL;
+    reach->n_reach_nodes = 0;
 
     return reach;
 }
 
+static int fill_node_array(TreeNode *node, int i, ReachNode *node_array) {
+    if (node) {
+        i = fill_node_array(node->l, i, node_array);
+        ReachNode rn = reach_node_new();
+        rn->node = node;
+        *(node_array + i++) = rn;
+        i = fill_node_array(node->r, i, node_array);
+    }
+    return i;
+}
+
+static void init_node_array(Reach reach) {
+    int n = reach_size(reach);
+    reach->n_reach_nodes = n;
+    reach->reach_node_array = Mem_calloc(n, sizeof(ReachNode), __FILE__,
+                                         __LINE__);
+    fill_node_array(reach->root, 0, reach->reach_node_array);
+}
+
+static void free_node_array(Reach reach) {
+    int i;
+    int n = reach->n_reach_nodes;
+
+    for (i = 0; i < n; i++) {
+        reach_node_free(*(reach->reach_node_array + i));
+    }
+
+    Mem_free(reach->reach_node_array, __FILE__, __LINE__);
+    reach->reach_node_array = NULL;
+    reach->n_reach_nodes = 0;
+}
+
 void reach_free(Reach reach) {
     tree_free(reach->root);
+    if (reach->reach_node_array)
+        free_node_array(reach);
     FREE(reach);
 }
 
@@ -297,12 +363,24 @@ CrossSection reach_get(Reach reach, double x) {
         return NULL;
 }
 
+ReachNode reach_get_index(Reach reach, int i) {
+    if (!reach)
+        RAISE(null_ptr_arg_Error);
+    if (i > (reach_size(reach) - 1))
+        RAISE(index_Error);
+    if (!reach->reach_node_array)
+        init_node_array(reach);
+    return *(reach->reach_node_array + i);
+}
+
 void reach_put(Reach reach, double x, CrossSection xs) {
     if (!reach || !xs)
         RAISE(null_ptr_arg_Error);
 
     reach->root = tree_put(reach->root, x, xs);
     reach->root->color = BLACK;
+    if (reach->reach_node_array)
+        free_node_array(reach);
 }
 
 bool reach_contains(Reach reach, double x) {
@@ -324,6 +402,9 @@ void reach_delete(Reach reach, double x) {
     reach->root = tree_delete(reach->root, x);
     if (reach_size(reach) > 0)
         reach->root->color = BLACK;
+
+    if (reach->reach_node_array)
+        free_node_array(reach);
 }
 
 int reach_stream_distance(Reach reach, double **x) {

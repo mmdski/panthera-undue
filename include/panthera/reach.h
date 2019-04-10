@@ -15,6 +15,42 @@
  */
 
 /**
+ * ReachNode:
+ *
+ * Nodes that provide access to stream distances and corresponding cross
+ * sections.
+ */
+typedef struct ReachNode *ReachNode;
+
+/**
+ * reach_node_x:
+ * @node: a #ReachNode
+ *
+ * Returns the stream distance in @node.
+ *
+ * **Raises:**
+ *
+ * #null_ptr_arg_Error if @node is `NULL`
+ *
+ * Returns: stream distance of @node
+ */
+extern double reach_node_x(ReachNode node);
+
+/**
+ * reach_node_xs:
+ * @node: a #ReachNode
+ *
+ * Returns a reference to the cross section in @node
+ *
+ * **Raises:**
+ *
+ * #null_ptr_arg_Error if @node is `NULL`
+ *
+ * Returns: a reference to the cross section in @node
+ */
+extern CrossSection reach_node_xs(ReachNode node);
+
+/**
  * Reach:
  *
  * Data structure containing river reach simulation information.
@@ -95,6 +131,24 @@ extern CrossSection reach_get(Reach reach, double x);
 extern void reach_put(Reach reach, double x, CrossSection xs);
 
 /**
+ * reach_get_index:
+ * @reach:  a #Reach
+ * @i:     an index
+ *
+ * Returns the @i-th #ReachNode. @reach maintains a reference to the returned
+ * node.
+ *
+ * **Raises:**
+ *
+ * #null_ptr_arg_Error if @reach is `NULL`
+ *
+ * #index_Error if @i > reach_size()( @reach ) - 1
+ *
+ * Returns: The @i-th node
+ */
+extern ReachNode reach_get_index(Reach reach, int i);
+
+/**
  * reach_contains:
  * @reach: a #Reach
  * @x:     distance downstream
@@ -141,5 +195,32 @@ extern void reach_delete(Reach reach, double x);
  * Returns: the length of the array referenced by @x
  */
 extern int reach_stream_distance(Reach reach, double **x);
+
+/**
+ * reach_node_x:
+ * @node: a #ReachNode
+ *
+ * Returns the stream distance of @node.
+ *
+ * **Raises:**
+ *
+ * #null_ptr_arg_Error if @reach is `NULL`
+ *
+ */
+extern double reach_node_x(ReachNode node);
+
+/**
+ * reach_node_xs:
+ * @node: a #ReachNode
+ *
+ * Returns the cross section of @node. @node maintains a reference to the
+ * returned cross section.
+ *
+ * **Raises:**
+ *
+ * #null_ptr_arg_Error if @reach is `NULL`
+ *
+ */
+extern CrossSection reach_node_xs(ReachNode node);
 
 #endif
