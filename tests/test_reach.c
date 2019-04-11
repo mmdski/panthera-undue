@@ -1,7 +1,6 @@
 #include <panthera/reach.h>
 #include "testlib.h"
 
-
 CrossSection new_cross_section(void) {
 
     int n_coords = 5;
@@ -168,7 +167,7 @@ void test_reach_delete(void) {
 /* test random add and deletes of cross sections from a reach */
 void test_reach_delete_random(void) {
     int i;
-    int n_xs = 50;
+    int n_xs = 100;
     double random_x;
     double *x_array = NULL;
 
@@ -293,6 +292,13 @@ void test_reach_stream_distance_unordered(void) {
         g_assert_true(*(stream_distance + i) == x_ordered[i]);
     }
 
+    TRY
+        reach_get_index(NULL, x[0]);
+        g_assert_not_reached();
+    EXCEPT(null_ptr_arg_Error);
+        ;
+    END_TRY;
+
     reach_free(reach);
     Mem_free(xs_in_reach, __FILE__, __LINE__);
     Mem_free(stream_distance, __FILE__, __LINE__);
@@ -300,7 +306,7 @@ void test_reach_stream_distance_unordered(void) {
 
 void test_reach_stream_distance_random(void) {
     int i;
-    int n_xs = 5;
+    int n_xs = 500;
     double x;
 
     /* for calling reach_stream_distance */
@@ -317,7 +323,7 @@ void test_reach_stream_distance_random(void) {
     }
 
     for (i = 0; i < n_xs; i++) {
-        x = 1000 * (double) rand() / (double) RAND_MAX;
+        x = (float)rand()/(float)(RAND_MAX/1e3);
         reach_put(reach, x, *(xs_in_reach + i));
     }
 
@@ -334,7 +340,125 @@ void test_reach_stream_distance_random(void) {
     Mem_free(stream_distance, __FILE__, __LINE__);
 }
 
+void test_reach_get_index(void) {
+    int i;
+    int n_xs = 50;
+    double x;
+
+    CrossSection xs;
+    CrossSection xs_get_index;
+    ReachNode rn;
+
+    Reach reach = reach_new();
+
+    /* for calling reach_stream_distance */
+    int n_sd;
+    double *stream_distance = NULL;
+
+    for (i = 0; i < n_xs; i++) {
+        x = (float)rand()/(float)(RAND_MAX/1e3);
+        xs = new_cross_section();
+        reach_put(reach, x, xs);
+    }
+
+    n_sd = reach_stream_distance(reach, &stream_distance);
+
+    for (i = 0; i < n_sd; i++) {
+        rn = reach_get_index(reach, i);
+
+        x = reach_node_x(rn);
+        g_assert_true(x == *(stream_distance + i));
+
+        xs = reach_get(reach, x);
+        xs_get_index = reach_node_xs(rn);
+        g_assert_true(xs_get_index == xs);
+    }
+
+    reach_free(reach);
+    Mem_free(stream_distance, __FILE__, __LINE__);
+}
+
+/* test reach_get_index before and after node deletions and more puts */
+void test_reach_get_index_put_del(void) {
+    int i;
+    int n_xs = 50;
+    double x;
+
+    CrossSection xs;
+    CrossSection xs_get_index;
+    ReachNode rn;
+
+    Reach reach = reach_new();
+
+    /* for calling reach_stream_distance */
+    int n_sd;
+    double *stream_distance = NULL;
+
+    /* fill the reach */
+    for (i = 0; i < n_xs; i++) {
+        x = (float)rand()/(float)(RAND_MAX/1e3);
+        xs = new_cross_section();
+        reach_put(reach, x, xs);
+    }
+
+    /* get stream distances and test the correctness of the results */
+    n_sd = reach_stream_distance(reach, &stream_distance);
+    for (i = 0; i < n_sd; i++) {
+        rn = reach_get_index(reach, i);
+        x = reach_node_x(rn);
+        g_assert_true(x == *(stream_distance + i));
+        xs = reach_get(reach, x);
+        xs_get_index = reach_node_xs(rn);
+        g_assert_true(xs_get_index == xs);
+    }
+
+    /* delete half of the nodes */
+    while (reach_size(reach) > n_xs / 2) {
+        i = rand() % n_xs;
+        reach_delete(reach, stream_distance[i]);
+    }
+
+    Mem_free(stream_distance, __FILE__, __LINE__);
+    stream_distance = NULL;
+
+    /* get stream distances and test the correctness of the results again */
+    n_sd = reach_stream_distance(reach, &stream_distance);
+    for (i = 0; i < n_sd; i++) {
+        rn = reach_get_index(reach, i);
+        x = reach_node_x(rn);
+        g_assert_true(x == *(stream_distance + i));
+        xs = reach_get(reach, x);
+        xs_get_index = reach_node_xs(rn);
+        g_assert_true(xs_get_index == xs);
+    }
+
+    Mem_free(stream_distance, __FILE__, __LINE__);
+    stream_distance = NULL;
+
+    /* add more nodes */
+    for (i = 0; i < n_xs; i++) {
+        x = (float)rand()/(float)(RAND_MAX/1e3);
+        xs = new_cross_section();
+        reach_put(reach, x, xs);
+    }
+
+    /* get stream distances and test the correctness of the results again */
+    n_sd = reach_stream_distance(reach, &stream_distance);
+    for (i = 0; i < n_sd; i++) {
+        rn = reach_get_index(reach, i);
+        x = reach_node_x(rn);
+        g_assert_true(x == *(stream_distance + i));
+        xs = reach_get(reach, x);
+        xs_get_index = reach_node_xs(rn);
+        g_assert_true(xs_get_index == xs);
+    }
+
+    Mem_free(stream_distance, __FILE__, __LINE__);
+    reach_free(reach);
+}
+
 int main(int argc, char *argv[]) {
+    srand(time(NULL));
     g_test_init(&argc, &argv, NULL);
     g_test_add_func("/panthera/reach/new",       test_reach_new);
     g_test_add_func("/panthera/reach/put",       test_reach_put);
@@ -350,5 +474,8 @@ int main(int argc, char *argv[]) {
                     test_reach_stream_distance_unordered);
     g_test_add_func("/panthera/reach/stream distance random add",
                     test_reach_stream_distance_random);
+    g_test_add_func("/panthera/reach/get index", test_reach_get_index);
+    g_test_add_func("/panthera/reach/get index del & put",
+                    test_reach_get_index_put_del);
     return g_test_run();
 }
