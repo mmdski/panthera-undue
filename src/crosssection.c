@@ -5,60 +5,60 @@
 #include <math.h>
 #include <stddef.h>
 
-/* hydraulic properties interface */
+/* cross section properties interface */
 
-struct HydraulicProps {
+struct CrossSectionProps {
     double *properties;
 };
 
-HydraulicProps hp_new(void) {
-    HydraulicProps hp;
-    NEW(hp);
-    hp->properties = Mem_calloc(N_HP, sizeof(double), __FILE__, __LINE__);
-    return hp;
+CrossSectionProps xsp_new(void) {
+    CrossSectionProps xsp;
+    NEW(xsp);
+    xsp->properties = Mem_calloc(N_XSP, sizeof(double), __FILE__, __LINE__);
+    return xsp;
 }
 
-void hp_free(HydraulicProps hp) {
-    if (!hp)
+void xsp_free(CrossSectionProps xsp) {
+    if (!xsp)
         RAISE(null_ptr_arg_Error);
-    Mem_free(hp->properties, __FILE__, __LINE__);
-    FREE(hp);
+    Mem_free(xsp->properties, __FILE__, __LINE__);
+    FREE(xsp);
 }
 
-double hp_get(HydraulicProps hp, hyd_prop prop) {
-    if (!hp)
+double xsp_get(CrossSectionProps xsp, xs_prop prop) {
+    if (!xsp)
         RAISE(null_ptr_arg_Error);
-    return *(hp->properties + prop);
+    return *(xsp->properties + prop);
 }
 
-void hp_set(HydraulicProps hp, hyd_prop prop, double value) {
-    if (!hp)
+void xsp_set(CrossSectionProps xsp, xs_prop prop, double value) {
+    if (!xsp)
         RAISE(null_ptr_arg_Error);
-    *(hp->properties + prop) = value;
+    *(xsp->properties + prop) = value;
 }
 
-HydraulicProps hp_interp_depth(HydraulicProps hp1, HydraulicProps hp2,
+CrossSectionProps xsp_interp_depth(CrossSectionProps xsp1, CrossSectionProps xsp2,
                                double depth) {
-    double d1 = *(hp1->properties + HP_DEPTH);
-    double d2 = *(hp2->properties + HP_DEPTH);
+    double d1 = *(xsp1->properties + XS_DEPTH);
+    double d2 = *(xsp2->properties + XS_DEPTH);
 
     assert(d1 <= depth && depth <= d2);
 
-    HydraulicProps hp = hp_new();
+    CrossSectionProps xsp = xsp_new();
 
     double prop1;
     double prop2;
 
     int i;
 
-    for (i = 0; i < N_HP; i++) {
-        prop1 = *(hp1->properties + i);
-        prop2 = *(hp2->properties + i);
-        *(hp->properties + i) =
+    for (i = 0; i < N_XSP; i++) {
+        prop1 = *(xsp1->properties + i);
+        prop2 = *(xsp2->properties + i);
+        *(xsp->properties + i) =
             (prop2 - prop1) / (d2 - d1) * (depth - d1) + prop1;
     }
 
-    return hp;
+    return xsp;
 }
 
 /* subsection interface */
@@ -93,9 +93,9 @@ void ss_free(Subsection ss) {
 }
 
 /* Calculates hydraulic properties for the subsection.
- * Returns a new HydraulicProps.
+ * Returns a new CrossSectionProps.
  */
-HydraulicProps ss_hydraulic_properties(Subsection ss, double y) {
+CrossSectionProps ss_hydraulic_properties(Subsection ss, double y) {
 
     assert(ss);
 
@@ -107,7 +107,7 @@ HydraulicProps ss_hydraulic_properties(Subsection ss, double y) {
     double hydraulic_radius;
     double conveyance;
 
-    HydraulicProps hp = hp_new();
+    CrossSectionProps xsp = xsp_new();
 
     int n;
 
@@ -172,22 +172,22 @@ HydraulicProps ss_hydraulic_properties(Subsection ss, double y) {
         conveyance = 1/ss->n * area * pow(hydraulic_radius, 2.0/3.0);
     }
 
-    hp_set(hp, HP_AREA, area);
-    hp_set(hp, HP_TOP_WIDTH, top_width);
-    hp_set(hp, HP_WETTED_PERIMETER, perimeter);
-    hp_set(hp, HP_HYDRAULIC_RADIUS, hydraulic_radius);
-    hp_set(hp, HP_CONVEYANCE, conveyance);
+    xsp_set(xsp, XS_AREA, area);
+    xsp_set(xsp, XS_TOP_WIDTH, top_width);
+    xsp_set(xsp, XS_WETTED_PERIMETER, perimeter);
+    xsp_set(xsp, XS_HYDRAULIC_RADIUS, hydraulic_radius);
+    xsp_set(xsp, XS_CONVEYANCE, conveyance);
 
     if (sa)
         coarray_free(sa);
 
-    return hp;
+    return xsp;
 }
 
 /* results cache interface */
 typedef struct ResultsCache {
     int size;
-    HydraulicProps *hp;
+    CrossSectionProps *xsp;
 } ResultsCache;
 
 #define DEPTH_INTERP_DELTA 0.1  /* depth interpolation step size */
@@ -203,18 +203,18 @@ ResultsCache *res_new(int size) {
     ResultsCache *res;
     NEW(res);
 
-    /* allocate space for HydraulicProps pointers */
-    HydraulicProps *hp =
-        Mem_calloc(size, sizeof(HydraulicProps), __FILE__, __LINE__);
+    /* allocate space for CrossSectionProps pointers */
+    CrossSectionProps *xsp =
+        Mem_calloc(size, sizeof(CrossSectionProps), __FILE__, __LINE__);
 
     /* set results to NULL */
     int i;
     for (i = 0; i < size; i++) {
-        *(hp + i) = NULL;
+        *(xsp + i) = NULL;
     }
 
     res->size = size;
-    res->hp = hp;
+    res->xsp = xsp;
 
     return res;
 }
@@ -224,13 +224,13 @@ void res_free(ResultsCache *res) {
 
     int i;
     int size = res->size;
-    HydraulicProps hp;
+    CrossSectionProps xsp;
     for (i = 0; i < size; i++) {
-        if ((hp = *(res->hp + i))) {
-            hp_free(hp);
+        if ((xsp = *(res->xsp + i))) {
+            xsp_free(xsp);
         }
     }
-    Mem_free(res->hp, __FILE__, __LINE__);
+    Mem_free(res->xsp, __FILE__, __LINE__);
     FREE(res);
 }
 
@@ -244,9 +244,9 @@ ResultsCache *res_resize(int new_size, ResultsCache *old_res) {
     ResultsCache *new_res = res_new(new_size);
 
     for (i = 0; i < n; i++)
-        *(new_res->hp + i) = *(old_res->hp + i);
+        *(new_res->xsp + i) = *(old_res->xsp + i);
 
-    Mem_free(old_res->hp, __FILE__, __LINE__);
+    Mem_free(old_res->xsp, __FILE__, __LINE__);
     FREE(old_res);
 
     return new_res;
@@ -263,7 +263,7 @@ struct CrossSection {
     ResultsCache *results; /* results cache */
 };
 
-HydraulicProps _calc_hydraulic_properties(CrossSection xs, double h) {
+CrossSectionProps _calc_hydraulic_properties(CrossSection xs, double h) {
 
     assert(xs);
 
@@ -282,23 +282,23 @@ HydraulicProps _calc_hydraulic_properties(CrossSection xs, double h) {
     double alpha;    /* velocity coefficient */
     double qc;       /* critical flow */
 
-    HydraulicProps hp = hp_new();
-    HydraulicProps hp_ss;
+    CrossSectionProps xsp = xsp_new();
+    CrossSectionProps xsp_ss;
     Subsection ss;
 
     for (i = 0; i < n_subsections; i++) {
         ss     = *(xs->ss + i);
-        hp_ss = ss_hydraulic_properties(ss, h);
-        a_ss  = hp_get(hp_ss, HP_AREA);
-        k_ss  = hp_get(hp_ss, HP_CONVEYANCE);
-        t    += hp_get(hp_ss, HP_TOP_WIDTH);
-        w    += hp_get(hp_ss, HP_WETTED_PERIMETER);
+        xsp_ss = ss_hydraulic_properties(ss, h);
+        a_ss  = xsp_get(xsp_ss, XS_AREA);
+        k_ss  = xsp_get(xsp_ss, XS_CONVEYANCE);
+        t    += xsp_get(xsp_ss, XS_TOP_WIDTH);
+        w    += xsp_get(xsp_ss, XS_WETTED_PERIMETER);
 
         if (a_ss > 0) {
             sum  += (k_ss * k_ss * k_ss)/(a_ss * a_ss);
         }
 
-        hp_free(hp_ss);
+        xsp_free(xsp_ss);
 
         a += a_ss;
         k += k_ss;
@@ -319,21 +319,21 @@ HydraulicProps _calc_hydraulic_properties(CrossSection xs, double h) {
         qc    = a * sqrt(GRAVITY * a / (alpha * t));
     }
 
-    hp_set(hp, HP_DEPTH, h);
-    hp_set(hp, HP_AREA, a);
-    hp_set(hp, HP_TOP_WIDTH, t);
-    hp_set(hp, HP_WETTED_PERIMETER, w);
-    hp_set(hp, HP_HYDRAULIC_DEPTH, d);
-    hp_set(hp, HP_HYDRAULIC_RADIUS, r);
-    hp_set(hp, HP_CONVEYANCE, k);
-    hp_set(hp, HP_VELOCITY_COEFF, alpha);
-    hp_set(hp, HP_CRITICAL_FLOW, qc);
+    xsp_set(xsp, XS_DEPTH, h);
+    xsp_set(xsp, XS_AREA, a);
+    xsp_set(xsp, XS_TOP_WIDTH, t);
+    xsp_set(xsp, XS_WETTED_PERIMETER, w);
+    xsp_set(xsp, XS_HYDRAULIC_DEPTH, d);
+    xsp_set(xsp, XS_HYDRAULIC_RADIUS, r);
+    xsp_set(xsp, XS_CONVEYANCE, k);
+    xsp_set(xsp, XS_VELOCITY_COEFF, alpha);
+    xsp_set(xsp, XS_CRITICAL_FLOW, qc);
 
-    return hp;
+    return xsp;
 }
 
 /* interfacing function between results cache and cross section */
-HydraulicProps xs_get_properties_from_res(CrossSection xs, double depth) {
+CrossSectionProps xs_get_properties_from_res(CrossSection xs, double depth) {
 
     assert(xs);
 
@@ -348,23 +348,23 @@ HydraulicProps xs_get_properties_from_res(CrossSection xs, double depth) {
     double dlo;
     double dhi;
 
-    HydraulicProps hplo = *(xs->results->hp + indlo);
-    if (!hplo) {
+    CrossSectionProps xsplo = *(xs->results->xsp + indlo);
+    if (!xsplo) {
         dlo = calc_depth(indlo);
-        hplo = _calc_hydraulic_properties(xs, dlo);
-        *(xs->results->hp + indlo) = hplo;
+        xsplo = _calc_hydraulic_properties(xs, dlo);
+        *(xs->results->xsp + indlo) = xsplo;
     }
 
-    HydraulicProps hphi = *(xs->results->hp + indhi);
-    if (!hphi) {
+    CrossSectionProps xsphi = *(xs->results->xsp + indhi);
+    if (!xsphi) {
         dhi = calc_depth(indhi);
-        hphi = _calc_hydraulic_properties(xs, dhi);
-        *(xs->results->hp + indhi) = hphi;
+        xsphi = _calc_hydraulic_properties(xs, dhi);
+        *(xs->results->xsp + indhi) = xsphi;
     }
 
-    HydraulicProps hp = hp_interp_depth(hplo, hphi, depth);
+    CrossSectionProps xsp = xsp_interp_depth(xsplo, xsphi, depth);
 
-    return hp;
+    return xsp;
 }
 
 CrossSection xs_new(CoArray ca, int n_roughness, double *roughness,
@@ -451,7 +451,7 @@ void xs_free(CrossSection xs) {
     FREE(xs);
 }
 
-HydraulicProps xs_hydraulic_properties(CrossSection xs, double wse) {
+CrossSectionProps xs_hydraulic_properties(CrossSection xs, double wse) {
     if (!xs)
         RAISE(null_ptr_arg_Error);
 

@@ -207,46 +207,46 @@ void test_xs_new(xs_fixture *xsf, gconstpointer test_data) {
     g_assert_true(xsf->caught_exception == data.exception);
 }
 
-void check_simple_hp(xs_fixture *xsf, xs_test_data test_data, double depth) {
-    HydraulicProps hp = xs_hydraulic_properties(xsf->xs, depth);
+void check_simple_xsp(xs_fixture *xsf, xs_test_data test_data, double depth) {
+    CrossSectionProps xsp = xs_hydraulic_properties(xsf->xs, depth);
 
     bool is_close;
 
-    double calculated_area = hp_get(hp, HP_AREA);
+    double calculated_area = xsp_get(xsp, XS_AREA);
     double expected_area   = calc_area(test_data, depth);
     is_close   = test_is_close(calculated_area, expected_area, ABS_TOL,
                                REL_TOL);
     g_assert_true(is_close);
 
-    double calculated_tw = hp_get(hp, HP_TOP_WIDTH);
+    double calculated_tw = xsp_get(xsp, XS_TOP_WIDTH);
     double expected_tw   = calc_top_width(test_data, depth);
     is_close   = test_is_close(calculated_tw, expected_tw, ABS_TOL, REL_TOL);
     g_assert_true(is_close);
 
-    double calculated_wp = hp_get(hp, HP_WETTED_PERIMETER);
+    double calculated_wp = xsp_get(xsp, XS_WETTED_PERIMETER);
     double expected_wp   = calc_perimeter(test_data, depth);
     is_close   = test_is_close(calculated_wp, expected_wp, ABS_TOL, REL_TOL);
     g_assert_true(is_close);
 
-    double calculated_hd = hp_get(hp, HP_HYDRAULIC_DEPTH);
+    double calculated_hd = xsp_get(xsp, XS_HYDRAULIC_DEPTH);
     double expected_hd   = calc_hydraulic_depth(test_data, depth);
     is_close   = test_is_close(calculated_hd, expected_hd, ABS_TOL, REL_TOL);
     g_assert_true(is_close);
 
-    double calculated_hr = hp_get(hp, HP_HYDRAULIC_RADIUS);
+    double calculated_hr = xsp_get(xsp, XS_HYDRAULIC_RADIUS);
     double expected_hr   = calc_hydraulic_radius(test_data, depth);
     is_close   = test_is_close(calculated_hr, expected_hr, ABS_TOL, REL_TOL);
     g_assert_true(is_close);
 
     /* only test cross sections that contain a single subsection */
     if (test_data.n_roughness == 1) {
-        double calculated_conveyance = hp_get(hp, HP_CONVEYANCE);
+        double calculated_conveyance = xsp_get(xsp, XS_CONVEYANCE);
         double expected_conveyance   = calc_conveyance(test_data, depth);
         is_close = test_is_close(calculated_conveyance, expected_conveyance,
                                  ABS_TOL, REL_TOL);
         g_assert_true(is_close);
 
-        double calculated_velocity_coeff = hp_get(hp, HP_VELOCITY_COEFF);
+        double calculated_velocity_coeff = xsp_get(xsp, XS_VELOCITY_COEFF);
         double expected_velocity_coeff   = 1;
         is_close = test_is_close(calculated_velocity_coeff,
                                  expected_velocity_coeff, ABS_TOL, REL_TOL);
@@ -261,11 +261,11 @@ void test_simple_h_properties(xs_fixture *xsf, gconstpointer test_data) {
     double depth;
     for (int i = 0; i < steps; i++) {
         depth = (double)i / (double)steps;
-        check_simple_hp(xsf, *(const xs_test_data *)test_data, depth);
+        check_simple_xsp(xsf, *(const xs_test_data *)test_data, depth);
     }
 }
 
-void test_xs_hp_fail(void) {
+void test_xs_xsp_fail(void) {
     TRY
         xs_hydraulic_properties(NULL, 1);
         g_assert_not_reached();
@@ -336,9 +336,9 @@ void add_xs_new_test() {
                xs_teardown);
 }
 
-void add_xs_hp_tests() {
+void add_xs_xsp_tests() {
     g_test_add_func("/panthera/xs/crosssection/hydraulic_properties/"
-                    "null arg fail", test_xs_hp_fail);
+                    "null arg fail", test_xs_xsp_fail);
 }
 
 void add_xs_rect_test() {
@@ -397,7 +397,7 @@ void add_xs_coarray_test() {
 
 void add_crosssection_tests() {
     add_xs_new_test();
-    add_xs_hp_tests();
+    add_xs_xsp_tests();
     add_xs_rect_test();
     add_xs_triangle_test();
     add_xs_trapezoid_test();

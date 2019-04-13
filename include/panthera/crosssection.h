@@ -1,74 +1,73 @@
-#ifndef CROSS_SECTION_INCLUDED
-#define CROSS_SECTION_INCLUDED
+#ifndef CROSSSECTION_INCLUDED
+#define CROSSSECTION_INCLUDED
 
 #include <panthera/coarray.h>
 
 /**
- * SECTION: Hydraulic Properties
- * @short_description: Hydraulic properties
- * @title: HydraulicProps
+ * SECTION: Cross Section Properties
+ * @short_description: Cross section properties
+ * @title: XSProps
  *
- * Hydraulic property data
+ * Cross section property data
  *
  */
 
 /**
- * hyd_prop:
- * @HP_DEPTH:            Depth of cross section these properties are
- *                          computed at
- * @HP_AREA:             Cross section area
- * @HP_TOP_WIDTH:        Top width
- * @HP_WETTED_PERIMETER: Wetted perimeter
- * @HP_HYDRAULIC_DEPTH:  Hydraulic depth
- * @HP_HYDRAULIC_RADIUS: Hydraulic radius
- * @HP_CONVEYANCE:       Conveyance
- * @HP_VELOCITY_COEFF:   Velocity coefficient
- * @HP_CRITICAL_FLOW:    Critical flow
- * @N_HP:                Number of hydraulic properties
+ * xs_prop:
+ * @XS_DEPTH:             Cross section depth of computed properties
+ * @XS_AREA:              Cross section area
+ * @XS_TOP_WIDTH:         Top width
+ * @XS_WETTED_PERIMETER:  Wetted perimeter
+ * @XS_HYDRAULIC_DEPTH:   Hydraulic depth
+ * @XS_HYDRAULIC_RADIUS:  Hydraulic radius
+ * @XS_CONVEYANCE:        Conveyance
+ * @XS_VELOCITY_COEFF:    Velocity coefficient
+ * @XS_CRITICAL_FLOW:     Critical flow
+ * @N_XSP:                Number of hydraulic properties
  */
 typedef enum {
-    HP_DEPTH,
-    HP_AREA,
-    HP_TOP_WIDTH,
-    HP_WETTED_PERIMETER,
-    HP_HYDRAULIC_DEPTH,
-    HP_HYDRAULIC_RADIUS,
-    HP_CONVEYANCE,
-    HP_VELOCITY_COEFF,
-    HP_CRITICAL_FLOW,
-    N_HP
-} hyd_prop;
+    XS_DEPTH,
+    XS_AREA,
+    XS_TOP_WIDTH,
+    XS_WETTED_PERIMETER,
+    XS_HYDRAULIC_DEPTH,
+    XS_HYDRAULIC_RADIUS,
+    XS_CONVEYANCE,
+    XS_VELOCITY_COEFF,
+    XS_CRITICAL_FLOW,
+    N_XSP
+} xs_prop;
 
 /**
- * HydraulicProps:
+ * CrossSectionProps:
  *
  * Hydraulic properties calculated with a #CrossSection using
  * xs_hydraulic_properties()
  */
-typedef struct HydraulicProps *HydraulicProps;
+typedef struct CrossSectionProps *CrossSectionProps;
 
 /**
- * hp_free:
- * @hp: a #HydraulicProps
+ * xsp_free:
+ * @xsp: a #CrossSectionProps
  *
- * Frees a #HydraulicProps
+ * Frees a #CrossSectionProps
  *
  * Returns: None
  */
-extern void hp_free(HydraulicProps hp);
+extern void xsp_free(CrossSectionProps xsp);
 
 /**
- * hp_get:
- * @hp:   a #HydraulicProps
- * @prop: a #hyd_prop
+ * xsp_get:
+ * @xsp:   a #CrossSectionProps
+ * @prop:  a #xs_prop
  *
  * **Raises:**
  *
- * #null_ptr_arg_Error if @hp is `NULL`
+ * #null_ptr_arg_Error if @xsp is `NULL`
  *
- * Returns: the value of @prop contained in @hp
+ * Returns: the value of @prop contained in @xsp
  */
-extern double hp_get(HydraulicProps hp, hyd_prop prop);
+extern double xsp_get(CrossSectionProps xsp, xs_prop prop);
 
 /**
  * SECTION: Cross Section
@@ -166,8 +165,8 @@ CoArray xs_coarray(CrossSection xs);
  * @xs:  a #CrossSection
  * @wse: water surface elevation
  *
- * The returned #HydraulicProps is newly created and should be freed with
- * hp_free() after use.
+ * The returned #CrossSectionProps is newly created and should be freed with
+ * xsp_free() after use.
  *
  * **Raises:**
  *
@@ -175,6 +174,6 @@ CoArray xs_coarray(CrossSection xs);
  *
  * Returns: the hydraulic properties calculated by @xs at elevation @wse
  */
-extern HydraulicProps xs_hydraulic_properties(CrossSection xs, double wse);
+extern CrossSectionProps xs_hydraulic_properties(CrossSection xs, double wse);
 
 #endif

@@ -1,4 +1,4 @@
-#include "panthera/crosssection.h"
+#include <panthera/crosssection.h>
 #include <stdio.h>
 
 int main() {
@@ -14,7 +14,7 @@ int main() {
     CrossSection xs = xs_new(ca, n_roughness, roughness, z_roughness);
 
     CoArray xs_ca = xs_coarray(xs);
-    HydraulicProps hp;
+    CrossSectionProps xsp;
 
     double depth;
     double max_depth = 1;
@@ -22,17 +22,17 @@ int main() {
 
     for (depth = 0; depth <= max_depth; depth += max_depth/increments) {
 
-        hp = xs_hydraulic_properties(xs, depth);
+        xsp = xs_hydraulic_properties(xs, depth);
         printf("\n");
-        printf("depth            = %f\n", hp_get(hp, HP_DEPTH));
-        printf("area             = %f\n", hp_get(hp, HP_AREA));
-        printf("top_width        = %f\n", hp_get(hp, HP_TOP_WIDTH));
-        printf("wetted perimeter = %f\n", hp_get(hp, HP_WETTED_PERIMETER));
-        printf("hydraulic depth  = %f\n", hp_get(hp, HP_HYDRAULIC_DEPTH));
-        printf("conveyance       = %f\n", hp_get(hp, HP_CONVEYANCE));
-        printf("velocity coeff.  = %f\n", hp_get(hp, HP_VELOCITY_COEFF));
-        printf("critical flow    = %f\n", hp_get(hp, HP_CRITICAL_FLOW));
-        hp_free(hp);
+        printf("depth            = %f\n", xsp_get(xsp, XS_DEPTH));
+        printf("area             = %f\n", xsp_get(xsp, XS_AREA));
+        printf("top_width        = %f\n", xsp_get(xsp, XS_TOP_WIDTH));
+        printf("wetted perimeter = %f\n", xsp_get(xsp, XS_WETTED_PERIMETER));
+        printf("hydraulic depth  = %f\n", xsp_get(xsp, XS_HYDRAULIC_DEPTH));
+        printf("conveyance       = %f\n", xsp_get(xsp, XS_CONVEYANCE));
+        printf("velocity coeff.  = %f\n", xsp_get(xsp, XS_VELOCITY_COEFF));
+        printf("critical flow    = %f\n", xsp_get(xsp, XS_CRITICAL_FLOW));
+        xsp_free(xsp);
     }
 
     printf("\n");
