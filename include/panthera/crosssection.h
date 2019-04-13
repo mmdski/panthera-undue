@@ -163,7 +163,7 @@ CoArray xs_coarray(CrossSection xs);
 /**
  * xs_hydraulic_properties:
  * @xs:  a #CrossSection
- * @wse: water surface elevation
+ * @h:   depth
  *
  * The returned #CrossSectionProps is newly created and should be freed with
  * xsp_free() after use.
@@ -172,8 +172,8 @@ CoArray xs_coarray(CrossSection xs);
  *
  * #null_ptr_arg_Error if @xs is `NULL`
  *
- * Returns: the hydraulic properties calculated by @xs at elevation @wse
+ * Returns: the hydraulic properties calculated by @xs at depth @h
  */
-extern CrossSectionProps xs_hydraulic_properties(CrossSection xs, double wse);
+extern CrossSectionProps xs_hydraulic_properties(CrossSection xs, double h);
 
 #endif
