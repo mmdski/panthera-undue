@@ -2,6 +2,7 @@
 #include <cii/mem.h>
 #include <glib.h>
 #include <math.h>
+#include <panthera/exceptions.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>

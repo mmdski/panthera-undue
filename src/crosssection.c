@@ -1,5 +1,9 @@
+#include <cii/mem.h>
 #include <panthera/crosssection.h>
 #include <panthera/constants.h>
+#include <panthera/exceptions.h>
+#include <math.h>
+#include <stddef.h>
 
 /* hydraulic properties interface */
 
