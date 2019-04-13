@@ -1,5 +1,4 @@
 glib_dep = dependency('glib-2.0', required : false)
-
 if glib_dep.found()
 
     test_inc = include_directories('.')
@@ -21,4 +20,9 @@ if glib_dep.found()
          env: ['G_TEST_SRCDIR=@0@'.format(meson.current_source_dir()),
          'G_TEST_BUILDDIR=@0@'.format(meson.current_build_dir()),]
     )
+endif
+
+vlgnd = find_program('valgrind')
+if vlgnd.found()
+    subdir('mem')
 endif
