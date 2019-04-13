@@ -3,13 +3,13 @@
 
 #include <panthera/coarray.h>
 
+
 /**
- * SECTION: Cross Section Properties
- * @short_description: Cross section properties
- * @title: XSProps
+ * SECTION: Cross Section
+ * @short_description: Cross section
+ * @title: CrossSection
  *
- * Cross section property data
- *
+ * Hydraulic cross section
  */
 
 /**
@@ -68,14 +68,6 @@ extern void xsp_free(CrossSectionProps xsp);
  * Returns: the value of @prop contained in @xsp
  */
 extern double xsp_get(CrossSectionProps xsp, xs_prop prop);
-
-/**
- * SECTION: Cross Section
- * @short_description: Cross section
- * @title: CrossSection
- *
- * Hydraulic cross section
- */
 
 /**
  * CrossSection:

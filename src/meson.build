@@ -1,6 +1,6 @@
 subdir('cii')
 
-panthera_sources = ['exceptions.c', 'crosssection.c', 'coarray.c', 'reach.c']
+panthera_sources = ['exceptions.c', 'crosssection.c', 'coarray.c', 'xstable.c']
 pantheralib = static_library('panthera',
                              panthera_sources,
                              include_directories : inc,

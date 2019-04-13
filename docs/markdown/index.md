@@ -37,6 +37,7 @@ This project is in very early development.
   * Velocity coefficient (energy flux correction coefficient)
   * Critical flow
   * Results caching
+* Cross section table
 
 ### Planned features
 * Steady flow
@@ -76,8 +77,8 @@ http://www.cs.princeton.edu/software/cii/)*. The CII code in panthera is only
 slightly modified, if at all.
 
 ### Red-black BST
-The Reach implementation in panthera uses the red-black binary search tree data
-structure described in *[Algorithms](https://algs4.cs.princeton.edu/home/)* by
-Robert Sedgewick and Kevin Wayne. The code was ported to C from their
+The cross section table implementation in panthera uses the red-black binary
+search tree described in *[Algorithms](https://algs4.cs.princeton.edu/home/)*
+by Robert Sedgewick and Kevin Wayne. The code was ported to C from their
 [Java implementation](https://algs4.cs.princeton.edu/33balanced/RedBlackBST.java.html).
 

@@ -1,6 +1,6 @@
 #include <cii/mem.h>
 #include <panthera/exceptions.h>
-#include <panthera/reach.h>
+#include <panthera/xstable.h>
 #include <stddef.h>
 
 typedef struct TreeNode TreeNode;
@@ -8,7 +8,7 @@ typedef struct TreeNode TreeNode;
 enum color {BLACK, RED};
 
 struct TreeNode {
-    double key;
+    int key;
     CrossSection value;
 
     int size;
@@ -18,7 +18,7 @@ struct TreeNode {
     TreeNode *r; /* right */
 };
 
-static TreeNode *tree_node_new(double key, CrossSection value) {
+static TreeNode *tree_node_new(int key, CrossSection value) {
     TreeNode *node;
     NEW(node);
     node->size  = 1;
@@ -65,7 +65,7 @@ static TreeNode *tree_max(TreeNode *node) {
         return tree_max(node->r);
 }
 
-static TreeNode *tree_get(TreeNode *node, double key) {
+static TreeNode *tree_get(TreeNode *node, int key) {
     if (node == NULL)
         return NULL;
 
@@ -77,7 +77,7 @@ static TreeNode *tree_get(TreeNode *node, double key) {
         return node;
 }
 
-static bool tree_contains(TreeNode *node, double key) {
+static bool tree_contains(TreeNode *node, int key) {
     return tree_get(node, key) != NULL;
 }
 
@@ -185,7 +185,7 @@ static TreeNode *tree_delete_min(TreeNode *node) {
 }
 
 /* delete the node with the given key rooted at node */
-static TreeNode *tree_delete(TreeNode *node, double key) {
+static TreeNode *tree_delete(TreeNode *node, int key) {
     assert(tree_get(node, key) != NULL);
 
     if (key < node->key) {
@@ -214,7 +214,7 @@ static TreeNode *tree_delete(TreeNode *node, double key) {
     return tree_balance(node);
 }
 
-static int tree_keys(TreeNode* node, int i, double *key_array) {
+static int tree_keys(TreeNode* node, int i, int *key_array) {
     if (node) {
         i = tree_keys(node->l, i, key_array);
         *(key_array + i++) = node->key;
@@ -223,7 +223,7 @@ static int tree_keys(TreeNode* node, int i, double *key_array) {
     return i;
 }
 
-static TreeNode *tree_put(TreeNode* node, double key, CrossSection value) {
+static TreeNode *tree_put(TreeNode* node, int key, CrossSection value) {
     if (!node)
         return tree_node_new(key, value);
 
@@ -247,176 +247,94 @@ static TreeNode *tree_put(TreeNode* node, double key, CrossSection value) {
     return node;
 }
 
-struct ReachNode {
-    TreeNode *node;
-};
-
-static ReachNode reach_node_new(void) {
-    ReachNode node;
-    NEW(node);
-    return node;
-}
-
-void reach_node_free(ReachNode node) {
-    if (!node)
-        RAISE(null_ptr_arg_Error);
-    FREE(node);
-}
-
-double reach_node_x(ReachNode node) {
-    if (!node)
-        RAISE(null_ptr_arg_Error);
-    return node->node->key;
-}
-
-CrossSection reach_node_xs(ReachNode node) {
-    if (!node)
-        RAISE(null_ptr_arg_Error);
-    return node->node->value;
-}
-
-struct Reach {
+struct XSTable {
     TreeNode *root;
-    ReachNode *reach_node_array;
-    int n_reach_nodes;
 };
 
-Reach reach_new(void) {
-    Reach reach;
-    NEW(reach);
+XSTable xstable_new(void) {
+    XSTable xstable;
+    NEW(xstable);
 
-    reach->root = NULL;
-    reach->reach_node_array = NULL;
-    reach->n_reach_nodes = 0;
-
-    return reach;
+    xstable->root = NULL;
+    return xstable;
 }
 
-static int fill_node_array(TreeNode *node, int i, ReachNode *node_array) {
-    if (node) {
-        i = fill_node_array(node->l, i, node_array);
-        ReachNode rn = reach_node_new();
-        rn->node = node;
-        *(node_array + i++) = rn;
-        i = fill_node_array(node->r, i, node_array);
-    }
-    return i;
+void xstable_free(XSTable xstable) {
+    tree_free(xstable->root);
+    FREE(xstable);
 }
 
-static void init_node_array(Reach reach) {
-    int n = reach_size(reach);
-    reach->n_reach_nodes = n;
-    reach->reach_node_array = Mem_calloc(n, sizeof(ReachNode), __FILE__,
-                                         __LINE__);
-    fill_node_array(reach->root, 0, reach->reach_node_array);
+int xstable_size(XSTable xstable) {
+    return tree_size(xstable->root);
 }
 
-static void free_node_array(Reach reach) {
-    int i;
-    int n = reach->n_reach_nodes;
-
-    for (i = 0; i < n; i++) {
-        reach_node_free(*(reach->reach_node_array + i));
-    }
-
-    Mem_free(reach->reach_node_array, __FILE__, __LINE__);
-    reach->reach_node_array = NULL;
-    reach->n_reach_nodes = 0;
-}
-
-void reach_free(Reach reach) {
-    tree_free(reach->root);
-    if (reach->reach_node_array)
-        free_node_array(reach);
-    FREE(reach);
-}
-
-int reach_size(Reach reach) {
-    return tree_size(reach->root);
-}
-
-double reach_min_x(Reach reach) {
-    if (!reach)
+double xstable_min_x(XSTable xstable) {
+    if (!xstable)
         RAISE(null_ptr_arg_Error);
-    if (reach_size(reach) == 0)
-        RAISE(empty_reach_Error);
+    if (xstable_size(xstable) == 0)
+        RAISE(empty_table_Error);
 
-    TreeNode *min = tree_min(reach->root);
+    TreeNode *min = tree_min(xstable->root);
     return min->key;
 }
 
-double reach_max_x(Reach reach) {
-    if (!reach)
+double xstable_max_key(XSTable xstable) {
+    if (!xstable)
         RAISE(null_ptr_arg_Error);
-    if (reach_size(reach) == 0)
-        RAISE(empty_reach_Error);
+    if (xstable_size(xstable) == 0)
+        RAISE(empty_table_Error);
 
-    TreeNode *max = tree_max(reach->root);
+    TreeNode *max = tree_max(xstable->root);
     return max->key;
 }
 
-CrossSection reach_get(Reach reach, double x) {
-    if (!reach)
+CrossSection xstable_get(XSTable xstable, int key) {
+    if (!xstable)
         RAISE(null_ptr_arg_Error);
-    TreeNode *node = tree_get(reach->root, x);
+    TreeNode *node = tree_get(xstable->root, key);
     if (node)
         return node->value;
     else
         return NULL;
 }
 
-ReachNode reach_get_index(Reach reach, int i) {
-    if (!reach)
+void xstable_put(XSTable xstable, int key, CrossSection xs) {
+    if (!xstable || !xs)
         RAISE(null_ptr_arg_Error);
-    if (i > (reach_size(reach) - 1))
-        RAISE(index_Error);
-    if (!reach->reach_node_array)
-        init_node_array(reach);
-    return *(reach->reach_node_array + i);
+
+    xstable->root = tree_put(xstable->root, key, xs);
+    xstable->root->color = BLACK;
 }
 
-void reach_put(Reach reach, double x, CrossSection xs) {
-    if (!reach || !xs)
+bool xstable_contains(XSTable xstable, int key) {
+    if (!xstable)
         RAISE(null_ptr_arg_Error);
-
-    reach->root = tree_put(reach->root, x, xs);
-    reach->root->color = BLACK;
-    if (reach->reach_node_array)
-        free_node_array(reach);
+    return tree_contains(xstable->root, key);
 }
 
-bool reach_contains(Reach reach, double x) {
-    if (!reach)
+void xstable_delete(XSTable xstable, int key) {
+    if (!xstable)
         RAISE(null_ptr_arg_Error);
-    return tree_contains(reach->root, x);
-}
-
-void reach_delete(Reach reach, double x) {
-    if (!reach)
-        RAISE(null_ptr_arg_Error);
-    if (!tree_contains(reach->root, x))
+    if (!tree_contains(xstable->root, key))
         return;
 
     /* if both children of root are black, set root to red */
-    if (!tree_is_red(reach->root->l) && !tree_is_red(reach->root->r))
-        reach->root->color = RED;
+    if (!tree_is_red(xstable->root->l) && !tree_is_red(xstable->root->r))
+        xstable->root->color = RED;
 
-    reach->root = tree_delete(reach->root, x);
-    if (reach_size(reach) > 0)
-        reach->root->color = BLACK;
-
-    if (reach->reach_node_array)
-        free_node_array(reach);
+    xstable->root = tree_delete(xstable->root, key);
+    if (xstable_size(xstable) > 0)
+        xstable->root->color = BLACK;
 }
 
-int reach_stream_distance(Reach reach, double **x) {
-    if (!reach || !x)
+int xstable_keys(XSTable xstable, int **keys) {
+    if (!xstable || !keys)
         RAISE(null_ptr_arg_Error);
 
-    int size = tree_size(reach->root);
+    int size = tree_size(xstable->root);
 
-    *x = Mem_calloc(size, sizeof(double), __FILE__, __LINE__);
-    tree_keys(reach->root, 0, *x);
+    *keys = Mem_calloc(size, sizeof(int), __FILE__, __LINE__);
+    tree_keys(xstable->root, 0, *keys);
 
     return size;
 }
