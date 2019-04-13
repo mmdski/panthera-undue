@@ -1,11 +1,6 @@
 #ifndef COARRAY_INCLUDED
 #define COARRAY_INCLUDED
 
-#include <cii/mem.h>
-#include <panthera/exceptions.h>
-#include <math.h>
-#include <stddef.h>
-
 /**
  * SECTION: coarray.h
  * @short_description: Coordinate array

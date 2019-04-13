@@ -1,5 +1,7 @@
 #include <cii/mem.h>
+#include <panthera/exceptions.h>
 #include <panthera/reach.h>
+#include <stddef.h>
 
 typedef struct TreeNode TreeNode;
 
