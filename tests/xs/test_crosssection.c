@@ -1,5 +1,6 @@
 #include <panthera/crosssection.h>
 #include "testlib.h"
+#include <glib.h>
 
 #define ABS_TOL 1e-14
 #define REL_TOL 0

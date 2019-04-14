@@ -1,22 +1,7 @@
 #include <panthera/xstable.h>
 #include "testlib.h"
+#include <glib.h>
 
-CrossSection new_cross_section(void) {
-
-    int n_coords = 5;
-    double y[]   = {1, 0, 0, 0, 1};
-    double z[]   = {0, 0, 0.5, 1, 1};
-
-    double n_roughness      = 1;
-    double roughness[]      = {0.03};
-    double *z_roughness     = NULL;
-
-    CoArray ca = coarray_new(n_coords, y, z);
-    CrossSection xs = xs_new(ca, n_roughness, roughness, z_roughness);
-    coarray_free(ca);
-
-    return xs;
-}
 
 void test_xstable_new(void) {
     XSTable xstable = xstable_new();

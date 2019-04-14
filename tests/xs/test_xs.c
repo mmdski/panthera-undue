@@ -1,4 +1,5 @@
 #include "testlib.h"
+#include <glib.h>
 
 extern void add_coarray_tests(void);
 extern void add_crosssection_tests(void);

@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include "testlib.h"
+#include <glib.h>
 
 #define ABS_TOL 1e-10
 #define REL_TOL 0

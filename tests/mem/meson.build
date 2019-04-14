@@ -1,7 +1,10 @@
+include_dirs = [inc, test_inc]
+link_libs = [ciilib, pantheralib, testlib]
+
 xstable_test_sources = ['xstable.c']
 xstable_mem_test = executable('xstable', xstable_test_sources,
-                              include_directories : [inc],
-                              link_with: [ciilib, pantheralib])
+                              include_directories : include_dirs,
+                              link_with: link_libs)
 
 test('test_mem_xstable', vlgnd,
      args : [
@@ -14,8 +17,8 @@ test('test_mem_xstable', vlgnd,
 
 reach_test_sources = ['reach.c']
 reach_mem_test = executable('reach', reach_test_sources,
-                              include_directories : [inc],
-                              link_with: [ciilib, pantheralib])
+                              include_directories : include_dirs,
+                              link_with: link_libs)
 
 test('test_mem_reach', vlgnd,
      args : [
