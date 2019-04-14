@@ -7,3 +7,5 @@ const Except_T coarray_z_order_Error  = {"Invalid z-value order"};
 const Except_T index_Error            = {"Index out of bounds"};
 const Except_T empty_table_Error      = {"Unsupported operation on empty"
                                          " table"};
+const Except_T reach_x_order_Error    = {"Invalid x-value order"};
+const Except_T reach_xs_num_Error     = {"Invalid cross section number"};

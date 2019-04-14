@@ -58,4 +58,18 @@ extern const Except_T index_Error;
  */
 extern const Except_T empty_table_Error;
 
+/**
+ * reach_x_order_Error:
+ *
+ * Raised when the order fo @x passed to xstable_new() is incorrect
+ */
+extern const Except_T reach_x_order_Error;
+
+/**
+ * reach_xs_num_Error:
+ *
+ * Raised when an invalid cross section number is encountered by a #Reach
+ */
+ extern const Except_T reach_xs_num_Error;
+
 #endif
