@@ -141,4 +141,26 @@ extern void reach_free(Reach reach);
  */
 extern int reach_size(Reach reach);
 
+/**
+ * reach_node_properties:
+ * @reach: a #Reach
+ * @i:     a node index
+ * @wse:   water surface elevation
+ * @q:     discharge
+ *
+ * The returned #ReachNodeProps is newly created and should be freed with
+ * rnp_free() after use.
+ *
+ * **Raises:**
+ *
+ * #null_ptr_arg_Error if @reach is `NULL`
+ *
+ * #index_Error if `i < 0` or `i >= size`, where `size` is the size of @reach
+ *
+ * Returns: properties of reach node with water surface elevation @wse and
+ * discharge @q
+ */
+extern ReachNodeProps reach_node_properties(Reach reach, int i, double wse,
+                                            double q);
+
 #endif

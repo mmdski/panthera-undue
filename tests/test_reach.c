@@ -105,8 +105,65 @@ void test_reach_new(void) {
     xstable_free(xstable);
 }
 
+void test_reach_node_props(void) {
+    int i;
+    int n_nodes      = 5;
+    double x[]       = {0, 1, 2, 3, 4};
+    double y[]       = {0, 0.001, 0.002, 0.003, 0.004};
+    int xs_number[]  = {0, 0, 0, 0, 0};
+    double q         = 0.1;
+    double h         = 0.5;
+    double wse;
+
+    ReachNodeProps rnp;
+
+    CrossSection xs = new_cross_section();
+    XSTable xstable = xstable_new();
+    xstable_put(xstable, 0, xs);
+
+    Reach reach = reach_new(n_nodes, x, y, xs_number, xstable);
+
+    for (i = 0; i < n_nodes; i++) {
+        wse = h + y[i];
+        rnp = reach_node_properties(reach, i, wse, q);
+        g_assert_true(rnp_get(rnp, RN_X) == x[i]);
+        g_assert_true(rnp_get(rnp, RN_WSE) == wse);
+        g_assert_true(rnp_get(rnp, RN_DISCHARGE) == q);
+        rnp_free(rnp);
+    }
+
+    /* test failure with invalid index */
+    TRY
+        reach_node_properties(reach, -1, wse, q);
+        g_assert_not_reached();
+    EXCEPT(index_Error);
+        ;
+    END_TRY;
+
+    TRY
+        reach_node_properties(reach, n_nodes, wse, q);
+        g_assert_not_reached();
+    EXCEPT(index_Error);
+        ;
+    END_TRY;
+
+    reach_free(reach);
+    xstable_free(xstable);
+
+    reach = NULL;
+
+    /* test failure with null reach */
+    TRY
+        reach_node_properties(reach, 0, wse, q);
+        g_assert_not_reached();
+    EXCEPT(null_ptr_arg_Error);
+        ;
+    END_TRY;
+}
+
 int main(int argc, char *argv[]) {
     g_test_init(&argc, &argv, NULL);
-    g_test_add_func("/panthera/reach/new", test_reach_new);
+    g_test_add_func("/panthera/reach/new",             test_reach_new);
+    g_test_add_func("/panthera/reach/node properties", test_reach_node_props);
     return g_test_run();
 }

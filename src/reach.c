@@ -6,22 +6,14 @@
 #include <stddef.h>
 
 
-typedef struct ReachNode {
-    double x;  /* distance downstream */
-    double y;  /* thalweg elevation */
-    double discharge;
-    CrossSection xs;
-} ReachNode;
-
-
 struct ReachNodeProps {
     double *properties;
-}
+};
 
 static ReachNodeProps rnp_new(void) {
     ReachNodeProps rnp;
     NEW(rnp);
-    rnp->properties = Mem_calloc(N_RNP, sizeof(double), __FILE__, __LINE__);
+    rnp->properties = Mem_calloc(N_RN, sizeof(double), __FILE__, __LINE__);
     return rnp;
 }
 
@@ -42,6 +34,12 @@ double rnp_get(ReachNodeProps rnp, rn_prop prop) {
         RAISE(null_ptr_arg_Error);
     return *(rnp->properties + prop);
 }
+
+typedef struct ReachNode {
+    double x;  /* distance downstream */
+    double y;  /* thalweg elevation */
+    CrossSection xs;
+} ReachNode;
 
 struct Reach {
     int n_nodes;        /* number of nodes in reach */
@@ -68,7 +66,6 @@ Reach reach_new(int n_nodes, double *x, double *y, int *xs_number,
 
     nodes->x         = *x;
     nodes->y         = *y;
-    nodes->discharge = NAN; /* initialize discharge as NAN */
     xs = xstable_get(xstable, *xs_number);
     if (xs) {
         nodes->xs = xs;
@@ -85,7 +82,6 @@ Reach reach_new(int n_nodes, double *x, double *y, int *xs_number,
 
         (nodes + i)->x         = *(x + i);
         (nodes + i)->y         = *(y + i);
-        (nodes + i)->discharge = NAN;
         xs = xstable_get(xstable, *(xs_number + i));
         if (xs)
             (nodes + i)->xs = xs;
@@ -109,4 +105,23 @@ int reach_size(Reach reach) {
     if (!reach)
         RAISE(null_ptr_arg_Error);
     return reach->n_nodes;
+}
+
+ReachNodeProps reach_node_properties(Reach reach, int i, double wse,
+                                     double q) {
+    if (!reach)
+        RAISE(null_ptr_arg_Error);
+    if (i < 0 || reach->n_nodes <= i)
+        RAISE(index_Error);
+
+    ReachNode *node = (reach->nodes + i);
+
+    double x = node->x;
+
+    ReachNodeProps rnp = rnp_new();
+    rnp_set(rnp, RN_X,         x);
+    rnp_set(rnp, RN_WSE,       wse);
+    rnp_set(rnp, RN_DISCHARGE, q);
+
+    return rnp;
 }
