@@ -6,7 +6,7 @@ xstable_mem_test = executable('xstable', xstable_test_sources,
                               include_directories : include_dirs,
                               link_with: link_libs)
 
-test('test_mem_xstable', vlgnd,
+test('mem_test_xstable', vlgnd,
      args : [
              '--leak-check=full',
              '--errors-for-leak-kinds=all',
@@ -20,7 +20,7 @@ reach_mem_test = executable('reach', reach_test_sources,
                               include_directories : include_dirs,
                               link_with: link_libs)
 
-test('test_mem_reach', vlgnd,
+test('mem_test_reach', vlgnd,
      args : [
              '--leak-check=full',
              '--errors-for-leak-kinds=all',
@@ -28,3 +28,4 @@ test('test_mem_reach', vlgnd,
              '@0@/reach'.format(meson.current_build_dir()),
             ]
 )
+
