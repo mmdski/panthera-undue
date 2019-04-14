@@ -17,8 +17,27 @@ void test_reach_new(void) {
 
     /* test successful initialization of a reach */
     Reach reach = reach_new(n_nodes, x, y, xs_number, xstable);
+
+    g_assert_true(reach_size(reach) == n_nodes);
+
     reach_free(reach);
     reach = NULL;
+
+    /* failed free: null reach */
+    TRY
+        reach_free(reach);
+        g_assert_not_reached();
+    EXCEPT(null_ptr_arg_Error);
+        ;
+    END_TRY;
+
+    /* failed size: null reach */
+    TRY
+        n_nodes = reach_size(reach);
+        g_assert_not_reached();
+    EXCEPT(null_ptr_arg_Error);
+        ;
+    END_TRY;
 
     /* failed init: bad n_nodes */
     TRY

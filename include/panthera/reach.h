@@ -13,6 +13,55 @@
  */
 
 /**
+ * rn_prop:
+ * @RN_X:              Downstream distance of reach node
+ * @RN_WSE:            Water surface elevation of reach node properties
+ * @RN_DISCHARGE:      Discharge of reach node properties
+ * @RN_VELOCITY:       Mean channel velocity of node
+ * @RN_FRICTION_SLOPE: Friction slope of reach node properties
+ * @N_RN:              Number of reach node properties
+ */
+typedef enum {
+    RN_X,
+    RN_WSE,
+    RN_DISCHARGE,
+    RN_VELOCITY,
+    RN_FRICTION_SLOPE,
+    N_RN
+} rn_prop;
+
+/**
+ * ReachNodeProps:
+ *
+ * Reach node properties
+ *
+ */
+typedef struct ReachNodeProps *ReachNodeProps;
+
+/**
+ * rnp_free:
+ * @rnp: a #ReachNodeProps
+ *
+ * Frees @rnp
+ *
+ * Returns: None
+ */
+extern void rnp_free(ReachNodeProps rnp);
+
+/**
+ * rnp_get:
+ * @rnp: a #ReachNodeProps
+ * @prop: a #rn_prop
+ *
+ * **Raises:**
+ *
+ * #null_ptr_arg_Error if @rnp is `NULL`
+ *
+ * Returns: The value of @prop contained in @rnp
+ */
+extern double rnp_get(ReachNodeProps rnp, rn_prop prop);
+
+/**
  * Reach:
  *
  * Simulation river reach
@@ -59,8 +108,8 @@ typedef struct Reach *Reach;
  *
  * Returns: a new reach
  */
-Reach reach_new(int n_nodes, double *x, double *y, int *xs_number,
-                XSTable xstable);
+extern Reach reach_new(int n_nodes, double *x, double *y, int *xs_number,
+                       XSTable xstable);
 
 /**
  * reach_free:
@@ -70,8 +119,26 @@ Reach reach_new(int n_nodes, double *x, double *y, int *xs_number,
  * they are contained and freed by a cross section table through the
  * [XSTable](xstable.html) interface.
  *
+ * **Raises:**
+ *
+ * #null_ptr_arg_Error if @reach is `NULL`
+ *
  * Returns: None
  */
-void reach_free(Reach reach);
+extern void reach_free(Reach reach);
+
+/**
+ * reach_size:
+ * @reach: a #Reach
+ *
+ * Returns the number of nodes in @reach.
+ *
+ * **Raises:**
+ *
+ * #null_ptr_arg_Error if @reach is `NULL`
+ *
+ * Returns: size of @reach
+ */
+extern int reach_size(Reach reach);
 
 #endif

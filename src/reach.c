@@ -2,29 +2,45 @@
 #include <panthera/exceptions.h>
 #include <panthera/reach.h>
 #include <panthera/xstable.h>
+#include <math.h>
 #include <stddef.h>
+
 
 typedef struct ReachNode {
     double x;  /* distance downstream */
     double y;  /* thalweg elevation */
+    double discharge;
     CrossSection xs;
 } ReachNode;
 
-ReachNode *node_new(double x, double y, CrossSection xs) {
-    if (!xs)
-        RAISE(null_ptr_arg_Error);
-    ReachNode *node;
-    NEW(node);
-    node->x  = x;
-    node->y  = y;
-    node->xs = xs;
 
-    return node;
+struct ReachNodeProps {
+    double *properties;
 }
 
-void node_free(ReachNode *node) {
-    assert(node);
-    FREE(node);
+static ReachNodeProps rnp_new(void) {
+    ReachNodeProps rnp;
+    NEW(rnp);
+    rnp->properties = Mem_calloc(N_RNP, sizeof(double), __FILE__, __LINE__);
+    return rnp;
+}
+
+void rnp_free(ReachNodeProps rnp) {
+    if (!rnp)
+        RAISE(null_ptr_arg_Error);
+    Mem_free(rnp->properties, __FILE__, __LINE__);
+    FREE(rnp);
+}
+
+static void rnp_set(ReachNodeProps rnp, rn_prop prop, double value) {
+    assert(rnp);
+    *(rnp->properties + prop) = value;
+}
+
+double rnp_get(ReachNodeProps rnp, rn_prop prop) {
+    if (!rnp)
+        RAISE(null_ptr_arg_Error);
+    return *(rnp->properties + prop);
 }
 
 struct Reach {
@@ -46,12 +62,13 @@ Reach reach_new(int n_nodes, double *x, double *y, int *xs_number,
     Reach reach;
     NEW(reach);
 
-    reach->n_nodes = n_nodes;
-    ReachNode *nodes   = Mem_calloc(n_nodes, sizeof(ReachNode), __FILE__,
-                                    __LINE__);
+    reach->n_nodes   = n_nodes;
+    ReachNode *nodes = Mem_calloc(n_nodes, sizeof(ReachNode), __FILE__,
+                                  __LINE__);
 
-    nodes->x = *x;
-    nodes->y = *y;
+    nodes->x         = *x;
+    nodes->y         = *y;
+    nodes->discharge = NAN; /* initialize discharge as NAN */
     xs = xstable_get(xstable, *xs_number);
     if (xs) {
         nodes->xs = xs;
@@ -66,8 +83,9 @@ Reach reach_new(int n_nodes, double *x, double *y, int *xs_number,
         if (*(x + i - 1) >= *(x + i))
             RAISE(reach_x_order_Error);
 
-        (nodes + i)->x = *(x + i);
-        (nodes + i)->y = *(y + i);
+        (nodes + i)->x         = *(x + i);
+        (nodes + i)->y         = *(y + i);
+        (nodes + i)->discharge = NAN;
         xs = xstable_get(xstable, *(xs_number + i));
         if (xs)
             (nodes + i)->xs = xs;
@@ -81,6 +99,14 @@ Reach reach_new(int n_nodes, double *x, double *y, int *xs_number,
 }
 
 void reach_free(Reach reach) {
+    if (!reach)
+        RAISE(null_ptr_arg_Error);
     Mem_free(reach->nodes, __FILE__, __LINE__);
     FREE(reach);
+}
+
+int reach_size(Reach reach) {
+    if (!reach)
+        RAISE(null_ptr_arg_Error);
+    return reach->n_nodes;
 }
