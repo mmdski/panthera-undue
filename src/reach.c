@@ -1,4 +1,5 @@
 #include <cii/mem.h>
+#include <panthera/constants.h>
 #include <panthera/exceptions.h>
 #include <panthera/reach.h>
 #include <panthera/xstable.h>
@@ -116,12 +117,26 @@ ReachNodeProps reach_node_properties(Reach reach, int i, double wse,
 
     ReachNode *node = (reach->nodes + i);
 
-    double x = node->x;
+    double h = wse - node->y;
+
+    CrossSectionProps xsp = xs_hydraulic_properties(node->xs, h);
+    double area           = xsp_get(xsp, XS_AREA);
+    double conveyance     = xsp_get(xsp, XS_CONVEYANCE);
+    double velocity_coeff = xsp_get(xsp, XS_VELOCITY_COEFF);
+    xsp_free(xsp);
+
+    double velocity       = q / area;
+    double friction_slope = q / conveyance;
+    double velocity_head  = velocity_coeff * velocity * velocity
+                                / (2 * GRAVITY);
 
     ReachNodeProps rnp = rnp_new();
-    rnp_set(rnp, RN_X,         x);
-    rnp_set(rnp, RN_WSE,       wse);
-    rnp_set(rnp, RN_DISCHARGE, q);
+    rnp_set(rnp, RN_X,              node->x);
+    rnp_set(rnp, RN_WSE,            wse);
+    rnp_set(rnp, RN_DISCHARGE,      q);
+    rnp_set(rnp, RN_VELOCITY,       velocity);
+    rnp_set(rnp, RN_FRICTION_SLOPE, friction_slope);
+    rnp_set(rnp, RN_VELOCITY_HEAD,  velocity_head);
 
     return rnp;
 }

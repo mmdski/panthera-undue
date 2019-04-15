@@ -27,6 +27,7 @@ typedef enum {
     RN_DISCHARGE,
     RN_VELOCITY,
     RN_FRICTION_SLOPE,
+    RN_VELOCITY_HEAD,
     N_RN
 } rn_prop;
 
