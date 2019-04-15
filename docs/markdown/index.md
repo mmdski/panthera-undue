@@ -51,12 +51,14 @@ This project is in very early development.
 * Python extensions to major features
 * HDF5 storage
 
-## Building and testing
-* Requirements (linux)
+## Building and testing (linux)
+* Build requirements
   * GCC
   * Meson
   * Ninja (required by Meson)
-  * GLib (for testing)
+* Test requirements
+  * GLib
+  * Valgrind
 
 ```
 $ git clone https://github.com/mmdski/panthera-undue.git
