@@ -140,7 +140,7 @@ ReachNodeProps reach_node_properties(Reach reach, int i, double wse,
     xsp_free(xsp);
 
     double velocity       = q / area;
-    double friction_slope = q / conveyance;
+    double friction_slope = (q*q) / (conveyance*conveyance);
     double velocity_head  = velocity_coeff * velocity * velocity
                                 / (2 * GRAVITY);
 
