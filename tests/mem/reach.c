@@ -1,3 +1,4 @@
+#include <cii/mem.h>
 #include <panthera/reach.h>
 #include <stddef.h>
 #include "testlib.h"
@@ -15,6 +16,9 @@ int main(void) {
     double wse;
 
     double property;
+
+    double *stream_distance = Mem_calloc(n_nodes, sizeof(double), __FILE__,
+                                         __LINE__);
 
     CrossSection xs;
     XSTable xstable;
@@ -40,6 +44,9 @@ int main(void) {
         rnp_free(rnp);
     }
 
+    reach_stream_distance(reach, stream_distance);
+
+    Mem_free(stream_distance, __FILE__, __LINE__);
     reach_free(reach);
     xstable_free(xstable);
 

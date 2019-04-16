@@ -164,4 +164,21 @@ extern int reach_size(Reach reach);
 extern ReachNodeProps reach_node_properties(Reach reach, int i, double wse,
                                             double q);
 
+/**
+ * reach_stream_distance:
+ * @reach: a #Reach
+ * @x:     an array of doubles
+ *
+ * Fills @x with the stream distance values of the nodes in @reach. @x must be
+ * allocated before being passed as a parameter and should be freed when no
+ * longer in use.
+ *
+ * **Raises:**
+ *
+ * #null_ptr_arg_Error if @reach or @x are `NULL`
+ *
+ * Returns: None
+ */
+extern void reach_stream_distance(Reach reach, double *x);
+
 #endif

@@ -161,9 +161,52 @@ void test_reach_node_props(void) {
     END_TRY;
 }
 
+void test_reach_stream_distance(void) {
+    int i;
+    int n_nodes      = 5;
+    double x[]       = {0, 1, 2, 3, 4};
+    double y[]       = {0, 0.001, 0.002, 0.003, 0.004};
+    int xs_number[]  = {0, 0, 0, 0, 0};
+
+    double *stream_distance = Mem_calloc(n_nodes, sizeof(double), __FILE__,
+                                         __LINE__);
+
+    CrossSection xs = new_cross_section();
+    XSTable xstable = xstable_new();
+    xstable_put(xstable, 0, xs);
+
+    Reach reach = reach_new(n_nodes, x, y, xs_number, xstable);
+
+    TRY
+        reach_stream_distance(NULL, stream_distance);
+        g_assert_not_reached();
+    EXCEPT(null_ptr_arg_Error);
+        ;
+    END_TRY;
+
+    TRY
+        reach_stream_distance(reach, NULL);
+        g_assert_not_reached();
+    EXCEPT(null_ptr_arg_Error);
+        ;
+    END_TRY;
+
+    reach_stream_distance(reach, stream_distance);
+
+    for (i = 0; i < n_nodes; i++) {
+        g_assert_true(*(stream_distance + i) == *(x + i));
+    }
+
+    Mem_free(stream_distance, __FILE__, __LINE__);
+    reach_free(reach);
+    xstable_free(xstable);
+}
+
 int main(int argc, char *argv[]) {
     g_test_init(&argc, &argv, NULL);
     g_test_add_func("/panthera/reach/new",             test_reach_new);
     g_test_add_func("/panthera/reach/node properties", test_reach_node_props);
+    g_test_add_func("/panthera/reach/stream distance",
+                    test_reach_stream_distance);
     return g_test_run();
 }

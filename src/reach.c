@@ -108,6 +108,20 @@ int reach_size(Reach reach) {
     return reach->n_nodes;
 }
 
+void reach_stream_distance(Reach reach, double *x) {
+    if (!reach || !x)
+        RAISE(null_ptr_arg_Error);
+
+    int i;
+    int n = reach->n_nodes;
+    ReachNode *node;
+
+    for (i = 0; i < n; i++) {
+        node = (reach->nodes + i);
+        *(x + i) = node->x;
+    }
+}
+
 ReachNodeProps reach_node_properties(Reach reach, int i, double wse,
                                      double q) {
     if (!reach)
