@@ -2,6 +2,7 @@
 #include <math.h>
 #include <panthera/exceptions.h>
 #include <panthera/standardstep.h>
+#include <stdio.h>
 
 
 struct StandardStepResults {
@@ -145,6 +146,7 @@ StandardStepResults solve_standard_step(StandardStepOptions *options,
         x1  = rnp_get(rp1, RN_X);
         sf1 = rnp_get(rp1, RN_FRICTION_SLOPE);
         vh1 = rnp_get(rp1, RN_VELOCITY_HEAD);
+        rnp_free(rp1);
 
         q2  = ss_res_get_q(ssr, i);
         for (j = 0; j < max_iterations; j++) {
@@ -164,6 +166,7 @@ StandardStepResults solve_standard_step(StandardStepOptions *options,
             x2  = rnp_get(rp2, RN_X);
             sf2 = rnp_get(rp2, RN_FRICTION_SLOPE);
             vh2 = rnp_get(rp2, RN_VELOCITY_HEAD);
+            rnp_free(rp2);
 
             sf = 0.5*(sf1 + sf2);
             dx = x2 - x1;
@@ -184,6 +187,7 @@ StandardStepResults solve_standard_step(StandardStepOptions *options,
                 }
             }
         }
+
     }
 
     Mem_free(ws_assumed, __FILE__, __LINE__);
