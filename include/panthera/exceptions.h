@@ -72,4 +72,12 @@ extern const Except_T reach_x_order_Error;
  */
 extern const Except_T reach_xs_num_Error;
 
+/**
+ * max_iterations_Error:
+ *
+ * Raised when a solver has reached the maximum number of iterations without
+ * reaching a solution
+ */
+extern const Except_T max_iteration_Error;
+
 #endif
