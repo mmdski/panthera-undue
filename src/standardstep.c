@@ -5,6 +5,10 @@
 #include <stdio.h>
 
 
+#define EPS 0.003
+#define MAX_ITERATIONS 20
+
+
 struct StandardStepResults {
     int n_nodes;
     double *discharge;
@@ -89,9 +93,9 @@ StandardStepResults solve_standard_step(StandardStepOptions *options,
     if (*(options->discharge_nodes + last_discharge_node) != last_node)
         RAISE(value_arg_Error);
 
-    double eps = 0.003; /* meters */
+    double eps = EPS; /* meters */
 
-    int max_iterations = 20;
+    int max_iterations = MAX_ITERATIONS;
 
     int i, j;
 
@@ -172,7 +176,7 @@ StandardStepResults solve_standard_step(StandardStepOptions *options,
             dx = x2 - x1;
             he = sf*dx;
 
-            ws_computed = ws1 + vh1 - vh2 + he;
+            ws_computed = ws1 + vh1 - vh2 - he;
 
             *(delta + j) = fabs(ws_computed - ws_new);
             if (*(delta + j) <= eps) {

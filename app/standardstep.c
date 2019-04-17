@@ -50,7 +50,7 @@ int main (void) {
 
     for (i = 0; i < n_nodes; i++) {
         x[i]         = i * dx;
-        y_reach[i]   = (n_nodes - i) * dx * slope;
+        y_reach[i]   = (n_nodes - i - 1) * dx * slope;
         xs_number[i] = 0;
     }
 
@@ -73,7 +73,7 @@ int main (void) {
     for (i = 0; i < n_nodes; i++) {
         wse = ss_res_get_wse(res, i);
         q   = ss_res_get_q(res, i);
-        printf("%10.0f%10.4f%10.2f%10.4f%10.4f\n",
+        printf("%10.0f%10.2f%10.5f%10.5f%10.4f\n",
                x[i], y_reach[i], wse, wse - y_reach[i], q);
     }
 
