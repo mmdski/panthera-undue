@@ -1,10 +1,12 @@
-#include <cii/mem.h>
-#include <math.h>
 #include <panthera/coarray.h>
 #include <panthera/standardstep.h>
-#include <stdio.h>
+#include <glib.h>
+#include "testlib.h"
 
-int main (void) {
+#define ATOL 1e-3
+#define RTOL 0
+
+void test_normal_flow (void) {
 
     int i;
 
@@ -28,6 +30,9 @@ int main (void) {
     double x[n_nodes];
     double y_reach[n_nodes];
     int xs_number[n_nodes];
+    double wse;
+    double q;
+    double h;
 
     /* solver options */
     double boundary_depth = 0.75;
@@ -64,7 +69,21 @@ int main (void) {
     Reach reach = reach_new(n_nodes, x, y_reach, xs_number, xstable);
     StandardStepResults res = solve_standard_step(&options, reach);
 
+    for (i = 0; i < n_nodes; i++) {
+        wse = ss_res_get_wse(res, i);
+        q   = ss_res_get_q(res, i);
+        h   = wse - y_reach[i];
+        g_assert_true(test_is_close(q, discharge, ATOL, RTOL));
+        g_assert_true(test_is_close(h, boundary_depth, ATOL, RTOL));
+    }
+
     ss_res_free(res);
     reach_free(reach);
     xstable_free(xstable);
+}
+
+int main(int argc, char *argv[]) {
+    g_test_init(&argc, &argv, NULL);
+    g_test_add_func("/panthera/standardstep/normal flow", test_normal_flow);
+    return g_test_run();
 }
