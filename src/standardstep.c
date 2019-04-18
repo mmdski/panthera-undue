@@ -97,7 +97,7 @@ StandardStepResults solve_standard_step(StandardStepOptions *options,
 
     int max_iterations = MAX_ITERATIONS;
 
-    int i, j;
+    int i, j, direction, final_compute_node;
 
     /* water surface elevation */
     double ws1;
@@ -138,15 +138,25 @@ StandardStepResults solve_standard_step(StandardStepOptions *options,
     StandardStepResults ssr = ss_res_new(n_nodes);
     ss_res_fill_q(ssr, options);
 
-    /* set the first water surface elevation value */
-    ss_res_set_wse(ssr, 0, options->boundary_wse);
+    if (options->us_boundary) {
+        ss_res_set_wse(ssr, 0, options->boundary_wse);
+        i = 1;
+        direction = 1;
+        final_compute_node = last_node;
+    }
+    else {
+        ss_res_set_wse(ssr, last_node, options->boundary_wse);
+        i = last_node - 1;
+        direction = -1;
+        final_compute_node = 0;
+    }
 
-    for (i = 1; i < n_nodes; i++) {
+    for (; direction * i <= final_compute_node; i = i + direction) {
 
         /* upstream node */
-        ws1 = ss_res_get_wse(ssr, i - 1);
-        q1  = ss_res_get_q(ssr, i - 1);
-        rp1 = reach_node_properties(reach, i - 1, ws1, q1);
+        ws1 = ss_res_get_wse(ssr, i - 1*direction);
+        q1  = ss_res_get_q(ssr, i - 1*direction);
+        rp1 = reach_node_properties(reach, i - 1*direction, ws1, q1);
         x1  = rnp_get(rp1, RN_X);
         sf1 = rnp_get(rp1, RN_FRICTION_SLOPE);
         vh1 = rnp_get(rp1, RN_VELOCITY_HEAD);

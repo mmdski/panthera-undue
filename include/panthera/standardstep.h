@@ -17,17 +17,19 @@
  * @discharge_nodes: the nodes of discharge values to set
  * @discharge:       discharge values to set
  * @boundary_wse:    boundary condition water surface elevation
+ * @us_boundary:     upstream boundary condition
  *
  * Options for solve_standard_step().
  *
- * The elevation of the `0`-th node in the reach used in the standard step
- * solution will be set to @boundary_wse.
+ * If @us_boundary is `true`, the elevation of the `0`-th node in the reach
+ * used in the standard step solution will be set to @boundary_wse.
  */
 typedef struct {
     int     n_discharges;
     int    *discharge_nodes;
     double *discharge;
     double  boundary_wse;
+    bool    us_boundary;
 } StandardStepOptions;
 
 typedef struct StandardStepResults *StandardStepResults;

@@ -2,7 +2,8 @@
 #include <math.h>
 #include <panthera/coarray.h>
 #include <panthera/standardstep.h>
-#include <stdio.h>
+#include <stddef.h>
+
 
 int main (void) {
 
@@ -58,7 +59,8 @@ int main (void) {
         1,
         &last_node,
         &discharge,
-        boundary_wse
+        boundary_wse,
+        true            /* upstream boundary */
     };
 
     Reach reach = reach_new(n_nodes, x, y_reach, xs_number, xstable);
