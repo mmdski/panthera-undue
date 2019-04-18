@@ -12,3 +12,4 @@ const Except_T reach_xs_num_Error     = {"Invalid cross section number"};
 const Except_T max_iteration_Error    = {"Maximum number of iterations reach"};
 const Except_T xsp_depth_Error        = {"Depth is less than minimum y-value"
                                          " in cross section."};
+Except_T compute_fail_Error           = {"Compute failed"};

@@ -88,4 +88,11 @@ extern const Except_T reach_xs_num_Error;
  */
 extern const Except_T max_iteration_Error;
 
+/**
+ * comput_fail_Error:
+ *
+ * Raise if a critical error occurs during computation
+ */
+extern Except_T compute_fail_Error;
+
 #endif

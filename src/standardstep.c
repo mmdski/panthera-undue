@@ -93,6 +93,12 @@ StandardStepResults solve_standard_step(StandardStepOptions *options,
     if (*(options->discharge_nodes + last_discharge_node) != last_node)
         RAISE(value_arg_Error);
 
+    if (n_nodes < 2) {
+        compute_fail_Error.reason = "Reach must have two or more nodes for "
+                                    " standard step solution";
+        RAISE(compute_fail_Error);
+    }
+
     double eps = EPS; /* meters */
 
     int max_iterations = MAX_ITERATIONS;
@@ -105,6 +111,11 @@ StandardStepResults solve_standard_step(StandardStepOptions *options,
     double ws_computed;
     double *ws_assumed = Mem_calloc(max_iterations, sizeof(double), __FILE__,
                                     __LINE__);
+
+    /* reach elevations */
+    double *y = Mem_calloc(n_nodes, sizeof(double), __FILE__, __LINE__);
+    reach_elevation(reach, y);
+
     double assum_diff;
     double err_diff;
     double *delta = Mem_calloc(max_iterations, sizeof(double), __FILE__,
@@ -131,6 +142,9 @@ StandardStepResults solve_standard_step(StandardStepOptions *options,
     /* head loss */
     double he;
 
+    char error_string[50];
+    char xs_depth_error_template[] = "Cross section depth error at node %i";
+
     ReachNodeProps rp1;
     ReachNodeProps rp2;
 
@@ -151,9 +165,25 @@ StandardStepResults solve_standard_step(StandardStepOptions *options,
         final_compute_node = 0;
     }
 
+    /* try boundary node. raise compute error for boundary condition if failure
+     * occurs
+     */
+    TRY
+        ws1 = ss_res_get_wse(ssr, i - 1*direction);
+        q1  = ss_res_get_q(ssr, i - 1*direction);
+        rp1 = reach_node_properties(reach, i - 1*direction, ws1, q1);
+        rnp_free(rp1);
+    EXCEPT(xsp_depth_Error) {
+        compute_fail_Error.reason = "Boundary condition causes cross section "
+                                    " depth error";
+        RAISE(compute_fail_Error);
+    }
+    END_TRY;
+
+    /* loop trough nodes */
     for (; direction * i <= final_compute_node; i = i + direction) {
 
-        /* upstream node */
+        /* first node */
         ws1 = ss_res_get_wse(ssr, i - 1*direction);
         q1  = ss_res_get_q(ssr, i - 1*direction);
         rp1 = reach_node_properties(reach, i - 1*direction, ws1, q1);
@@ -172,14 +202,24 @@ StandardStepResults solve_standard_step(StandardStepOptions *options,
             else {
                 assum_diff = *(ws_assumed + j - 2) - *(ws_assumed + j - 1);
                 err_diff   = *(delta + j - 2) - *(delta + j - 1);
-                ws_new = *(ws_assumed + j - 2) - *(delta + j - 2) *
+                ws_new     = *(ws_assumed + j - 2) - *(delta + j - 2) *
                     assum_diff/err_diff;
             }
 
-            rp2 = reach_node_properties(reach, i, ws_new, q2);
-            x2  = rnp_get(rp2, RN_X);
-            sf2 = rnp_get(rp2, RN_FRICTION_SLOPE);
-            vh2 = rnp_get(rp2, RN_VELOCITY_HEAD);
+            /* raise a compute fail error if a cross section depth error
+             * occurs
+             */
+            TRY
+                rp2    = reach_node_properties(reach, i, ws_new, q2);
+            EXCEPT(xsp_depth_Error);
+                sprintf(error_string, xs_depth_error_template, i);
+                compute_fail_Error.reason = error_string;
+                RAISE(compute_fail_Error);
+            END_TRY;
+
+            x2     = rnp_get(rp2, RN_X);
+            sf2    = rnp_get(rp2, RN_FRICTION_SLOPE);
+            vh2    = rnp_get(rp2, RN_VELOCITY_HEAD);
             rnp_free(rp2);
 
             sf = 0.5*(sf1 + sf2);
@@ -204,6 +244,7 @@ StandardStepResults solve_standard_step(StandardStepOptions *options,
 
     }
 
+    Mem_free(y, __FILE__, __LINE__);
     Mem_free(ws_assumed, __FILE__, __LINE__);
     Mem_free(delta, __FILE__, __LINE__);
 

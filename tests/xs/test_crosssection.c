@@ -266,11 +266,24 @@ void test_simple_h_properties(xs_fixture *xsf, gconstpointer test_data) {
     }
 }
 
-void test_xs_xsp_fail(void) {
+void test_xs_xsp_null_fail(void) {
     TRY
         xs_hydraulic_properties(NULL, 1);
         g_assert_not_reached();
     EXCEPT(null_ptr_arg_Error)
+        ;
+    END_TRY;
+}
+
+void test_xsp_depth_error(void) {
+    CrossSection xs = new_cross_section();
+    CrossSectionProps xsp;
+
+    TRY
+        xsp = xs_hydraulic_properties(xs, -1.);
+        xsp_free(xsp);
+        g_assert_not_reached();
+    EXCEPT(xsp_depth_Error);
         ;
     END_TRY;
 }
@@ -339,7 +352,9 @@ void add_xs_new_test() {
 
 void add_xs_xsp_tests() {
     g_test_add_func("/panthera/xs/crosssection/hydraulic_properties/"
-                    "null arg fail", test_xs_xsp_fail);
+                    "null arg fail", test_xs_xsp_null_fail);
+    g_test_add_func("/panthera/xs/crosssection/hydraulic_properties/"
+                    "depth error", test_xsp_depth_error);
 }
 
 void add_xs_rect_test() {
