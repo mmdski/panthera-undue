@@ -122,6 +122,20 @@ void reach_stream_distance(Reach reach, double *x) {
     }
 }
 
+void reach_elevation(Reach reach, double *y) {
+    if (!reach || !y)
+        RAISE(null_ptr_arg_Error);
+
+    int i;
+    int n = reach->n_nodes;
+    ReachNode *node;
+
+    for (i = 0; i < n; i++) {
+        node = (reach->nodes + i);
+        *(y + i) = node->y;
+    }
+}
+
 ReachNodeProps reach_node_properties(Reach reach, int i, double wse,
                                      double q) {
     if (!reach)
@@ -146,6 +160,7 @@ ReachNodeProps reach_node_properties(Reach reach, int i, double wse,
 
     ReachNodeProps rnp = rnp_new();
     rnp_set(rnp, RN_X,              node->x);
+    rnp_set(rnp, RN_Y,              node->y);
     rnp_set(rnp, RN_WSE,            wse);
     rnp_set(rnp, RN_DISCHARGE,      q);
     rnp_set(rnp, RN_VELOCITY,       velocity);

@@ -30,6 +30,8 @@ int main (void) {
     int xs_number[n_nodes];
     double wse;
     double q;
+    double *y_elevation = Mem_calloc(n_nodes, sizeof(double), __FILE__,
+                                     __LINE__);
 
     /* solver options */
     double boundary_depth = 0.75;
@@ -60,10 +62,12 @@ int main (void) {
         1,
         &last_node,
         &discharge,
-        boundary_wse
+        boundary_wse,
+        true
     };
 
     Reach reach = reach_new(n_nodes, x, y_reach, xs_number, xstable);
+    reach_elevation(reach, y_elevation);
     StandardStepResults res = solve_standard_step(&options, reach);
 
     printf("Slope      = %f\n", slope);
@@ -74,9 +78,10 @@ int main (void) {
         wse = ss_res_get_wse(res, i);
         q   = ss_res_get_q(res, i);
         printf("%10.0f%10.2f%10.5f%10.5f%10.4f\n",
-               x[i], y_reach[i], wse, wse - y_reach[i], q);
+               x[i], y_elevation[i], wse, wse - y_reach[i], q);
     }
 
+    Mem_free(y_elevation, __FILE__, __LINE__);
     ss_res_free(res);
     reach_free(reach);
     xstable_free(xstable);

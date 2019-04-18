@@ -15,6 +15,7 @@
 /**
  * rn_prop:
  * @RN_X:              Downstream distance of reach node
+ * @RN_Y:              Elevation of reach node
  * @RN_WSE:            Water surface elevation of reach node properties
  * @RN_DISCHARGE:      Discharge of reach node properties
  * @RN_VELOCITY:       Mean channel velocity of node
@@ -23,6 +24,7 @@
  */
 typedef enum {
     RN_X,
+    RN_Y,
     RN_WSE,
     RN_DISCHARGE,
     RN_VELOCITY,
@@ -180,5 +182,22 @@ extern ReachNodeProps reach_node_properties(Reach reach, int i, double wse,
  * Returns: None
  */
 extern void reach_stream_distance(Reach reach, double *x);
+
+/**
+ * reach_elevation:
+ * @reach: a #Reach
+ * @y:     an array of doubles
+ *
+ * Fills @y with the elevation values of the nodes in @reach. @y must be
+ * allocated before being passed as a parameter and should be freed when no
+ * longer in use.
+ *
+ * **Raises:**
+ *
+ * #null_ptr_arg_Error if @reach or @y are `NULL`
+ *
+ * Returns: None
+ */
+extern void reach_elevation(Reach reach, double *y);
 
 #endif
