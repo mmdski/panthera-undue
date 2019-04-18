@@ -64,7 +64,7 @@ int main (void) {
     StandardStepResults res = solve_standard_step(&options, reach);
 
     printf("Slope      = %f\n", slope);
-    printf("Upstream h = %01.2f\n", boundary_depth);
+    printf("Downstream h = %01.2f\n", boundary_depth);
     printf("Discharge  = %f\n", discharge);
     printf("%10s%10s%10s%10s%10s%10s\n", "x", "y", "wse", "h", "Q", "A");
     for (i = 0; i < n_nodes; i++) {

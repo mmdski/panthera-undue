@@ -22,7 +22,8 @@ Open-channel hydraulics library
 [panthera GitHub project](https://github.com/mmdski/panthera-undue)
 
 ## Status
-This project is in very early development.
+It's working!
+![It's working!](images/normalresults.png)
 
 ## Features
 
@@ -38,12 +39,14 @@ This project is in very early development.
   * Critical flow
   * Results caching
 * Cross section table
+* Steady flow
+  * Gradually varied
+      * Standard step
 
 ### Planned features
 * Steady flow
   * Normal
   * Gradually varied
-    * Standard step
     * Single step
     * Simultaneous solution
 * Gradually varied unsteady flow
@@ -71,6 +74,11 @@ $ ninja -C build test
 A goal of this project is for the code to also be natively compilable on
 Windows. As a result, I'm using portable solutions. The only exception so far
 is GLib for testing.
+
+### Cross section
+The cross section interface caches computation results. This means once a
+set of values is calculated for a given depth, the results are saved for the
+next time they're needed.
 
 ### CII
 panthera uses several interfaces and implementations from David Hanson's book
