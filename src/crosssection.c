@@ -452,6 +452,9 @@ CrossSectionProps xs_hydraulic_properties(CrossSection xs, double h) {
     if (!xs)
         RAISE(null_ptr_arg_Error);
 
+    if (h < coarray_min_y(xs->ca))
+        RAISE(xsp_depth_Error);
+
     return xs_get_properties_from_res(xs, h);
 }
 

@@ -10,3 +10,5 @@ const Except_T empty_table_Error      = {"Unsupported operation on empty"
 const Except_T reach_x_order_Error    = {"Invalid x-value order"};
 const Except_T reach_xs_num_Error     = {"Invalid cross section number"};
 const Except_T max_iteration_Error    = {"Maximum number of iterations reach"};
+const Except_T xsp_depth_Error        = {"Depth is less than minimum y-value"
+                                         " in cross section."};

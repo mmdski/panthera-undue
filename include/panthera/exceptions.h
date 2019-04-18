@@ -52,6 +52,14 @@ extern const Except_T coarray_z_order_Error;
 extern const Except_T index_Error;
 
 /**
+ *xsp_depth_Error:
+ *
+ * Raised when a depth less than the minimum y-value of a cross section is
+ * passed to xs_hydraulic_properties().
+ */
+extern const Except_T xsp_depth_Error;
+
+/**
  * empty_table_Error:
  *
  * Raised when an unsupported operation is performed on an empty table.
