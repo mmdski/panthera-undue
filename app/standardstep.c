@@ -9,22 +9,20 @@ int main (void) {
     int i;
 
     /* cross section */
-    int n_coords = 5;
-    double y[]   = {2, 0, 0, 0, 2};
-    double z[]   = {0, 0, 0.5, 1, 1};
+    int n_coords = 4;
+    double y[]   = {10, 0,  0, 10};
+    double z[]   = {0, 20, 30, 50};
 
     double n_roughness      = 1;
-    double roughness[]      = {0.03};
+    double roughness[]      = {0.013};
     double *z_roughness     = NULL;
     CrossSectionProps xsp;
-    double a;
-    double r;
 
     /* reach */
-    int n_nodes     = 25;
+    int n_nodes     = 5;
     int last_node   = n_nodes - 1;
     double slope    = 0.001;
-    double dx       = 10;
+    double dx       = 1000;
     double x[n_nodes];
     double y_reach[n_nodes];
     int xs_number[n_nodes];
@@ -34,18 +32,13 @@ int main (void) {
                                      __LINE__);
 
     /* solver options */
-    double boundary_depth = 0.75;
+    double boundary_depth = 5.0;
     double boundary_wse;
     double discharge;
 
     CoArray ca = coarray_new(n_coords, y, z);
     CrossSection xs = xs_new(ca, n_roughness, roughness, z_roughness);
     coarray_free(ca);
-
-    xsp = xs_hydraulic_properties(xs, boundary_depth);
-    a = xsp_get(xsp, XS_AREA);
-    r = xsp_get(xsp, XS_HYDRAULIC_RADIUS);
-    xsp_free(xsp);
 
     XSTable xstable = xstable_new();
     xstable_put(xstable, 0, xs);
@@ -56,14 +49,14 @@ int main (void) {
         xs_number[i] = 0;
     }
 
-    discharge = 1/roughness[0] * a * pow(r, 2./3.) * sqrt(slope);
-    boundary_wse = boundary_depth + y_reach[0];
+    discharge = 30;
+    boundary_wse = boundary_depth;
     StandardStepOptions options = {
         1,
         &last_node,
         &discharge,
         boundary_wse,
-        true
+        false
     };
 
     Reach reach = reach_new(n_nodes, x, y_reach, xs_number, xstable);
@@ -72,13 +65,16 @@ int main (void) {
 
     printf("Slope      = %f\n", slope);
     printf("Upstream h = %01.2f\n", boundary_depth);
-    printf("Discharge  = %f (calculated normal)\n", discharge);
-    printf("%10s%10s%10s%10s%10s\n", "x", "y", "wse", "h", "Q");
+    printf("Discharge  = %f\n", discharge);
+    printf("%10s%10s%10s%10s%10s%10s\n", "x", "y", "wse", "h", "Q", "A");
     for (i = 0; i < n_nodes; i++) {
         wse = ss_res_get_wse(res, i);
         q   = ss_res_get_q(res, i);
-        printf("%10.0f%10.2f%10.5f%10.5f%10.4f\n",
-               x[i], y_elevation[i], wse, wse - y_reach[i], q);
+        xsp = xs_hydraulic_properties(xs, wse - y_elevation[i]);
+        printf("%10.0f%10.2f%10.5f%10.5f%10.4f%10.4f\n",
+               x[i], y_elevation[i], wse, wse - y_elevation[i], q,
+               xsp_get(xsp, XS_AREA));
+        xsp_free(xsp);
     }
 
     Mem_free(y_elevation, __FILE__, __LINE__);
