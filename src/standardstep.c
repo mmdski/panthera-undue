@@ -86,6 +86,9 @@ StandardStepResults solve_standard_step(StandardStepOptions *options,
     int last_node = n_nodes - 1;
     int last_discharge_node = options->n_discharges - 1;
 
+    if (!options || !reach)
+        RAISE(null_ptr_arg_Error);
+
     if (options->n_discharges < 1 || n_nodes < options->n_discharges)
         RAISE(value_arg_Error);
 
