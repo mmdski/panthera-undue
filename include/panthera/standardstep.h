@@ -6,7 +6,7 @@
 /**
  * SECTION: standardstep.h
  * @short_description: Standard step solver
- * @title: Standard step
+ * @title: StandardStep
  *
  * Standard step solver
  */
@@ -32,16 +32,102 @@ typedef struct {
     bool    us_boundary;
 } StandardStepOptions;
 
+/**
+ * StandardStepResults:
+ *
+ * Structure containing results from a standard step solution. Returned from
+ * solve_standard_step().
+ */
 typedef struct StandardStepResults *StandardStepResults;
 
-void ss_res_free(StandardStepResults ssr);
+/**
+ * ss_res_free:
+ * @ssr: a #StandardStepResults
+ *
+ * Frees @res
+ *
+ * **Raises:**
+ *
+ * #null_ptr_arg_Error if @res is `NULL`
+ *
+ * Returns: None
+ */
+void ss_res_free(StandardStepResults res);
 
+/**
+ * ss_res_size:
+ * @res: a #StandardStepResults
+ *
+ * Returns the number of nodes in the solution @res contains.
+ *
+ * **Raises:**
+ *
+ * #null_ptr_arg_Error if @res is `NULL`
+ *
+ * Returns: the number of nodes in the solution results
+ */
 int ss_res_size(StandardStepResults res);
 
+/**
+ * ss_res_get_wse:
+ * @res: a #StandardStepResults
+ * @i:   node index
+ *
+ * Returns the water surface elevation at @i -th node in @res
+ *
+ * **Raises:**
+ *
+ * #null_ptr_arg_Error if @res is `NULL`
+ *
+ * #index_Error if @i `< 0` or @i `>= size`, where `size` is the
+ * number of nodes in @res
+ *
+ * Returns: the water surface elevation of a simulation results node
+ */
 double ss_res_get_wse(StandardStepResults res, int i);
 
+/**
+ * ss_res_get_q:
+ * @res: a #StandardStepResults
+ * @i:   node index
+ *
+ * Returns the discharge at @i -th node in @res
+ *
+ * **Raises:**
+ *
+ * #null_ptr_arg_Error if @res is `NULL`
+ *
+ * #index_Error if @i `< 0` or @i `>= size`, where `size` is the
+ * number of nodes in @res
+ *
+ * Returns: the discharge of a simulation results node
+ */
 double ss_res_get_q(StandardStepResults res, int i);
 
+/**
+ * solve_standard_step:
+ * @options: a #StandardStepOptions
+ * @reach:   a #Reach
+ *
+ * Computes the standard step steady-state hydraulic solution using the
+ * information in @options and the hydraulic geometry in @reach.
+ *
+ * **Raises:**
+ *
+ * #null_ptr_arg_Error if @options or @reach is `NULL`
+ *
+ * #value_arg_Error if @options->n_discharges is less than one or greater than
+ * the number of nodes in @reach or the last node number in
+ * @options->discharge_nodes is not equal to the last node in @reach
+ *
+ * #compute_fail_Error if
+ *
+ * * the number of nodes in @reach is less than two or
+ *
+ * * a #xsp_depth_Error is encountered during the computation of the solution
+ *
+ * Returns: a steady state hydraulic solution
+ */
 extern StandardStepResults solve_standard_step(StandardStepOptions *options,
                                                Reach reach);
 

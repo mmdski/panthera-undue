@@ -164,6 +164,8 @@ CoArray xs_coarray(CrossSection xs);
  *
  * #null_ptr_arg_Error if @xs is `NULL`
  *
+ * #xsp_depth_Error if @h is less than the lowest y-value in @xs coordinate
+ *
  * Returns: the hydraulic properties calculated by @xs at depth @h
  */
 extern CrossSectionProps xs_hydraulic_properties(CrossSection xs, double h);

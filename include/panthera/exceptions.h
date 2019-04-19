@@ -37,7 +37,7 @@ extern const Except_T value_arg_Error;
 extern const Except_T coarray_n_coords_Error;
 
 /**
- * coarray_y_order_Error:
+ * coarray_z_order_Error:
  *
  * Exception raised when the order of @z passed to coarray_new() is incorrect
  */
@@ -81,7 +81,7 @@ extern const Except_T reach_x_order_Error;
 extern const Except_T reach_xs_num_Error;
 
 /**
- * max_iterations_Error:
+ * max_iteration_Error:
  *
  * Raised when a solver has reached the maximum number of iterations without
  * reaching a solution
@@ -89,7 +89,7 @@ extern const Except_T reach_xs_num_Error;
 extern const Except_T max_iteration_Error;
 
 /**
- * comput_fail_Error:
+ * compute_fail_Error:
  *
  * Raise if a critical error occurs during computation
  */
