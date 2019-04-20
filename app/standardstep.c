@@ -4,6 +4,8 @@
 #include <panthera/standardstep.h>
 #include <stdio.h>
 
+#define N_NODES 5
+
 int
 main(void)
 {
@@ -20,13 +22,13 @@ main(void)
     CrossSectionProps xsp;
 
     /* reach */
-    int     n_nodes   = 5;
+    int     n_nodes   = N_NODES;
     int     last_node = n_nodes - 1;
     double  slope     = 0.001;
     double  dx        = 1000;
-    double  x[n_nodes];
-    double  y_reach[n_nodes];
-    int     xs_number[n_nodes];
+    double  x[N_NODES];
+    double  y_reach[N_NODES];
+    int     xs_number[N_NODES];
     double  wse;
     double  q;
     double *y_elevation =

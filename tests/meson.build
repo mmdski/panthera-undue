@@ -44,7 +44,7 @@ if glib_dep.found()
 
 endif
 
-vlgnd = find_program('valgrind')
+vlgnd = find_program('valgrind', required : false)
 if vlgnd.found()
     subdir('mem')
 endif

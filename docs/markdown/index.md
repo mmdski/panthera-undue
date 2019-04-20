@@ -54,7 +54,8 @@ It's working!
 * Python extensions to major features
 * HDF5 storage
 
-## Building and testing (linux)
+## Building and testing
+### Linux
 * Build requirements
   * GCC
   * Meson
@@ -70,6 +71,17 @@ $ meson build
 $ ninja -C build test
 ```
 
+### Windows
+* Build requirements
+  * Visual C++ 2015 (msvc2015)
+  * Meson
+
+From the Developer Command Prompt:
+```
+>meson build --backend=vs2015
+>cd build
+>MSBuild panthera-undue.sln
+```
 ## Implementation notes
 A goal of this project is for the code to also be natively compilable on
 Windows. As a result, I'm using portable solutions. The only exception so far
@@ -91,4 +103,3 @@ The cross section table implementation in panthera uses the red-black binary
 search tree described in *[Algorithms](https://algs4.cs.princeton.edu/home/)*
 by Robert Sedgewick and Kevin Wayne. The code was ported to C from their
 [Java implementation](https://algs4.cs.princeton.edu/33balanced/RedBlackBST.java.html).
-
