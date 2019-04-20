@@ -1,15 +1,17 @@
+#include "testlib.h"
 #include <cii/mem.h>
 #include <panthera/reach.h>
 #include <stddef.h>
-#include "testlib.h"
 
-int main(void) {
+int
+main(void)
+{
     int i, j;
     int n_nodes = 5;
 
-    double x[]      = {1, 2, 3, 4, 5};
-    double y[]      = {0.01, 0.02, 0.03, 0.04, 0.05};
-    int xs_number[] = {0, 0, 0, 0, 0};
+    double x[]         = {1, 2, 3, 4, 5};
+    double y[]         = {0.01, 0.02, 0.03, 0.04, 0.05};
+    int    xs_number[] = {0, 0, 0, 0, 0};
 
     double h = 0.5;
     double q = 0.1;
@@ -17,17 +19,17 @@ int main(void) {
 
     double property;
 
-    double *stream_distance = Mem_calloc(n_nodes, sizeof(double), __FILE__,
-                                         __LINE__);
+    double *stream_distance =
+        Mem_calloc(n_nodes, sizeof(double), __FILE__, __LINE__);
 
     CrossSection xs;
-    XSTable xstable;
+    XSTable      xstable;
 
     Reach reach;
 
     ReachNodeProps rnp;
 
-    xs = new_cross_section();
+    xs      = new_cross_section();
     xstable = xstable_new();
 
     xstable_put(xstable, 0, xs);

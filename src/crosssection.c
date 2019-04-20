@@ -1,8 +1,8 @@
 #include <cii/mem.h>
-#include <panthera/crosssection.h>
-#include <panthera/constants.h>
-#include <panthera/exceptions.h>
 #include <math.h>
+#include <panthera/constants.h>
+#include <panthera/crosssection.h>
+#include <panthera/exceptions.h>
 #include <stddef.h>
 
 /* cross section properties interface */
@@ -11,35 +11,43 @@ struct CrossSectionProps {
     double *properties;
 };
 
-CrossSectionProps xsp_new(void) {
+CrossSectionProps
+xsp_new(void)
+{
     CrossSectionProps xsp;
     NEW(xsp);
     xsp->properties = Mem_calloc(N_XSP, sizeof(double), __FILE__, __LINE__);
     return xsp;
 }
 
-void xsp_free(CrossSectionProps xsp) {
+void
+xsp_free(CrossSectionProps xsp)
+{
     if (!xsp)
-        RAISE(null_ptr_arg_Error);
+        RAISE(null_ptr_arg_error);
     Mem_free(xsp->properties, __FILE__, __LINE__);
     FREE(xsp);
 }
 
-double xsp_get(CrossSectionProps xsp, xs_prop prop) {
+double
+xsp_get(CrossSectionProps xsp, xs_prop prop)
+{
     if (!xsp)
-        RAISE(null_ptr_arg_Error);
+        RAISE(null_ptr_arg_error);
     return *(xsp->properties + prop);
 }
 
-void xsp_set(CrossSectionProps xsp, xs_prop prop, double value) {
+void
+xsp_set(CrossSectionProps xsp, xs_prop prop, double value)
+{
     if (!xsp)
-        RAISE(null_ptr_arg_Error);
+        RAISE(null_ptr_arg_error);
     *(xsp->properties + prop) = value;
 }
 
-CrossSectionProps xsp_interp_depth(CrossSectionProps xsp1,
-                                   CrossSectionProps xsp2,
-                                   double depth) {
+CrossSectionProps
+xsp_interp_depth(CrossSectionProps xsp1, CrossSectionProps xsp2, double depth)
+{
     double d1 = *(xsp1->properties + XS_DEPTH);
     double d2 = *(xsp2->properties + XS_DEPTH);
 
@@ -65,30 +73,33 @@ CrossSectionProps xsp_interp_depth(CrossSectionProps xsp1,
 /* subsection interface */
 
 struct Subsection {
-    CoArray array;    /* coordinate array */
-    double n;         /* Manning's n */
-    double min_depth; /* activation depth */
+    CoArray array;     /* coordinate array */
+    double  n;         /* Manning's n */
+    double  min_depth; /* activation depth */
 };
 
 typedef struct Subsection *Subsection;
 
 /* Allocates memory and creates a new Subsection */
-Subsection ss_new(CoArray ca, double roughness, double activation_depth) {
-
+Subsection
+ss_new(CoArray ca, double roughness, double activation_depth)
+{
     assert((int)(roughness > 0));
 
     Subsection ss;
     NEW(ss);
 
-    ss->array = coarray_copy(ca);
-    ss->n = roughness;
+    ss->array     = coarray_copy(ca);
+    ss->n         = roughness;
     ss->min_depth = activation_depth;
 
     return ss;
 }
 
 /* Frees memory from a previously allocated Subsection */
-void ss_free(Subsection ss) {
+void
+ss_free(Subsection ss)
+{
     coarray_free(ss->array);
     FREE(ss);
 }
@@ -96,13 +107,14 @@ void ss_free(Subsection ss) {
 /* Calculates hydraulic properties for the subsection.
  * Returns a new CrossSectionProps.
  */
-CrossSectionProps ss_hydraulic_properties(Subsection ss, double y) {
-
+CrossSectionProps
+ss_hydraulic_properties(Subsection ss, double y)
+{
     assert(ss);
 
     CoArray sa;
 
-    double area = 0;
+    double area      = 0;
     double perimeter = 0;
     double top_width = 0;
     double hydraulic_radius;
@@ -115,12 +127,12 @@ CrossSectionProps ss_hydraulic_properties(Subsection ss, double y) {
     /* return 0 subsection values if this subsection isn't activated */
     if (y < coarray_min_y(ss->array) || y <= ss->min_depth) {
         sa = NULL;
-        n = 0;
+        n  = 0;
     }
     /* otherwise calculate the values */
     else {
         sa = coarray_subarray_y(ss->array, y);
-        n = coarray_length(sa);
+        n  = coarray_length(sa);
     }
 
     int i;
@@ -166,11 +178,11 @@ CrossSectionProps ss_hydraulic_properties(Subsection ss, double y) {
     }
 
     if (area <= 0) {
-        conveyance = 0;
+        conveyance       = 0;
         hydraulic_radius = 0;
     } else {
         hydraulic_radius = area / perimeter;
-        conveyance = 1/ss->n * area * pow(hydraulic_radius, 2.0/3.0);
+        conveyance       = 1 / ss->n * area * pow(hydraulic_radius, 2.0 / 3.0);
     }
 
     xsp_set(xsp, XS_AREA, area);
@@ -187,7 +199,7 @@ CrossSectionProps ss_hydraulic_properties(Subsection ss, double y) {
 
 /* results cache interface */
 typedef struct ResultsCache {
-    int size;
+    int                size;
     CrossSectionProps *xsp;
 } ResultsCache;
 
@@ -195,10 +207,11 @@ typedef struct ResultsCache {
 #define CACHE_EXPANSION_TERM 10 /* rate to grow array */
 
 #define calc_index(depth) (int)(depth / DEPTH_INTERP_DELTA)
-#define calc_depth(index) DEPTH_INTERP_DELTA * index
+#define calc_depth(index) DEPTH_INTERP_DELTA *index
 
-ResultsCache *res_new(int size) {
-
+ResultsCache *
+res_new(int size)
+{
     assert(size > 0);
 
     ResultsCache *res;
@@ -215,16 +228,18 @@ ResultsCache *res_new(int size) {
     }
 
     res->size = size;
-    res->xsp = xsp;
+    res->xsp  = xsp;
 
     return res;
 }
 
-void res_free(ResultsCache *res) {
+void
+res_free(ResultsCache *res)
+{
     assert(res);
 
-    int i;
-    int size = res->size;
+    int               i;
+    int               size = res->size;
     CrossSectionProps xsp;
     for (i = 0; i < size; i++) {
         if ((xsp = *(res->xsp + i))) {
@@ -235,7 +250,9 @@ void res_free(ResultsCache *res) {
     FREE(res);
 }
 
-ResultsCache *res_resize(int new_size, ResultsCache *old_res) {
+ResultsCache *
+res_resize(int new_size, ResultsCache *old_res)
+{
     assert(old_res);
     assert(new_size > old_res->size);
 
@@ -256,14 +273,16 @@ ResultsCache *res_resize(int new_size, ResultsCache *old_res) {
 /* cross section interface */
 
 struct CrossSection {
-    int n_coordinates;     /* number of coordinates */
-    int n_subsections;     /* number of subsections */
-    CoArray ca;            /* coordinate array */
-    Subsection *ss;        /* array of subsections */
-    ResultsCache *results; /* results cache */
+    int           n_coordinates; /* number of coordinates */
+    int           n_subsections; /* number of subsections */
+    CoArray       ca;            /* coordinate array */
+    Subsection *  ss;            /* array of subsections */
+    ResultsCache *results;       /* results cache */
 };
 
-CrossSectionProps _calc_hydraulic_properties(CrossSection xs, double h) {
+CrossSectionProps
+_calc_hydraulic_properties(CrossSection xs, double h)
+{
 
     assert(xs);
 
@@ -284,18 +303,18 @@ CrossSectionProps _calc_hydraulic_properties(CrossSection xs, double h) {
 
     CrossSectionProps xsp = xsp_new();
     CrossSectionProps xsp_ss;
-    Subsection ss;
+    Subsection        ss;
 
     for (i = 0; i < n_subsections; i++) {
         ss     = *(xs->ss + i);
         xsp_ss = ss_hydraulic_properties(ss, h);
-        a_ss  = xsp_get(xsp_ss, XS_AREA);
-        k_ss  = xsp_get(xsp_ss, XS_CONVEYANCE);
-        t    += xsp_get(xsp_ss, XS_TOP_WIDTH);
-        w    += xsp_get(xsp_ss, XS_WETTED_PERIMETER);
+        a_ss   = xsp_get(xsp_ss, XS_AREA);
+        k_ss   = xsp_get(xsp_ss, XS_CONVEYANCE);
+        t += xsp_get(xsp_ss, XS_TOP_WIDTH);
+        w += xsp_get(xsp_ss, XS_WETTED_PERIMETER);
 
         if (a_ss > 0) {
-            sum  += (k_ss * k_ss * k_ss)/(a_ss * a_ss);
+            sum += (k_ss * k_ss * k_ss) / (a_ss * a_ss);
         }
 
         xsp_free(xsp_ss);
@@ -313,8 +332,8 @@ CrossSectionProps _calc_hydraulic_properties(CrossSection xs, double h) {
         alpha = NAN;
         qc    = NAN;
     } else {
-        d = a / t;
-        r = a / w;
+        d     = a / t;
+        r     = a / w;
         alpha = (a * a) * sum / (k * k * k);
         qc    = a * sqrt(GRAVITY * a / (alpha * t));
     }
@@ -333,7 +352,9 @@ CrossSectionProps _calc_hydraulic_properties(CrossSection xs, double h) {
 }
 
 /* interfacing function between results cache and cross section */
-CrossSectionProps xs_get_properties_from_res(CrossSection xs, double h) {
+CrossSectionProps
+xs_get_properties_from_res(CrossSection xs, double h)
+{
 
     assert(xs);
 
@@ -342,7 +363,7 @@ CrossSectionProps xs_get_properties_from_res(CrossSection xs, double h) {
 
     if (indhi > (xs->results->size - 1)) {
         int new_size = indhi + CACHE_EXPANSION_TERM;
-        xs->results = res_resize(new_size, xs->results);
+        xs->results  = res_resize(new_size, xs->results);
     }
 
     double dlo;
@@ -350,15 +371,15 @@ CrossSectionProps xs_get_properties_from_res(CrossSection xs, double h) {
 
     CrossSectionProps xsplo = *(xs->results->xsp + indlo);
     if (!xsplo) {
-        dlo = calc_depth(indlo);
-        xsplo = _calc_hydraulic_properties(xs, dlo);
+        dlo                         = calc_depth(indlo);
+        xsplo                       = _calc_hydraulic_properties(xs, dlo);
         *(xs->results->xsp + indlo) = xsplo;
     }
 
     CrossSectionProps xsphi = *(xs->results->xsp + indhi);
     if (!xsphi) {
-        dhi = calc_depth(indhi);
-        xsphi = _calc_hydraulic_properties(xs, dhi);
+        dhi                         = calc_depth(indhi);
+        xsphi                       = _calc_hydraulic_properties(xs, dhi);
         *(xs->results->xsp + indhi) = xsphi;
     }
 
@@ -367,23 +388,24 @@ CrossSectionProps xs_get_properties_from_res(CrossSection xs, double h) {
     return xsp;
 }
 
-CrossSection xs_new(CoArray ca, int n_roughness, double *roughness,
-                    double *z_roughness) {
+CrossSection
+xs_new(CoArray ca, int n_roughness, double *roughness, double *z_roughness)
+{
 
     if (n_roughness < 1)
-        RAISE(value_arg_Error);
+        RAISE(value_arg_error);
 
     if (!roughness)
-        RAISE(null_ptr_arg_Error);
+        RAISE(null_ptr_arg_error);
 
     if (n_roughness > 1 && !z_roughness)
-        RAISE(null_ptr_arg_Error);
+        RAISE(null_ptr_arg_error);
 
     int i; /* loop variable */
 
     for (i = 0; i < n_roughness; i++)
         if (*(roughness + i) <= 0)
-            RAISE(value_arg_Error);
+            RAISE(value_arg_error);
 
     /* cross section to return */
     CrossSection xs;
@@ -403,9 +425,8 @@ CrossSection xs_new(CoArray ca, int n_roughness, double *roughness,
      */
     double *z_splits =
         Mem_calloc(n_roughness + 1, sizeof(double), __FILE__, __LINE__);
-    z_splits[0] = coarray_get_z(xs->ca, 0);
-    z_splits[n_roughness] =
-        coarray_get_z(xs->ca, coarray_length(xs->ca) - 1);
+    z_splits[0]           = coarray_get_z(xs->ca, 0);
+    z_splits[n_roughness] = coarray_get_z(xs->ca, coarray_length(xs->ca) - 1);
     for (i = 1; i < n_roughness; i++) {
         z_splits[i] = *(z_roughness + i - 1);
     }
@@ -426,10 +447,12 @@ CrossSection xs_new(CoArray ca, int n_roughness, double *roughness,
     return xs;
 }
 
-void xs_free(CrossSection xs) {
+void
+xs_free(CrossSection xs)
+{
 
     if (!xs)
-        RAISE(null_ptr_arg_Error);
+        RAISE(null_ptr_arg_error);
 
     int i;
     int n = xs->n_subsections;
@@ -448,19 +471,23 @@ void xs_free(CrossSection xs) {
     FREE(xs);
 }
 
-CrossSectionProps xs_hydraulic_properties(CrossSection xs, double h) {
+CrossSectionProps
+xs_hydraulic_properties(CrossSection xs, double h)
+{
     if (!xs)
-        RAISE(null_ptr_arg_Error);
+        RAISE(null_ptr_arg_error);
 
     if (h < coarray_min_y(xs->ca))
-        RAISE(xsp_depth_Error);
+        RAISE(xsp_depth_error);
 
     return xs_get_properties_from_res(xs, h);
 }
 
-CoArray xs_coarray(CrossSection xs) {
+CoArray
+xs_coarray(CrossSection xs)
+{
     if (!xs)
-        RAISE(null_ptr_arg_Error);
+        RAISE(null_ptr_arg_error);
 
     return coarray_copy(xs->ca);
 }

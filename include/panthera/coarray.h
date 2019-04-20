@@ -30,16 +30,17 @@ typedef struct CoArray *CoArray;
  *
  * **Raises**:
  *
- * #null_ptr_arg_Error if @y or @z is `NULL`
+ * #null_ptr_arg_error if @y or @z is `NULL`
  *
- * #coarray_n_coords_Error if @n is less than 2
+ * #coarray_n_coords_error if @n is less than 2
  *
- * #coarray_z_order_Error if the values in @z are not in acending (or equal)
+ * #coarray_z_order_error if the values in @z are not in acending (or equal)
  * order
  *
  * Returns: a new #CoArray
  */
-extern CoArray coarray_new(int n, double *y, double *z);
+extern CoArray
+coarray_new(int n, double *y, double *z);
 
 /**
  * coarray_copy:
@@ -50,11 +51,12 @@ extern CoArray coarray_new(int n, double *y, double *z);
  *
  * **Raises:**
  *
- * #null_ptr_arg_Error if @a is `NULL`
+ * #null_ptr_arg_error if @a is `NULL`
  *
  * Returns: a copy of @a
  */
-extern CoArray coarray_copy(CoArray a);
+extern CoArray
+coarray_copy(CoArray a);
 
 /**
  * coarray_free:
@@ -64,11 +66,12 @@ extern CoArray coarray_copy(CoArray a);
  *
  * **Raises:**
  *
- * #null_ptr_arg_Error if @a is `NULL`
+ * #null_ptr_arg_error if @a is `NULL`
  *
  * Returns: None
  */
-extern void coarray_free(CoArray a);
+extern void
+coarray_free(CoArray a);
 
 /**
  * coarray_eq:
@@ -77,11 +80,12 @@ extern void coarray_free(CoArray a);
  *
  * **Raises:**
  *
- * #null_ptr_arg_Error if @a1 or @a2 are `NULL`
+ * #null_ptr_arg_error if @a1 or @a2 are `NULL`
  *
  * Returns: 1 if @a1 and @a2 are equal, 0 if they are not
  */
-extern int coarray_eq(CoArray a1, CoArray a2);
+extern int
+coarray_eq(CoArray a1, CoArray a2);
 
 /**
  * coarray_length:
@@ -89,11 +93,12 @@ extern int coarray_eq(CoArray a1, CoArray a2);
  *
  * **Raises:**
  *
- * #null_ptr_arg_Error if @a is `NULL`
+ * #null_ptr_arg_error if @a is `NULL`
  *
  * Returns: the length of @a
  */
-extern int coarray_length(CoArray a);
+extern int
+coarray_length(CoArray a);
 
 /**
  * coarray_get_y:
@@ -104,14 +109,15 @@ extern int coarray_length(CoArray a);
  *
  * **Raises:**
  *
- * #null_ptr_arg_Error if @a is `NULL`
+ * #null_ptr_arg_error if @a is `NULL`
  *
- * #index_Error if `i < 0` or `i >= length`, where `length` is the length of
+ * #index_error if `i < 0` or `i >= length`, where `length` is the length of
  * @a
  *
  * Returns: y-value of @i-th coordinate
  */
-extern double coarray_get_y(CoArray a, int i);
+extern double
+coarray_get_y(CoArray a, int i);
 
 /**
  * coarray_get_z:
@@ -122,13 +128,14 @@ extern double coarray_get_y(CoArray a, int i);
  *
  * **Raises:**
  *
- * #null_ptr_arg_Error if @a is `NULL`
+ * #null_ptr_arg_error if @a is `NULL`
  *
- * #index_Error if `i < 0` or `i >= length`, where `length` is the length of @a
+ * #index_error if `i < 0` or `i >= length`, where `length` is the length of @a
  *
  * Returns: z-value of @i-th coordinate
  */
-extern double coarray_get_z(CoArray a, int i);
+extern double
+coarray_get_z(CoArray a, int i);
 
 /**
  * coarray_subarray_y:
@@ -144,11 +151,12 @@ extern double coarray_get_z(CoArray a, int i);
  *
  * **Raises:**
  *
- * #null_ptr_arg_Error if @a is `NULL`
+ * #null_ptr_arg_error if @a is `NULL`
  *
  * Returns: a subset of @a
  */
-extern CoArray coarray_subarray_y(CoArray a, double yhi);
+extern CoArray
+coarray_subarray_y(CoArray a, double yhi);
 
 /**
  * coarray_subarray_z:
@@ -165,13 +173,14 @@ extern CoArray coarray_subarray_y(CoArray a, double yhi);
  *
  * **Raises:**
  *
- * #null_ptr_arg_Error if @a is `NULL`
+ * #null_ptr_arg_error if @a is `NULL`
  *
- * #value_arg_Error if zhi <= zlo
+ * #value_arg_error if zhi <= zlo
  *
  * Returns: a subset of @a
  */
-extern CoArray coarray_subarray_z(CoArray a, double zlo, double zhi);
+extern CoArray
+coarray_subarray_z(CoArray a, double zlo, double zhi);
 
 /**
  * coarray_min_y:
@@ -179,11 +188,12 @@ extern CoArray coarray_subarray_z(CoArray a, double zlo, double zhi);
  *
  * **Raises**:
  *
- * #null_ptr_arg_Error if @a is `NULL`
+ * #null_ptr_arg_error if @a is `NULL`
  *
  * Returns: the minimum y value in @a
  */
-double coarray_min_y(CoArray a);
+double
+coarray_min_y(CoArray a);
 
 /**
  * coarray_add_y:
@@ -195,10 +205,11 @@ double coarray_min_y(CoArray a);
  *
  * **Raises:**
  *
- * #null_ptr_arg_Error if @a is `NULL`
+ * #null_ptr_arg_error if @a is `NULL`
  *
  * Returns: @a translated in the y-direction by @add_y
  */
-extern CoArray coarray_add_y(CoArray a, double add_y);
+extern CoArray
+coarray_add_y(CoArray a, double add_y);
 
 #endif

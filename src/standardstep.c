@@ -4,18 +4,18 @@
 #include <panthera/standardstep.h>
 #include <stdio.h>
 
-
 #define EPS 0.003
 #define MAX_ITERATIONS 20
 
-
 struct StandardStepResults {
-    int n_nodes;
+    int     n_nodes;
     double *discharge;
     double *wse;
 };
 
-static StandardStepResults ss_res_new(int n_nodes) {
+static StandardStepResults
+ss_res_new(int n_nodes)
+{
     assert(n_nodes > 0);
     StandardStepResults ssr;
     NEW(ssr);
@@ -25,45 +25,56 @@ static StandardStepResults ss_res_new(int n_nodes) {
     return ssr;
 }
 
-void ss_res_free(StandardStepResults ssr) {
+void
+ss_res_free(StandardStepResults ssr)
+{
     if (!ssr)
-        RAISE(null_ptr_arg_Error);
+        RAISE(null_ptr_arg_error);
     Mem_free(ssr->discharge, __FILE__, __LINE__);
     Mem_free(ssr->wse, __FILE__, __LINE__);
     FREE(ssr);
 }
 
-int ss_res_size(StandardStepResults res) {
+int
+ss_res_size(StandardStepResults res)
+{
     if (!res)
-        RAISE(null_ptr_arg_Error);
+        RAISE(null_ptr_arg_error);
     return res->n_nodes;
 }
 
-static void ss_res_set_wse(StandardStepResults ssr, int i, double wse) {
+static void
+ss_res_set_wse(StandardStepResults ssr, int i, double wse)
+{
     assert(ssr);
-    *(ssr->wse + i)       = wse;
+    *(ssr->wse + i) = wse;
 }
 
-double ss_res_get_wse(StandardStepResults res, int i) {
+double
+ss_res_get_wse(StandardStepResults res, int i)
+{
     if (!res)
-        RAISE(null_ptr_arg_Error);
+        RAISE(null_ptr_arg_error);
     if (i < 0 || res->n_nodes <= i)
-        RAISE(index_Error);
+        RAISE(index_error);
 
     return *(res->wse + i);
 }
 
-double ss_res_get_q(StandardStepResults res, int i) {
+double
+ss_res_get_q(StandardStepResults res, int i)
+{
     if (!res)
-        RAISE(null_ptr_arg_Error);
+        RAISE(null_ptr_arg_error);
     if (i < 0 || res->n_nodes <= i)
-        RAISE(index_Error);
+        RAISE(index_error);
 
     return *(res->discharge + i);
 }
 
-static void ss_res_fill_q(StandardStepResults ssr,
-                          StandardStepOptions *options) {
+static void
+ss_res_fill_q(StandardStepResults ssr, StandardStepOptions *options)
+{
     assert(ssr);
     assert(options);
 
@@ -80,26 +91,27 @@ static void ss_res_fill_q(StandardStepResults ssr,
     }
 }
 
-StandardStepResults solve_standard_step(StandardStepOptions *options,
-                                        Reach reach) {
-    int n_nodes   = reach_size(reach);
-    int last_node = n_nodes - 1;
+StandardStepResults
+solve_standard_step(StandardStepOptions *options, Reach reach)
+{
+    int n_nodes             = reach_size(reach);
+    int last_node           = n_nodes - 1;
     int last_discharge_node = options->n_discharges - 1;
 
     if (!options || !reach)
-        RAISE(null_ptr_arg_Error);
+        RAISE(null_ptr_arg_error);
 
     if (options->n_discharges < 1 || n_nodes < options->n_discharges)
-        RAISE(value_arg_Error);
+        RAISE(value_arg_error);
 
     /* the last reach in the node must have a discharge */
     if (*(options->discharge_nodes + last_discharge_node) != last_node)
-        RAISE(value_arg_Error);
+        RAISE(value_arg_error);
 
     if (n_nodes < 2) {
-        compute_fail_Error.reason = "Reach must have two or more nodes for "
+        compute_fail_error.reason = "Reach must have two or more nodes for "
                                     " standard step solution";
-        RAISE(compute_fail_Error);
+        RAISE(compute_fail_error);
     }
 
     double eps = EPS; /* meters */
@@ -109,20 +121,20 @@ StandardStepResults solve_standard_step(StandardStepOptions *options,
     int i, j, direction, final_compute_node;
 
     /* water surface elevation */
-    double ws1;
-    double ws_new;
-    double ws_computed;
-    double *ws_assumed = Mem_calloc(max_iterations, sizeof(double), __FILE__,
-                                    __LINE__);
+    double  ws1;
+    double  ws_new;
+    double  ws_computed;
+    double *ws_assumed =
+        Mem_calloc(max_iterations, sizeof(double), __FILE__, __LINE__);
 
     /* reach elevations */
     double *y = Mem_calloc(n_nodes, sizeof(double), __FILE__, __LINE__);
     reach_elevation(reach, y);
 
-    double assum_diff;
-    double err_diff;
-    double *delta = Mem_calloc(max_iterations, sizeof(double), __FILE__,
-                               __LINE__);
+    double  assum_diff;
+    double  err_diff;
+    double *delta =
+        Mem_calloc(max_iterations, sizeof(double), __FILE__, __LINE__);
 
     /* discharge */
     double q1;
@@ -157,29 +169,28 @@ StandardStepResults solve_standard_step(StandardStepOptions *options,
 
     if (options->us_boundary) {
         ss_res_set_wse(ssr, 0, options->boundary_wse);
-        i = 1;
-        direction = 1;
+        i                  = 1;
+        direction          = 1;
         final_compute_node = last_node;
-    }
-    else {
+    } else {
         ss_res_set_wse(ssr, last_node, options->boundary_wse);
-        i = last_node - 1;
-        direction = -1;
+        i                  = last_node - 1;
+        direction          = -1;
         final_compute_node = 0;
     }
 
     /* try boundary node. raise compute error for boundary condition if failure
      * occurs
      */
-    TRY
-        ws1 = ss_res_get_wse(ssr, i - 1*direction);
-        q1  = ss_res_get_q(ssr, i - 1*direction);
-        rp1 = reach_node_properties(reach, i - 1*direction, ws1, q1);
-        rnp_free(rp1);
-    EXCEPT(xsp_depth_Error) {
-        compute_fail_Error.reason = "Boundary condition causes cross section "
+    TRY ws1 = ss_res_get_wse(ssr, i - 1 * direction);
+    q1      = ss_res_get_q(ssr, i - 1 * direction);
+    rp1     = reach_node_properties(reach, i - 1 * direction, ws1, q1);
+    rnp_free(rp1);
+    EXCEPT(xsp_depth_error)
+    {
+        compute_fail_error.reason = "Boundary condition causes cross section "
                                     " depth error";
-        RAISE(compute_fail_Error);
+        RAISE(compute_fail_error);
     }
     END_TRY;
 
@@ -187,47 +198,46 @@ StandardStepResults solve_standard_step(StandardStepOptions *options,
     for (; direction * i <= final_compute_node; i = i + direction) {
 
         /* first node */
-        ws1 = ss_res_get_wse(ssr, i - 1*direction);
-        q1  = ss_res_get_q(ssr, i - 1*direction);
-        rp1 = reach_node_properties(reach, i - 1*direction, ws1, q1);
+        ws1 = ss_res_get_wse(ssr, i - 1 * direction);
+        q1  = ss_res_get_q(ssr, i - 1 * direction);
+        rp1 = reach_node_properties(reach, i - 1 * direction, ws1, q1);
         x1  = rnp_get(rp1, RN_X);
         sf1 = rnp_get(rp1, RN_FRICTION_SLOPE);
         vh1 = rnp_get(rp1, RN_VELOCITY_HEAD);
         rnp_free(rp1);
 
-        q2  = ss_res_get_q(ssr, i);
+        q2 = ss_res_get_q(ssr, i);
         for (j = 0; j < max_iterations; j++) {
 
             if (j == 0)
                 ws_new = ws1;
             else if (j == 1)
-                ws_new = ws1 + 0.7*(ws_computed - ws1);
+                ws_new = ws1 + 0.7 * (ws_computed - ws1);
             else {
                 assum_diff = *(ws_assumed + j - 2) - *(ws_assumed + j - 1);
                 err_diff   = *(delta + j - 2) - *(delta + j - 1);
-                ws_new     = *(ws_assumed + j - 2) - *(delta + j - 2) *
-                    assum_diff/err_diff;
+                ws_new     = *(ws_assumed + j - 2) -
+                         *(delta + j - 2) * assum_diff / err_diff;
             }
 
             /* raise a compute fail error if a cross section depth error
              * occurs
              */
-            TRY
-                rp2    = reach_node_properties(reach, i, ws_new, q2);
-            EXCEPT(xsp_depth_Error);
-                sprintf(error_string, xs_depth_error_template, i);
-                compute_fail_Error.reason = error_string;
-                RAISE(compute_fail_Error);
+            TRY rp2 = reach_node_properties(reach, i, ws_new, q2);
+            EXCEPT(xsp_depth_error);
+            sprintf(error_string, xs_depth_error_template, i);
+            compute_fail_error.reason = error_string;
+            RAISE(compute_fail_error);
             END_TRY;
 
-            x2     = rnp_get(rp2, RN_X);
-            sf2    = rnp_get(rp2, RN_FRICTION_SLOPE);
-            vh2    = rnp_get(rp2, RN_VELOCITY_HEAD);
+            x2  = rnp_get(rp2, RN_X);
+            sf2 = rnp_get(rp2, RN_FRICTION_SLOPE);
+            vh2 = rnp_get(rp2, RN_VELOCITY_HEAD);
             rnp_free(rp2);
 
-            sf = 0.5*(sf1 + sf2);
+            sf = 0.5 * (sf1 + sf2);
             dx = x2 - x1;
-            he = sf*dx;
+            he = sf * dx;
 
             ws_computed = ws1 + vh1 - vh2 - he;
 
@@ -240,11 +250,10 @@ StandardStepResults solve_standard_step(StandardStepOptions *options,
                 if (j == max_iterations) {
                     Mem_free(ws_assumed, __FILE__, __LINE__);
                     Mem_free(delta, __FILE__, __LINE__);
-                    RAISE(max_iteration_Error);
+                    RAISE(max_iteration_error);
                 }
             }
         }
-
     }
 
     Mem_free(y, __FILE__, __LINE__);

@@ -4,39 +4,40 @@
 #include <panthera/standardstep.h>
 #include <stdio.h>
 
-int main (void) {
-
+int
+main(void)
+{
     int i;
 
     /* cross section */
-    int n_coords = 4;
-    double y[]   = {10, 0,  0, 10};
-    double z[]   = {0, 20, 30, 50};
+    int    n_coords = 4;
+    double y[]      = {10, 0, 0, 10};
+    double z[]      = {0, 20, 30, 50};
 
-    double n_roughness      = 1;
-    double roughness[]      = {0.013};
-    double *z_roughness     = NULL;
+    double            n_roughness = 1;
+    double            roughness[] = {0.013};
+    double *          z_roughness = NULL;
     CrossSectionProps xsp;
 
     /* reach */
-    int n_nodes     = 5;
-    int last_node   = n_nodes - 1;
-    double slope    = 0.001;
-    double dx       = 1000;
-    double x[n_nodes];
-    double y_reach[n_nodes];
-    int xs_number[n_nodes];
-    double wse;
-    double q;
-    double *y_elevation = Mem_calloc(n_nodes, sizeof(double), __FILE__,
-                                     __LINE__);
+    int     n_nodes   = 5;
+    int     last_node = n_nodes - 1;
+    double  slope     = 0.001;
+    double  dx        = 1000;
+    double  x[n_nodes];
+    double  y_reach[n_nodes];
+    int     xs_number[n_nodes];
+    double  wse;
+    double  q;
+    double *y_elevation =
+        Mem_calloc(n_nodes, sizeof(double), __FILE__, __LINE__);
 
     /* solver options */
     double boundary_depth = 5.0;
     double boundary_wse;
     double discharge;
 
-    CoArray ca = coarray_new(n_coords, y, z);
+    CoArray      ca = coarray_new(n_coords, y, z);
     CrossSection xs = xs_new(ca, n_roughness, roughness, z_roughness);
     coarray_free(ca);
 
@@ -49,15 +50,10 @@ int main (void) {
         xs_number[i] = 0;
     }
 
-    discharge = 30;
-    boundary_wse = boundary_depth;
+    discharge                   = 30;
+    boundary_wse                = boundary_depth;
     StandardStepOptions options = {
-        1,
-        &last_node,
-        &discharge,
-        boundary_wse,
-        false
-    };
+        1, &last_node, &discharge, boundary_wse, false};
 
     Reach reach = reach_new(n_nodes, x, y_reach, xs_number, xstable);
     reach_elevation(reach, y_elevation);
@@ -72,7 +68,11 @@ int main (void) {
         q   = ss_res_get_q(res, i);
         xsp = xs_hydraulic_properties(xs, wse - y_elevation[i]);
         printf("%10.0f%10.2f%10.5f%10.5f%10.4f%10.4f\n",
-               x[i], y_elevation[i], wse, wse - y_elevation[i], q,
+               x[i],
+               y_elevation[i],
+               wse,
+               wse - y_elevation[i],
+               q,
                xsp_get(xsp, XS_AREA));
         xsp_free(xsp);
     }

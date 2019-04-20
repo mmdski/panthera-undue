@@ -3,7 +3,6 @@
 
 #include <panthera/coarray.h>
 
-
 /**
  * SECTION: Cross Section
  * @short_description: Cross section
@@ -54,7 +53,8 @@ typedef struct CrossSectionProps *CrossSectionProps;
  *
  * Returns: None
  */
-extern void xsp_free(CrossSectionProps xsp);
+extern void
+xsp_free(CrossSectionProps xsp);
 
 /**
  * xsp_get:
@@ -63,11 +63,12 @@ extern void xsp_free(CrossSectionProps xsp);
  *
  * **Raises:**
  *
- * #null_ptr_arg_Error if @xsp is `NULL`
+ * #null_ptr_arg_error if @xsp is `NULL`
  *
  * Returns: the value of @prop contained in @xsp
  */
-extern double xsp_get(CrossSectionProps xsp, xs_prop prop);
+extern double
+xsp_get(CrossSectionProps xsp, xs_prop prop);
 
 /**
  * CrossSection:
@@ -110,18 +111,18 @@ typedef struct CrossSection *CrossSection;
  *
  * **Raises:**
  *
- * #value_arg_Error if
+ * #value_arg_error if
  *   * @n_roughness is less than or equal to 0 or
  *   * any value in @roughness is less than or equal to 0.
  *
- * #null_ptr_arg_Error if
+ * #null_ptr_arg_error if
  *   * @roughness is `NULL`
  *   * @n_roughness is greater than 1 and @z_roughness  is `NULL`
  *
  * Returns: a new #CrossSection
  */
-extern CrossSection xs_new(CoArray ca, int n_roughness, double *roughness,
-                           double *z_roughness);
+extern CrossSection
+xs_new(CoArray ca, int n_roughness, double *roughness, double *z_roughness);
 
 /**
  * xs_free:
@@ -131,11 +132,12 @@ extern CrossSection xs_new(CoArray ca, int n_roughness, double *roughness,
  *
  * **Raises:**
  *
- * #null_ptr_arg_Error if @xs is `NULL`
+ * #null_ptr_arg_error if @xs is `NULL`
  *
  * Returns: None
  */
-extern void xs_free(CrossSection xs);
+extern void
+xs_free(CrossSection xs);
 
 /**
  * xs_coarray:
@@ -146,11 +148,12 @@ extern void xs_free(CrossSection xs);
  *
  * **Raises:**
  *
- * #null_ptr_arg_Error if @xs is `NULL`
+ * #null_ptr_arg_error if @xs is `NULL`
  *
  * Returns: a copy of the #CoArray contained in @xs
  */
-CoArray xs_coarray(CrossSection xs);
+CoArray
+xs_coarray(CrossSection xs);
 
 /**
  * xs_hydraulic_properties:
@@ -162,12 +165,13 @@ CoArray xs_coarray(CrossSection xs);
  *
  * **Raises:**
  *
- * #null_ptr_arg_Error if @xs is `NULL`
+ * #null_ptr_arg_error if @xs is `NULL`
  *
- * #xsp_depth_Error if @h is less than the lowest y-value in @xs coordinate
+ * #xsp_depth_error if @h is less than the lowest y-value in @xs coordinate
  *
  * Returns: the hydraulic properties calculated by @xs at depth @h
  */
-extern CrossSectionProps xs_hydraulic_properties(CrossSection xs, double h);
+extern CrossSectionProps
+xs_hydraulic_properties(CrossSection xs, double h);
 
 #endif

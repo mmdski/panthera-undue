@@ -49,7 +49,8 @@ typedef struct ReachNodeProps *ReachNodeProps;
  *
  * Returns: None
  */
-extern void rnp_free(ReachNodeProps rnp);
+extern void
+rnp_free(ReachNodeProps rnp);
 
 /**
  * rnp_get:
@@ -58,11 +59,12 @@ extern void rnp_free(ReachNodeProps rnp);
  *
  * **Raises:**
  *
- * #null_ptr_arg_Error if @rnp is `NULL`
+ * #null_ptr_arg_error if @rnp is `NULL`
  *
  * Returns: The value of @prop contained in @rnp
  */
-extern double rnp_get(ReachNodeProps rnp, rn_prop prop);
+extern double
+rnp_get(ReachNodeProps rnp, rn_prop prop);
 
 /**
  * Reach:
@@ -100,19 +102,19 @@ typedef struct Reach *Reach;
  *
  * **Raises:**
  *
- * #value_arg_Error if @n_nodes < 1
+ * #value_arg_error if @n_nodes < 1
  *
- * #null_ptr_arg_Error if @x, @y, @xs_number, or @xstable are `NULL`
+ * #null_ptr_arg_error if @x, @y, @xs_number, or @xstable are `NULL`
  *
- * #reach_xs_num_Error if a cross section number is @xs_number is not contained
+ * #reach_xs_num_error if a cross section number is @xs_number is not contained
  * in @xstable
  *
- * #reach_x_order_Error if the values in @x are not in ascending order
+ * #reach_x_order_error if the values in @x are not in ascending order
  *
  * Returns: a new reach
  */
-extern Reach reach_new(int n_nodes, double *x, double *y, int *xs_number,
-                       XSTable xstable);
+extern Reach
+reach_new(int n_nodes, double *x, double *y, int *xs_number, XSTable xstable);
 
 /**
  * reach_free:
@@ -124,11 +126,12 @@ extern Reach reach_new(int n_nodes, double *x, double *y, int *xs_number,
  *
  * **Raises:**
  *
- * #null_ptr_arg_Error if @reach is `NULL`
+ * #null_ptr_arg_error if @reach is `NULL`
  *
  * Returns: None
  */
-extern void reach_free(Reach reach);
+extern void
+reach_free(Reach reach);
 
 /**
  * reach_size:
@@ -138,11 +141,12 @@ extern void reach_free(Reach reach);
  *
  * **Raises:**
  *
- * #null_ptr_arg_Error if @reach is `NULL`
+ * #null_ptr_arg_error if @reach is `NULL`
  *
  * Returns: size of @reach
  */
-extern int reach_size(Reach reach);
+extern int
+reach_size(Reach reach);
 
 /**
  * reach_node_properties:
@@ -156,15 +160,15 @@ extern int reach_size(Reach reach);
  *
  * **Raises:**
  *
- * #null_ptr_arg_Error if @reach is `NULL`
+ * #null_ptr_arg_error if @reach is `NULL`
  *
- * #index_Error if `i < 0` or `i >= size`, where `size` is the size of @reach
+ * #index_error if `i < 0` or `i >= size`, where `size` is the size of @reach
  *
  * Returns: properties of reach node with water surface elevation @wse and
  * discharge @q
  */
-extern ReachNodeProps reach_node_properties(Reach reach, int i, double wse,
-                                            double q);
+extern ReachNodeProps
+reach_node_properties(Reach reach, int i, double wse, double q);
 
 /**
  * reach_stream_distance:
@@ -177,11 +181,12 @@ extern ReachNodeProps reach_node_properties(Reach reach, int i, double wse,
  *
  * **Raises:**
  *
- * #null_ptr_arg_Error if @reach or @x are `NULL`
+ * #null_ptr_arg_error if @reach or @x are `NULL`
  *
  * Returns: None
  */
-extern void reach_stream_distance(Reach reach, double *x);
+extern void
+reach_stream_distance(Reach reach, double *x);
 
 /**
  * reach_elevation:
@@ -194,10 +199,11 @@ extern void reach_stream_distance(Reach reach, double *x);
  *
  * **Raises:**
  *
- * #null_ptr_arg_Error if @reach or @y are `NULL`
+ * #null_ptr_arg_error if @reach or @y are `NULL`
  *
  * Returns: None
  */
-extern void reach_elevation(Reach reach, double *y);
+extern void
+reach_elevation(Reach reach, double *y);
 
 #endif

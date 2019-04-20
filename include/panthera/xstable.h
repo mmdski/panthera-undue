@@ -29,7 +29,8 @@ typedef struct XSTable *XSTable;
  *
  * Returns: a new symbol table
  */
-extern XSTable xstable_new(void);
+extern XSTable
+xstable_new(void);
 
 /**
  * xstable_free:
@@ -40,11 +41,12 @@ extern XSTable xstable_new(void);
  *
  * **Raises:**
  *
- * #null_ptr_arg_Error if @xstable is `NULL`
+ * #null_ptr_arg_error if @xstable is `NULL`
  *
  * Returns: None
  */
-extern void xstable_free(XSTable xstable);
+extern void
+xstable_free(XSTable xstable);
 
 /**
  * xstable_size:
@@ -54,11 +56,12 @@ extern void xstable_free(XSTable xstable);
  *
  * **Raises:**
  *
- * #null_ptr_arg_Error if @xstable is `NULL`
+ * #null_ptr_arg_error if @xstable is `NULL`
  *
  * Returns: The size of @xstable
  */
-extern int xstable_size(XSTable xstable);
+extern int
+xstable_size(XSTable xstable);
 
 /**
  * xstable_get:
@@ -71,11 +74,12 @@ extern int xstable_size(XSTable xstable);
  *
  * **Raises:**
  *
- * #null_ptr_arg_Error if @xstable is `NULL`
+ * #null_ptr_arg_error if @xstable is `NULL`
  *
  * Returns: Cross section in @xstable associated with @key
  */
-extern CrossSection xstable_get(XSTable xstable, int key);
+extern CrossSection
+xstable_get(XSTable xstable, int key);
 
 /**
  * xstable_put:
@@ -89,11 +93,12 @@ extern CrossSection xstable_get(XSTable xstable, int key);
  *
  * **Raises:**
  *
- * #null_ptr_arg_Error if @xstable or @xs is `NULL`
+ * #null_ptr_arg_error if @xstable or @xs is `NULL`
  *
  * Returns: None
  */
-extern void xstable_put(XSTable xstable, int key, CrossSection xs);
+extern void
+xstable_put(XSTable xstable, int key, CrossSection xs);
 
 /**
  * xstable_contains:
@@ -105,11 +110,12 @@ extern void xstable_put(XSTable xstable, int key, CrossSection xs);
  *
  * **Raises:**
  *
- * #null_ptr_arg_Error if @xstable is `NULL`
+ * #null_ptr_arg_error if @xstable is `NULL`
  *
  * Returns: `true` or `false`
  */
-extern bool xstable_contains(XSTable xstable, int key);
+extern bool
+xstable_contains(XSTable xstable, int key);
 
 /**
  * xstable_delete:
@@ -120,12 +126,12 @@ extern bool xstable_contains(XSTable xstable, int key);
  *
  * **Raises:**
  *
- * #null_ptr_arg_Error if @xstable or @xs is `NULL`
+ * #null_ptr_arg_error if @xstable or @xs is `NULL`
  *
  * Returns: None
  */
-extern void xstable_delete(XSTable xstable, int key);
-
+extern void
+xstable_delete(XSTable xstable, int key);
 
 /**
  * xstable_keys:
@@ -137,10 +143,11 @@ extern void xstable_delete(XSTable xstable, int key);
  *
  * **Raises:**
  *
- * #null_ptr_arg_Error if @xstable is `NULL`
+ * #null_ptr_arg_error if @xstable is `NULL`
  *
  * Returns: the number of elements in @keys
  */
-extern int xstable_keys(XSTable xstable, int **keys);
+extern int
+xstable_keys(XSTable xstable, int **keys);
 
 #endif

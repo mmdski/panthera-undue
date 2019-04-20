@@ -26,7 +26,7 @@
  */
 typedef struct {
     int     n_discharges;
-    int    *discharge_nodes;
+    int *   discharge_nodes;
     double *discharge;
     double  boundary_wse;
     bool    us_boundary;
@@ -48,11 +48,12 @@ typedef struct StandardStepResults *StandardStepResults;
  *
  * **Raises:**
  *
- * #null_ptr_arg_Error if @res is `NULL`
+ * #null_ptr_arg_error if @res is `NULL`
  *
  * Returns: None
  */
-void ss_res_free(StandardStepResults res);
+void
+ss_res_free(StandardStepResults res);
 
 /**
  * ss_res_size:
@@ -62,11 +63,12 @@ void ss_res_free(StandardStepResults res);
  *
  * **Raises:**
  *
- * #null_ptr_arg_Error if @res is `NULL`
+ * #null_ptr_arg_error if @res is `NULL`
  *
  * Returns: the number of nodes in the solution results
  */
-int ss_res_size(StandardStepResults res);
+int
+ss_res_size(StandardStepResults res);
 
 /**
  * ss_res_get_wse:
@@ -77,14 +79,15 @@ int ss_res_size(StandardStepResults res);
  *
  * **Raises:**
  *
- * #null_ptr_arg_Error if @res is `NULL`
+ * #null_ptr_arg_error if @res is `NULL`
  *
- * #index_Error if @i `< 0` or @i `>= size`, where `size` is the
+ * #index_error if @i `< 0` or @i `>= size`, where `size` is the
  * number of nodes in @res
  *
  * Returns: the water surface elevation of a simulation results node
  */
-double ss_res_get_wse(StandardStepResults res, int i);
+double
+ss_res_get_wse(StandardStepResults res, int i);
 
 /**
  * ss_res_get_q:
@@ -95,14 +98,15 @@ double ss_res_get_wse(StandardStepResults res, int i);
  *
  * **Raises:**
  *
- * #null_ptr_arg_Error if @res is `NULL`
+ * #null_ptr_arg_error if @res is `NULL`
  *
- * #index_Error if @i `< 0` or @i `>= size`, where `size` is the
+ * #index_error if @i `< 0` or @i `>= size`, where `size` is the
  * number of nodes in @res
  *
  * Returns: the discharge of a simulation results node
  */
-double ss_res_get_q(StandardStepResults res, int i);
+double
+ss_res_get_q(StandardStepResults res, int i);
 
 /**
  * solve_standard_step:
@@ -114,21 +118,21 @@ double ss_res_get_q(StandardStepResults res, int i);
  *
  * **Raises:**
  *
- * #null_ptr_arg_Error if @options or @reach is `NULL`
+ * #null_ptr_arg_error if @options or @reach is `NULL`
  *
- * #value_arg_Error if @options->n_discharges is less than one or greater than
+ * #value_arg_error if @options->n_discharges is less than one or greater than
  * the number of nodes in @reach or the last node number in
  * @options->discharge_nodes is not equal to the last node in @reach
  *
- * #compute_fail_Error if
+ * #compute_fail_error if
  *
  * * the number of nodes in @reach is less than two or
  *
- * * a #xsp_depth_Error is encountered during the computation of the solution
+ * * a #xsp_depth_error is encountered during the computation of the solution
  *
  * Returns: a steady state hydraulic solution
  */
-extern StandardStepResults solve_standard_step(StandardStepOptions *options,
-                                               Reach reach);
+extern StandardStepResults
+solve_standard_step(StandardStepOptions *options, Reach reach);
 
 #endif

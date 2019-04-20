@@ -1,46 +1,49 @@
-#include <panthera/xstable.h>
 #include "testlib.h"
 #include <glib.h>
+#include <panthera/xstable.h>
 
-
-void test_xstable_new(void) {
+void
+test_xstable_new(void)
+{
     XSTable xstable = xstable_new();
     g_assert_true(xstable_size(xstable) == 0);
     g_assert_true(xstable_get(xstable, 0) == NULL);
     xstable_free(xstable);
 }
 
-void test_xstable_put(void) {
+void
+test_xstable_put(void)
+{
     int key = 0;
 
-    XSTable xstable = xstable_new();
-    CrossSection xs = new_cross_section();
+    XSTable      xstable = xstable_new();
+    CrossSection xs      = new_cross_section();
     xstable_put(xstable, key, xs);
     g_assert_true(xstable_size(xstable) == 1);
 
     /* test that an error is raised when a null xstable is passed to put */
-    TRY
-        xstable_put(NULL, key, xs);
-        g_assert_not_reached();
-    EXCEPT(null_ptr_arg_Error);
-        ;
+    TRY xstable_put(NULL, key, xs);
+    g_assert_not_reached();
+    EXCEPT(null_ptr_arg_error);
+    ;
     END_TRY;
 
     /* test that an error is raised when a null cross section is passed to put
      */
-    TRY
-        xstable_put(xstable, key, NULL);
-        g_assert_not_reached();
-    EXCEPT(null_ptr_arg_Error);
-        ;
+    TRY xstable_put(xstable, key, NULL);
+    g_assert_not_reached();
+    EXCEPT(null_ptr_arg_error);
+    ;
     END_TRY;
 
     xstable_free(xstable);
 }
 
-void test_xs_table_put_multi(void) {
+void
+test_xs_table_put_multi(void)
+{
     int i;
-    int n_xs = 5;
+    int n_xs   = 5;
     int keys[] = {0, 1, 2, 3, 4, 5};
 
     XSTable xstable = xstable_new();
@@ -55,12 +58,14 @@ void test_xs_table_put_multi(void) {
     xstable_free(xstable);
 }
 
-void test_xstable_get(void) {
+void
+test_xstable_get(void)
+{
     int key     = 0;
     int not_key = 1;
 
-    XSTable xstable = xstable_new();
-    CrossSection xs = new_cross_section();
+    XSTable      xstable = xstable_new();
+    CrossSection xs      = new_cross_section();
     xstable_put(xstable, key, xs);
     CrossSection xs1 = xstable_get(xstable, key);
     g_assert_true(xs == xs1);
@@ -69,24 +74,25 @@ void test_xstable_get(void) {
     g_assert_true(xs2 == NULL);
 
     /* test that an error is raised when a null xstable is passed to get */
-    TRY
-        xstable_get(NULL, key);
-        g_assert_not_reached();
-    EXCEPT(null_ptr_arg_Error);
-        ;
+    TRY xstable_get(NULL, key);
+    g_assert_not_reached();
+    EXCEPT(null_ptr_arg_error);
+    ;
     END_TRY;
 
     xstable_free(xstable);
 }
 
-void test_xstable_get_multi_xs(void) {
+void
+test_xstable_get_multi_xs(void)
+{
     int i;
-    int n_xs = 5;
+    int n_xs   = 5;
     int keys[] = {0, 1, 2, 3, 4};
 
     CrossSection  xs;
-    CrossSection *xs_in_xstable = Mem_calloc(n_xs, sizeof(CrossSection),
-                                           __FILE__, __LINE__);
+    CrossSection *xs_in_xstable =
+        Mem_calloc(n_xs, sizeof(CrossSection), __FILE__, __LINE__);
 
     XSTable xstable = xstable_new();
 
@@ -107,15 +113,16 @@ void test_xstable_get_multi_xs(void) {
     Mem_free(xs_in_xstable, __FILE__, __LINE__);
 }
 
-
-void test_xstable_delete(void) {
+void
+test_xstable_delete(void)
+{
     int i;
-    int n_xs = 5;
+    int n_xs   = 5;
     int keys[] = {0, 1, 2, 3, 4};
 
     CrossSection  xs;
-    CrossSection *xs_in_xstable = Mem_calloc(n_xs, sizeof(CrossSection),
-                                           __FILE__, __LINE__);
+    CrossSection *xs_in_xstable =
+        Mem_calloc(n_xs, sizeof(CrossSection), __FILE__, __LINE__);
 
     XSTable xstable = xstable_new();
 
@@ -138,11 +145,10 @@ void test_xstable_delete(void) {
         g_assert_true(xstable_size(xstable) == n_xs - (i + 1));
     }
 
-    TRY
-        xstable_delete(NULL, keys[0]);
-        g_assert_not_reached();
-    EXCEPT(null_ptr_arg_Error);
-        ;
+    TRY xstable_delete(NULL, keys[0]);
+    g_assert_not_reached();
+    EXCEPT(null_ptr_arg_error);
+    ;
     END_TRY;
 
     xstable_free(xstable);
@@ -150,19 +156,21 @@ void test_xstable_delete(void) {
 }
 
 /* test random add and deletes of cross sections from a xstable */
-void test_xstable_delete_random(void) {
-    int i;
-    int n_xs = 100;
-    int random_key;
+void
+test_xstable_delete_random(void)
+{
+    int  i;
+    int  n_xs = 100;
+    int  random_key;
     int *key_array = NULL;
 
-    CrossSection  xs;
+    CrossSection xs;
 
     XSTable xstable = xstable_new();
 
     while (xstable_size(xstable) < n_xs) {
         random_key = rand();
-        xs = new_cross_section();
+        xs         = new_cross_section();
         xstable_put(xstable, random_key, xs);
     }
 
@@ -176,7 +184,7 @@ void test_xstable_delete_random(void) {
 
     while (xstable_size(xstable) < 10 * n_xs) {
         random_key = rand();
-        xs = new_cross_section();
+        xs         = new_cross_section();
         xstable_put(xstable, random_key, xs);
     }
 
@@ -190,17 +198,19 @@ void test_xstable_delete_random(void) {
     xstable_free(xstable);
 }
 
-void test_xstable_keys(void) {
+void
+test_xstable_keys(void)
+{
     int i;
-    int n_xs = 5;
+    int n_xs   = 5;
     int keys[] = {0, 1, 2, 3, 4};
 
     /* for calling xstable_keys */
-    int n_sd;
+    int  n_sd;
     int *keys_array = NULL;
 
-    CrossSection *xs_in_xstable = Mem_calloc(n_xs, sizeof(CrossSection),
-                                             __FILE__, __LINE__);
+    CrossSection *xs_in_xstable =
+        Mem_calloc(n_xs, sizeof(CrossSection), __FILE__, __LINE__);
 
     XSTable xstable = xstable_new();
 
@@ -220,25 +230,22 @@ void test_xstable_keys(void) {
         g_assert_true(*(keys_array + i) == keys[i]);
     }
 
-    TRY
-        xstable_keys(NULL, &keys_array);
-        g_assert_not_reached();
-    EXCEPT(null_ptr_arg_Error);
-        ;
+    TRY xstable_keys(NULL, &keys_array);
+    g_assert_not_reached();
+    EXCEPT(null_ptr_arg_error);
+    ;
     END_TRY;
 
-    TRY
-        xstable_keys(xstable, NULL);
-        g_assert_not_reached();
-    EXCEPT(null_ptr_arg_Error);
-        ;
+    TRY xstable_keys(xstable, NULL);
+    g_assert_not_reached();
+    EXCEPT(null_ptr_arg_error);
+    ;
     END_TRY;
 
-    TRY
-        xstable_keys(NULL, NULL);
-        g_assert_not_reached();
-    EXCEPT(null_ptr_arg_Error);
-        ;
+    TRY xstable_keys(NULL, NULL);
+    g_assert_not_reached();
+    EXCEPT(null_ptr_arg_error);
+    ;
     END_TRY;
 
     xstable_free(xstable);
@@ -246,18 +253,20 @@ void test_xstable_keys(void) {
     Mem_free(keys_array, __FILE__, __LINE__);
 }
 
-void test_xstable_keys_unordered(void) {
+void
+test_xstable_keys_unordered(void)
+{
     int i;
-    int n_xs              = 5;
+    int n_xs           = 5;
     int keys[]         = {4, 0, 2, 1, 3};
     int keys_ordered[] = {0, 1, 2, 3, 4};
 
     /* for calling xstable_keys */
-    int n_sd;
+    int  n_sd;
     int *keys_array = NULL;
 
-    CrossSection *xs_in_xstable = Mem_calloc(n_xs, sizeof(CrossSection),
-                                             __FILE__, __LINE__);
+    CrossSection *xs_in_xstable =
+        Mem_calloc(n_xs, sizeof(CrossSection), __FILE__, __LINE__);
 
     XSTable xstable = xstable_new();
 
@@ -282,17 +291,19 @@ void test_xstable_keys_unordered(void) {
     Mem_free(keys_array, __FILE__, __LINE__);
 }
 
-void test_xstable_keys_random(void) {
+void
+test_xstable_keys_random(void)
+{
     int i;
     int n_xs = 500;
     int key;
 
     /* for calling xstable_keys */
-    int n_sd;
+    int  n_sd;
     int *keys_array = NULL;
 
-    CrossSection *xs_in_xstable = Mem_calloc(n_xs, sizeof(CrossSection),
-                                           __FILE__, __LINE__);
+    CrossSection *xs_in_xstable =
+        Mem_calloc(n_xs, sizeof(CrossSection), __FILE__, __LINE__);
 
     XSTable xstable = xstable_new();
 
@@ -310,7 +321,7 @@ void test_xstable_keys_random(void) {
     g_assert_true(n_sd == n_xs);
 
     for (i = 1; i < n_xs; i++) {
-        g_assert_true(keys_array[i-1] < keys_array[i]);
+        g_assert_true(keys_array[i - 1] < keys_array[i]);
     }
 
     xstable_free(xstable);
@@ -318,15 +329,17 @@ void test_xstable_keys_random(void) {
     Mem_free(keys_array, __FILE__, __LINE__);
 }
 
-int main(int argc, char *argv[]) {
+int
+main(int argc, char *argv[])
+{
     srand(time(NULL));
     g_test_init(&argc, &argv, NULL);
-    g_test_add_func("/panthera/xstable/new",       test_xstable_new);
-    g_test_add_func("/panthera/xstable/put",       test_xstable_put);
+    g_test_add_func("/panthera/xstable/new", test_xstable_new);
+    g_test_add_func("/panthera/xstable/put", test_xstable_put);
     g_test_add_func("/panthera/xstable/put multi", test_xs_table_put_multi);
-    g_test_add_func("/panthera/xstable/get",       test_xstable_get);
+    g_test_add_func("/panthera/xstable/get", test_xstable_get);
     g_test_add_func("/panthera/xstable/get multi", test_xstable_get_multi_xs);
-    g_test_add_func("/panthera/xstable/delete",    test_xstable_delete);
+    g_test_add_func("/panthera/xstable/delete", test_xstable_delete);
     g_test_add_func("/panthera/xstable/delete random",
                     test_xstable_delete_random);
     g_test_add_func("/panthera/xstable/keys", test_xstable_keys);
