@@ -1,7 +1,7 @@
 include_dirs = [inc, test_inc]
 link_libs = [ciilib, pantheralib, testlib]
 
-xstable_mem_test = executable('xstable', 'xstable.c',
+xstable_mem_test = executable('xstable_mem_test', 'xstable.c',
                               include_directories : include_dirs,
                               link_with: link_libs)
 test('mem_test_xstable', vlgnd,
@@ -9,11 +9,11 @@ test('mem_test_xstable', vlgnd,
              '--leak-check=full',
              '--errors-for-leak-kinds=all',
              '--error-exitcode=33',
-             '@0@/xstable'.format(meson.current_build_dir()),
+	     xstable_mem_test.full_path()
             ]
      )
 
-reach_mem_test = executable('reach', 'reach.c',
+reach_mem_test = executable('reach_mem_test', 'reach.c',
                               include_directories : include_dirs,
                               link_with: link_libs)
 test('mem_test_reach', vlgnd,
@@ -21,11 +21,11 @@ test('mem_test_reach', vlgnd,
              '--leak-check=full',
              '--errors-for-leak-kinds=all',
              '--error-exitcode=33',
-             '@0@/reach'.format(meson.current_build_dir()),
+	     reach_mem_test.full_path()
             ]
 )
 
-sstep_mem_test = executable('sstep', 'standardstep.c',
+sstep_mem_test = executable('sstep_mem_test', 'standardstep.c',
                             include_directories : include_dirs,
                             dependencies : m_dep,
                             link_with: link_libs)
@@ -34,6 +34,6 @@ test('mem_test_sstep', vlgnd,
              '--leak-check=full',
              '--errors-for-leak-kinds=all',
              '--error-exitcode=33',
-             '@0@/sstep'.format(meson.current_build_dir()),
+	     sstep_mem_test.full_path()
             ]
 )
