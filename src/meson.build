@@ -6,7 +6,8 @@ panthera_sources = [
                     'coarray.c',
                     'xstable.c',
                     'reach.c',
-                    'standardstep.c'
+                    'standardstep.c',
+                    'secantsolve.c'
                     ]
 pantheralib = static_library('panthera',
                              panthera_sources,

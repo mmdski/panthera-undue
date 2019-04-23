@@ -124,11 +124,7 @@ ss_res_get_q(StandardStepResults res, int i);
  * the number of nodes in @reach or the last node number in
  * @options->discharge_nodes is not equal to the last node in @reach
  *
- * #compute_fail_error if
- *
- * * the number of nodes in @reach is less than two or
- *
- * * a #xsp_depth_error is encountered during the computation of the solution
+ * #compute_fail_error the number of nodes in @reach is less than two or
  *
  * Returns: a steady state hydraulic solution
  */
