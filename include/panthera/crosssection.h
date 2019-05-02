@@ -54,7 +54,7 @@ typedef struct CrossSectionProps *CrossSectionProps;
  * Returns: None
  */
 extern void
-xsp_free(CrossSectionProps xsp);
+xsp_free (CrossSectionProps xsp);
 
 /**
  * xsp_get:
@@ -68,7 +68,7 @@ xsp_free(CrossSectionProps xsp);
  * Returns: the value of @prop contained in @xsp
  */
 extern double
-xsp_get(CrossSectionProps xsp, xs_prop prop);
+xsp_get (CrossSectionProps xsp, xs_prop prop);
 
 /**
  * CrossSection:
@@ -122,7 +122,7 @@ typedef struct CrossSection *CrossSection;
  * Returns: a new #CrossSection
  */
 extern CrossSection
-xs_new(CoArray ca, int n_roughness, double *roughness, double *z_roughness);
+xs_new (CoArray ca, int n_roughness, double *roughness, double *z_roughness);
 
 /**
  * xs_free:
@@ -137,7 +137,7 @@ xs_new(CoArray ca, int n_roughness, double *roughness, double *z_roughness);
  * Returns: None
  */
 extern void
-xs_free(CrossSection xs);
+xs_free (CrossSection xs);
 
 /**
  * xs_coarray:
@@ -153,7 +153,7 @@ xs_free(CrossSection xs);
  * Returns: a copy of the #CoArray contained in @xs
  */
 CoArray
-xs_coarray(CrossSection xs);
+xs_coarray (CrossSection xs);
 
 /**
  * xs_hydraulic_properties:
@@ -172,6 +172,6 @@ xs_coarray(CrossSection xs);
  * Returns: the hydraulic properties calculated by @xs at depth @h
  */
 extern CrossSectionProps
-xs_hydraulic_properties(CrossSection xs, double h);
+xs_hydraulic_properties (CrossSection xs, double h);
 
 #endif

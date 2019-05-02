@@ -4,14 +4,14 @@
 #include <panthera/secantsolve.h>
 
 SecantSolution *
-secant_solve(int              max_iterations,
-             double           eps,
-             SecantSolverFunc func,
-             void *           func_data,
-             double           x_0)
+secant_solve (int              max_iterations,
+              double           eps,
+              SecantSolverFunc func,
+              void *           func_data,
+              double           x_0)
 {
     if (max_iterations < 1)
-        RAISE(value_arg_error);
+        RAISE (value_arg_error);
 
     int    i;
     double x_new;
@@ -21,9 +21,9 @@ secant_solve(int              max_iterations,
     SecantSolution *solution;
 
     double *assumed =
-        Mem_calloc(max_iterations, sizeof(double), __FILE__, __LINE__);
+        Mem_calloc (max_iterations, sizeof (double), __FILE__, __LINE__);
     double *error =
-        Mem_calloc(max_iterations, sizeof(double), __FILE__, __LINE__);
+        Mem_calloc (max_iterations, sizeof (double), __FILE__, __LINE__);
     double assumed_diff;
     double error_diff;
 
@@ -32,9 +32,9 @@ secant_solve(int              max_iterations,
     solution_found = false;
 
     for (i = 0; i < max_iterations; i++) {
-        x_computed = func(x_new, func_data);
+        x_computed = func (x_new, func_data);
 
-        *(error + i)   = fabs(x_computed - x_new);
+        *(error + i)   = fabs (x_computed - x_new);
         *(assumed + i) = x_new;
 
         if (*(error + i) <= eps) {
@@ -52,13 +52,13 @@ secant_solve(int              max_iterations,
         }
     }
 
-    NEW(solution);
+    NEW (solution);
     solution->n_iterations   = i;
     solution->solution_found = solution_found;
     solution->x_computed     = x_computed;
 
-    Mem_free(assumed, __FILE__, __LINE__);
-    Mem_free(error, __FILE__, __LINE__);
+    Mem_free (assumed, __FILE__, __LINE__);
+    Mem_free (error, __FILE__, __LINE__);
 
     return solution;
 }

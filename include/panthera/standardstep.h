@@ -53,7 +53,7 @@ typedef struct StandardStepResults *StandardStepResults;
  * Returns: None
  */
 void
-ss_res_free(StandardStepResults res);
+ss_res_free (StandardStepResults res);
 
 /**
  * ss_res_size:
@@ -68,7 +68,7 @@ ss_res_free(StandardStepResults res);
  * Returns: the number of nodes in the solution results
  */
 int
-ss_res_size(StandardStepResults res);
+ss_res_size (StandardStepResults res);
 
 /**
  * ss_res_get_wse:
@@ -87,7 +87,7 @@ ss_res_size(StandardStepResults res);
  * Returns: the water surface elevation of a simulation results node
  */
 double
-ss_res_get_wse(StandardStepResults res, int i);
+ss_res_get_wse (StandardStepResults res, int i);
 
 /**
  * ss_res_get_q:
@@ -106,7 +106,7 @@ ss_res_get_wse(StandardStepResults res, int i);
  * Returns: the discharge of a simulation results node
  */
 double
-ss_res_get_q(StandardStepResults res, int i);
+ss_res_get_q (StandardStepResults res, int i);
 
 /**
  * solve_standard_step:
@@ -129,6 +129,6 @@ ss_res_get_q(StandardStepResults res, int i);
  * Returns: a steady state hydraulic solution
  */
 extern StandardStepResults
-solve_standard_step(StandardStepOptions *options, Reach reach);
+solve_standard_step (StandardStepOptions *options, Reach reach);
 
 #endif

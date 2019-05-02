@@ -40,7 +40,7 @@ typedef struct CoArray *CoArray;
  * Returns: a new #CoArray
  */
 extern CoArray
-coarray_new(int n, double *y, double *z);
+coarray_new (int n, double *y, double *z);
 
 /**
  * coarray_copy:
@@ -56,7 +56,7 @@ coarray_new(int n, double *y, double *z);
  * Returns: a copy of @a
  */
 extern CoArray
-coarray_copy(CoArray a);
+coarray_copy (CoArray a);
 
 /**
  * coarray_free:
@@ -71,7 +71,7 @@ coarray_copy(CoArray a);
  * Returns: None
  */
 extern void
-coarray_free(CoArray a);
+coarray_free (CoArray a);
 
 /**
  * coarray_eq:
@@ -85,7 +85,7 @@ coarray_free(CoArray a);
  * Returns: 1 if @a1 and @a2 are equal, 0 if they are not
  */
 extern int
-coarray_eq(CoArray a1, CoArray a2);
+coarray_eq (CoArray a1, CoArray a2);
 
 /**
  * coarray_length:
@@ -98,7 +98,7 @@ coarray_eq(CoArray a1, CoArray a2);
  * Returns: the length of @a
  */
 extern int
-coarray_length(CoArray a);
+coarray_length (CoArray a);
 
 /**
  * coarray_get_y:
@@ -117,7 +117,7 @@ coarray_length(CoArray a);
  * Returns: y-value of @i-th coordinate
  */
 extern double
-coarray_get_y(CoArray a, int i);
+coarray_get_y (CoArray a, int i);
 
 /**
  * coarray_get_z:
@@ -135,7 +135,7 @@ coarray_get_y(CoArray a, int i);
  * Returns: z-value of @i-th coordinate
  */
 extern double
-coarray_get_z(CoArray a, int i);
+coarray_get_z (CoArray a, int i);
 
 /**
  * coarray_subarray_y:
@@ -156,7 +156,7 @@ coarray_get_z(CoArray a, int i);
  * Returns: a subset of @a
  */
 extern CoArray
-coarray_subarray_y(CoArray a, double yhi);
+coarray_subarray_y (CoArray a, double yhi);
 
 /**
  * coarray_subarray_z:
@@ -180,7 +180,7 @@ coarray_subarray_y(CoArray a, double yhi);
  * Returns: a subset of @a
  */
 extern CoArray
-coarray_subarray_z(CoArray a, double zlo, double zhi);
+coarray_subarray_z (CoArray a, double zlo, double zhi);
 
 /**
  * coarray_min_y:
@@ -193,7 +193,7 @@ coarray_subarray_z(CoArray a, double zlo, double zhi);
  * Returns: the minimum y value in @a
  */
 double
-coarray_min_y(CoArray a);
+coarray_min_y (CoArray a);
 
 /**
  * coarray_add_y:
@@ -210,6 +210,6 @@ coarray_min_y(CoArray a);
  * Returns: @a translated in the y-direction by @add_y
  */
 extern CoArray
-coarray_add_y(CoArray a, double add_y);
+coarray_add_y (CoArray a, double add_y);
 
 #endif

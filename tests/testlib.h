@@ -9,5 +9,7 @@
 #include <time.h>
 
 extern const Except_T no_error;
-extern bool test_is_close(double a, double b, double abs_tol, double rel_tol);
-extern CrossSection new_cross_section(void);
+extern bool
+test_is_close (double a, double b, double abs_tol, double rel_tol);
+extern CrossSection
+new_cross_section (void);

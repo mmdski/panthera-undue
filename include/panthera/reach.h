@@ -50,7 +50,7 @@ typedef struct ReachNodeProps *ReachNodeProps;
  * Returns: None
  */
 extern void
-rnp_free(ReachNodeProps rnp);
+rnp_free (ReachNodeProps rnp);
 
 /**
  * rnp_get:
@@ -64,7 +64,7 @@ rnp_free(ReachNodeProps rnp);
  * Returns: The value of @prop contained in @rnp
  */
 extern double
-rnp_get(ReachNodeProps rnp, rn_prop prop);
+rnp_get (ReachNodeProps rnp, rn_prop prop);
 
 /**
  * Reach:
@@ -114,7 +114,7 @@ typedef struct Reach *Reach;
  * Returns: a new reach
  */
 extern Reach
-reach_new(int n_nodes, double *x, double *y, int *xs_number, XSTable xstable);
+reach_new (int n_nodes, double *x, double *y, int *xs_number, XSTable xstable);
 
 /**
  * reach_free:
@@ -131,7 +131,7 @@ reach_new(int n_nodes, double *x, double *y, int *xs_number, XSTable xstable);
  * Returns: None
  */
 extern void
-reach_free(Reach reach);
+reach_free (Reach reach);
 
 /**
  * reach_size:
@@ -146,7 +146,7 @@ reach_free(Reach reach);
  * Returns: size of @reach
  */
 extern int
-reach_size(Reach reach);
+reach_size (Reach reach);
 
 /**
  * reach_node_properties:
@@ -168,7 +168,7 @@ reach_size(Reach reach);
  * discharge @q
  */
 extern ReachNodeProps
-reach_node_properties(Reach reach, int i, double wse, double q);
+reach_node_properties (Reach reach, int i, double wse, double q);
 
 /**
  * reach_stream_distance:
@@ -186,7 +186,7 @@ reach_node_properties(Reach reach, int i, double wse, double q);
  * Returns: None
  */
 extern void
-reach_stream_distance(Reach reach, double *x);
+reach_stream_distance (Reach reach, double *x);
 
 /**
  * reach_elevation:
@@ -204,6 +204,6 @@ reach_stream_distance(Reach reach, double *x);
  * Returns: None
  */
 extern void
-reach_elevation(Reach reach, double *y);
+reach_elevation (Reach reach, double *y);
 
 #endif
