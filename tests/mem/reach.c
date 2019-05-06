@@ -1,5 +1,5 @@
 #include "testlib.h"
-#include <cii/mem.h>
+#include <panthera/cii/mem.h>
 #include <panthera/reach.h>
 #include <stddef.h>
 

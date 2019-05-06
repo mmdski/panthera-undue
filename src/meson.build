@@ -1,5 +1,9 @@
-subdir('cii')
-
+cii_sources = [
+               'cii/assert.c',
+               'cii/except.c',
+               'cii/list.c',
+               'cii/mem.c'
+              ]
 panthera_sources = [
                     'exceptions.c',
                     'crosssection.c',
@@ -7,20 +11,20 @@ panthera_sources = [
                     'xstable.c',
                     'reach.c',
                     'standardstep.c',
-                    'secantsolve.c'
+                    'secantsolve.c',
+                    cii_sources
                     ]
+
 
 if target_machine.system() == 'windows'
     pantheralib = static_library('panthera',
-                             panthera_sources,
+                             [panthera_sources],
                              include_directories : inc,
                              dependencies : m_dep,
-                             link_with : ciilib,
                              name_prefix : '', name_suffix : 'lib')
 else
     pantheralib = static_library('panthera',
                              panthera_sources,
                              include_directories : inc,
-                             dependencies : m_dep,
-                             link_with : ciilib)
+                             dependencies : m_dep)
 endif

@@ -1,47 +1,55 @@
-#include "cii/mem.h"
-#include "cii/assert.h"
-#include "cii/except.h"
+#include "panthera/cii/mem.h"
+#include "panthera/cii/assert.h"
+#include "panthera/cii/except.h"
 #include <stddef.h>
 #include <stdlib.h>
-const Except_T Mem_Failed = {"Allocation failed"};
-void *Mem_alloc(long nbytes, const char *file, int line) {
+const Except_T Mem_Failed = { "Allocation failed" };
+void *
+Mem_alloc (long nbytes, const char *file, int line)
+{
     void *ptr;
-    assert(nbytes > 0);
-    ptr = malloc(nbytes);
+    assert (nbytes > 0);
+    ptr = malloc (nbytes);
     if (ptr == NULL) {
         if (file == NULL)
-            RAISE(Mem_Failed);
+            RAISE (Mem_Failed);
         else
-            Except_raise(&Mem_Failed, file, line);
+            Except_raise (&Mem_Failed, file, line);
     }
     return ptr;
 }
-void *Mem_calloc(long count, long nbytes, const char *file, int line) {
+void *
+Mem_calloc (long count, long nbytes, const char *file, int line)
+{
     void *ptr;
-    assert(count > 0);
-    assert(nbytes > 0);
-    ptr = calloc(count, nbytes);
+    assert (count > 0);
+    assert (nbytes > 0);
+    ptr = calloc (count, nbytes);
     if (ptr == NULL) {
         if (file == NULL)
-            RAISE(Mem_Failed);
+            RAISE (Mem_Failed);
         else
-            Except_raise(&Mem_Failed, file, line);
+            Except_raise (&Mem_Failed, file, line);
     }
     return ptr;
 }
-void Mem_free(void *ptr, const char *file, int line) {
+void
+Mem_free (void *ptr, const char *file, int line)
+{
     if (ptr)
-        free(ptr);
+        free (ptr);
 }
-void *Mem_resize(void *ptr, long nbytes, const char *file, int line) {
-    assert(ptr);
-    assert(nbytes > 0);
-    ptr = realloc(ptr, nbytes);
+void *
+Mem_resize (void *ptr, long nbytes, const char *file, int line)
+{
+    assert (ptr);
+    assert (nbytes > 0);
+    ptr = realloc (ptr, nbytes);
     if (ptr == NULL) {
         if (file == NULL)
-            RAISE(Mem_Failed);
+            RAISE (Mem_Failed);
         else
-            Except_raise(&Mem_Failed, file, line);
+            Except_raise (&Mem_Failed, file, line);
     }
     return ptr;
 }

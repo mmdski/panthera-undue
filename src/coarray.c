@@ -1,6 +1,6 @@
-#include <cii/list.h>
-#include <cii/mem.h>
 #include <math.h>
+#include <panthera/cii/list.h>
+#include <panthera/cii/mem.h>
 #include <panthera/coarray.h>
 #include <panthera/exceptions.h>
 #include <stddef.h>

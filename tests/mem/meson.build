@@ -1,5 +1,5 @@
 include_dirs = [inc, test_inc]
-link_libs = [ciilib, pantheralib, testlib]
+link_libs = [pantheralib, testlib]
 
 xstable_mem_test = executable('xstable_mem_test', 'xstable.c',
                               include_directories : include_dirs,

@@ -1,5 +1,5 @@
 #include "testlib.h"
-#include <cii/mem.h>
+#include <panthera/cii/mem.h>
 #include <panthera/coarray.h>
 #include <panthera/crosssection.h>
 #include <panthera/xstable.h>

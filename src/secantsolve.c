@@ -1,5 +1,5 @@
-#include <cii/mem.h>
 #include <math.h>
+#include <panthera/cii/mem.h>
 #include <panthera/exceptions.h>
 #include <panthera/secantsolve.h>
 

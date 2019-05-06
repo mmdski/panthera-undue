@@ -1,8 +1,8 @@
 #ifndef EXCEPTIONS_INCLUDED
 #define EXCEPTIONS_INCLUDED
 
-#include <cii/assert.h>
-#include <cii/except.h>
+#include <panthera/cii/assert.h>
+#include <panthera/cii/except.h>
 
 /**
  * SECTION: exceptions.h

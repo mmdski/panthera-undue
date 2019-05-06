@@ -1,6 +1,6 @@
-#include <cii/except.h>
-#include <cii/mem.h>
 #include <math.h>
+#include <panthera/cii/except.h>
+#include <panthera/cii/mem.h>
 #include <panthera/crosssection.h>
 #include <panthera/exceptions.h>
 #include <stdbool.h>
