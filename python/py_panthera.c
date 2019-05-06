@@ -7,14 +7,15 @@
 #include <panthera/crosssection.h>
 
 typedef struct {
-    PyObject_HEAD    /*VS freaks out if this line terminates with a semicolon*/
-        PyObject *x; /* x value */
+    PyObject_HEAD    /* */
+        PyObject *x; /* x values */
+    PyObject *    y; /* y values */
 } PyCrossSection;
 
 static void
 PyCrossSection_dealloc (PyCrossSection *self)
 {
-    Py_DECREF (self->x);
+    Py_XDECREF (self->x);
     Py_TYPE (self)->tp_free ((PyObject *) self);
 }
 
@@ -24,6 +25,7 @@ PyCrossSection_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyCrossSection *self;
     self    = (PyCrossSection *) type->tp_alloc (type, 0);
     self->x = NULL;
+    self->y = NULL;
     return (PyObject *) self;
 }
 
@@ -31,18 +33,25 @@ static int
 PyCrossSection_init (PyCrossSection *self, PyObject *args, PyObject *kwds)
 {
     PyObject *x = NULL;
+    PyObject *y = NULL;
 
-    if (!PyArg_ParseTuple (args, "O", &x))
+    if (!PyArg_ParseTuple (args, "OO", &x, &y))
         return -1;
 
     self->x = PyArray_FROM_OTF (x, NPY_DOUBLE, NPY_ARRAY_IN_ARRAY);
     if (self->x == NULL)
         return -1;
+
+    self->y = PyArray_FROM_OTF (y, NPY_DOUBLE, NPY_ARRAY_IN_ARRAY);
+    if (self->y == NULL)
+        return -1;
+
     return 0;
 }
 
 static PyMemberDef PyCrossSection_members[] = {
     { "x", T_OBJECT_EX, offsetof (PyCrossSection, x), 0, "x" },
+    { "y", T_OBJECT_EX, offsetof (PyCrossSection, y), 0, "y" },
     { NULL }
 };
 
@@ -76,9 +85,9 @@ PyInit_panthera (void)
     m = PyModule_Create (&pantheramodule);
     if (m == NULL)
         return NULL;
+    import_array ();
 
     Py_INCREF (&CrossSectionType);
     PyModule_AddObject (m, "CrossSection", (PyObject *) &CrossSectionType);
-    import_array ();
     return m;
 }

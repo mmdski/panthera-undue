@@ -65,6 +65,12 @@ def copy_package_files(source_dir, build_dir):
         dst = os.path.join(build_dir, root)
         shutil.copyfile(src, dst)
 
+    # copy unit test
+    unit_test_name = 'test_pantherapy.py'
+    src = os.path.join(source_dir, unit_test_name)
+    dst = os.path.join(build_dir, unit_test_name)
+    shutil.copyfile(src, dst)
+
     package_dir = 'pantherapy'
     src_package_dir = os.path.join(source_dir, package_dir)
     dst_package_dir = os.path.join(build_dir, package_dir)
@@ -129,9 +135,13 @@ if __name__ == "__main__":
 
     os.chdir(build_dir)
     python_exe = sys.executable
-    if target == 'dist':
-        command = 'bdist_wheel'
+    if target == 'test':
+        command = 'test'
+    elif target == 'build':
+        command = 'build'
     elif target == 'install':
         command = 'install'
+    elif target == 'dist':
+        command = 'bdist_wheel'
 
     subprocess.call([python_exe, 'setup.py', command])
