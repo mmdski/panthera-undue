@@ -4,13 +4,14 @@
 #define NPY_NO_DEPRECATED_API NPY_API_VERSION
 #include <numpy/arrayobject.h>
 
-#include <panthera/coarray.h>
 #include <panthera/crosssection.h>
+#include <panthera/exceptions.h>
 
 typedef struct {
-    PyObject_HEAD    /* */
-        PyObject *y; /* y values */
-    PyObject *    z; /* z values */
+    PyObject_HEAD /* */
+        PyObject *y;
+    PyObject *    z;
+    CrossSection  xs;
 } PyCrossSection;
 
 static void
@@ -18,6 +19,8 @@ PyCrossSection_dealloc (PyCrossSection *self)
 {
     Py_XDECREF (self->y);
     Py_XDECREF (self->z);
+    if (self->xs)
+        xs_free (self->xs);
     Py_TYPE (self)->tp_free ((PyObject *) self);
 }
 
@@ -25,23 +28,33 @@ static PyObject *
 PyCrossSection_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     PyCrossSection *self;
-    self    = (PyCrossSection *) type->tp_alloc (type, 0);
-    self->y = NULL;
-    self->z = NULL;
+    self     = (PyCrossSection *) type->tp_alloc (type, 0);
+    self->y  = NULL;
+    self->z  = NULL;
+    self->xs = NULL;
     return (PyObject *) self;
 }
 
 static int
 PyCrossSection_init (PyCrossSection *self, PyObject *args, PyObject *kwds)
 {
-    int     size;
-    double *y_data;
-    double *z_data;
+    int       y_size;
+    int       z_size;
+    int       n_roughness;
+    double *  y_data;
+    double *  z_data;
+    double *  roughness_data;
+    double *  z_roughness_data;
+    PyObject *xs_roughness;
+    PyObject *xs_z_roughness;
 
-    PyObject *y = NULL;
-    PyObject *z = NULL;
+    PyObject *   y = NULL, *z = NULL, *roughness = NULL, *z_roughness = NULL;
+    static char *kwlist[] = { "y", "z", "roughness", "z_roughness", NULL };
 
-    if (!PyArg_ParseTuple (args, "OO", &y, &z))
+    CoArray ca;
+
+    if (!PyArg_ParseTupleAndKeywords (
+            args, kwds, "OOO|O", kwlist, &y, &z, &roughness, &z_roughness))
         return -1;
 
     self->y = PyArray_FROM_OTF (y, NPY_DOUBLE, NPY_ARRAY_C_CONTIGUOUS);
@@ -52,6 +65,21 @@ PyCrossSection_init (PyCrossSection *self, PyObject *args, PyObject *kwds)
     if (self->z == NULL)
         return -1;
 
+    xs_roughness =
+        PyArray_FROM_OTF (roughness, NPY_DOUBLE, NPY_ARRAY_C_CONTIGUOUS);
+    if (xs_roughness == NULL)
+        return -1;
+
+    /* if z_roughness is specified, get an array */
+    if (z_roughness != NULL) {
+        xs_z_roughness =
+            PyArray_FROM_OTF (z_roughness, NPY_DOUBLE, NPY_ARRAY_C_CONTIGUOUS);
+        if (xs_z_roughness == NULL)
+            return -1;
+    } else {
+        xs_z_roughness = NULL;
+    }
+
     /* y and z must be 1D */
     if (PyArray_NDIM ((PyArrayObject *) self->y) != 1 ||
         PyArray_NDIM ((PyArrayObject *) self->z) != 1) {
@@ -60,25 +88,73 @@ PyCrossSection_init (PyCrossSection *self, PyObject *args, PyObject *kwds)
     }
 
     /* y and z must be the same size */
-    if (PyArray_SIZE ((PyArrayObject *) self->y) !=
-        PyArray_SIZE ((PyArrayObject *) self->z)) {
+    y_size = PyArray_SIZE ((PyArrayObject *) self->y);
+    z_size = PyArray_SIZE ((PyArrayObject *) self->z);
+    if (y_size != z_size) {
         PyErr_SetString (PyExc_ValueError,
                          "the size of y and z must be equal");
         return -1;
     }
 
-    size   = PyArray_SIZE ((PyArrayObject *) self->y);
-    y_data = (double *) PyArray_DATA ((PyArrayObject *) self->y);
-    z_data = (double *) PyArray_DATA ((PyArrayObject *) self->z);
+    /* size must be greater than two */
+    if (y_size < 2) {
+        PyErr_SetString (PyExc_ValueError,
+                         "the length of y and z must be greater than 2");
+        return -1;
+    }
+
+    /* roughness must be greater than equal to zero */
+    n_roughness = PyArray_SIZE ((PyArrayObject *) xs_roughness);
+    if (n_roughness < 1) {
+        PyErr_SetString (PyExc_ValueError,
+                         "there must be at least one roughness value");
+    }
+
+    y_data         = (double *) PyArray_DATA ((PyArrayObject *) self->y);
+    z_data         = (double *) PyArray_DATA ((PyArrayObject *) self->z);
+    roughness_data = (double *) PyArray_DATA ((PyArrayObject *) xs_roughness);
+
+    /* get a pointer to the z_roughness data if z_roughness was specified */
+    if (z_roughness != NULL) {
+        z_roughness_data =
+            (double *) PyArray_DATA ((PyArrayObject *) xs_z_roughness);
+    } else {
+        z_roughness_data = NULL;
+    }
+
+    TRY { ca = coarray_new (y_size, y_data, z_data); }
+    EXCEPT (coarray_z_order_error);
+    {
+        PyErr_SetString (PyExc_ValueError,
+                         "z must be in ascending or equal order");
+        return -1;
+    }
+    END_TRY;
+
+    TRY
+    {
+        self->xs = xs_new (ca, n_roughness, roughness_data, z_roughness_data);
+    }
+    EXCEPT (value_arg_error);
+    {
+        coarray_free (ca);
+        PyErr_SetString (PyExc_ValueError,
+                         "Roughness values must be greater than zero");
+        return -1;
+    }
+    EXCEPT (null_ptr_arg_error);
+    {
+        coarray_free (ca);
+        PyErr_SetString (PyExc_ValueError,
+                         "z_roughess must be specified if len(roughness) > 1");
+        return -1;
+    }
+    END_TRY;
+
+    coarray_free (ca);
 
     return 0;
 }
-
-static PyMemberDef PyCrossSection_members[] = {
-    { "y", T_OBJECT_EX, offsetof (PyCrossSection, y), 0, "y" },
-    { "z", T_OBJECT_EX, offsetof (PyCrossSection, z), 0, "z" },
-    { NULL }
-};
 
 static PyTypeObject CrossSectionType = {
     PyVarObject_HEAD_INIT (NULL, 0).tp_name =
@@ -90,7 +166,6 @@ static PyTypeObject CrossSectionType = {
     .tp_new       = PyCrossSection_new,
     .tp_init      = (initproc) PyCrossSection_init,
     .tp_dealloc   = (destructor) PyCrossSection_dealloc,
-    .tp_members   = PyCrossSection_members,
 };
 
 static PyModuleDef pantheramodule = {
