@@ -32,10 +32,12 @@ static PyObject *
 PyXS_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     PyXSObject *self;
-    self     = (PyXSObject *) type->tp_alloc (type, 0);
-    self->y  = NULL;
-    self->z  = NULL;
-    self->xs = NULL;
+    self              = (PyXSObject *) type->tp_alloc (type, 0);
+    self->y           = NULL;
+    self->z           = NULL;
+    self->roughness   = NULL;
+    self->z_roughness = NULL;
+    self->xs          = NULL;
     return (PyObject *) self;
 }
 
@@ -204,6 +206,68 @@ static PyGetSetDef PyXS_getsetters[] = {
     { NULL }
 };
 
+static PyObject *
+PyXS_area (PyXSObject *self, PyObject *args)
+{
+    int       ndim;
+    PyObject *depth_array   = NULL;
+    PyObject *depth_squeeze = NULL;
+    PyObject *depth_arg     = NULL;
+
+    PyObject *area          = NULL;
+    double *  area_data_ptr = NULL;
+
+    PyArrayIterObject *iter;
+
+    CrossSectionProps xs_props = NULL;
+
+    if (!PyArg_ParseTuple (args, "O", &depth_arg))
+        return NULL;
+
+    depth_array =
+        PyArray_FROM_OTF (depth_arg, NPY_DOUBLE, NPY_ARRAY_C_CONTIGUOUS);
+    if (depth_array == NULL)
+        return NULL;
+
+    depth_squeeze = PyArray_Squeeze ((PyArrayObject *) depth_array);
+    ndim          = PyArray_NDIM ((PyArrayObject *) depth_squeeze);
+    Py_DECREF (depth_array);
+    if (ndim > 1) {
+        PyErr_SetString (
+            PyExc_ValueError,
+            "depth must be squeeze-able to one dimension or less");
+        return NULL;
+    }
+
+    area = PyArray_NewLikeArray (
+        (PyArrayObject *) depth_squeeze, NPY_CORDER, NULL, 1);
+    area_data_ptr = (double *) PyArray_DATA ((PyArrayObject *) area);
+
+    iter = (PyArrayIterObject *) PyArray_IterNew (depth_squeeze);
+    if (iter == NULL) {
+        Py_DECREF (depth_squeeze);
+        Py_DECREF (area);
+        return NULL;
+    }
+
+    while (iter->index < iter->size) {
+        xs_props =
+            xs_hydraulic_properties (self->xs, *(double *) iter->dataptr);
+        *(area_data_ptr + (int) iter->index) = xsp_get (xs_props, XS_AREA);
+        xsp_free (xs_props);
+        PyArray_ITER_NEXT (iter);
+    }
+    Py_DECREF (depth_squeeze);
+
+    return PyArray_Return ((PyArrayObject *) area);
+}
+
+static PyMethodDef PyXS_methods[] = { { "area",
+                                        (PyCFunction) PyXS_area,
+                                        METH_VARARGS,
+                                        "Returns the area for a depth" },
+                                      { NULL } };
+
 static PyTypeObject PyXSType = {
     PyVarObject_HEAD_INIT (NULL, 0).tp_name =
         "pantherapy.panthera.CrossSection",
@@ -214,6 +278,7 @@ static PyTypeObject PyXSType = {
     .tp_new       = PyXS_new,
     .tp_init      = (initproc) PyXS_init,
     .tp_dealloc   = (destructor) PyXS_dealloc,
+    .tp_methods   = PyXS_methods,
     .tp_getset    = PyXS_getsetters,
 };
 
