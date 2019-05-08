@@ -136,12 +136,15 @@ if __name__ == "__main__":
     os.chdir(build_dir)
     python_exe = sys.executable
     if target == 'test':
-        command = 'test'
+        command = ['test']
     elif target == 'build':
-        command = 'build'
+        command = ['build']
     elif target == 'install':
-        command = 'install'
+        command = ['install', '-f']
     elif target == 'dist':
-        command = 'bdist_wheel'
+        command = ['bdist_wheel']
 
-    subprocess.call([python_exe, 'setup.py', command])
+    openargs = [python_exe, 'setup.py']
+    openargs.extend(command)
+
+    subprocess.call(openargs)
