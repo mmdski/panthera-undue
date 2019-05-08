@@ -207,13 +207,13 @@ static PyGetSetDef PyXS_getsetters[] = {
 };
 
 static PyObject *
-PyXS_area (PyXSObject *self, PyObject *args)
+PyXS_property (PyXSObject *self, PyObject *args, xs_prop xs_property)
 {
     PyObject *depth_arg   = NULL;
     PyObject *depth_array = NULL;
 
-    PyObject *area          = NULL;
-    double *  area_data_ptr = NULL;
+    PyObject *property          = NULL;
+    double *  property_data_ptr = NULL;
 
     PyArrayIterObject *iter;
 
@@ -227,14 +227,14 @@ PyXS_area (PyXSObject *self, PyObject *args)
     if (depth_array == NULL)
         return NULL;
 
-    area = PyArray_NewLikeArray (
+    property = PyArray_NewLikeArray (
         (PyArrayObject *) depth_array, NPY_CORDER, NULL, 1);
-    area_data_ptr = (double *) PyArray_DATA ((PyArrayObject *) area);
+    property_data_ptr = (double *) PyArray_DATA ((PyArrayObject *) property);
 
     iter = (PyArrayIterObject *) PyArray_IterNew (depth_array);
     if (iter == NULL) {
         Py_DECREF (depth_array);
-        Py_DECREF (area);
+        Py_DECREF (property);
         return NULL;
     }
 
@@ -243,12 +243,13 @@ PyXS_area (PyXSObject *self, PyObject *args)
         {
             xs_props =
                 xs_hydraulic_properties (self->xs, *(double *) iter->dataptr);
-            *(area_data_ptr + (int) iter->index) = xsp_get (xs_props, XS_AREA);
+            *(property_data_ptr + (int) iter->index) =
+                xsp_get (xs_props, xs_property);
         }
         EXCEPT (xsp_depth_error);
         {
             Py_DECREF (depth_array);
-            Py_DECREF (area);
+            Py_DECREF (property);
             PyErr_SetString (PyExc_ValueError,
                              "Depth values must be greater than or equal to "
                              "lowest z value in cross section");
@@ -261,14 +262,92 @@ PyXS_area (PyXSObject *self, PyObject *args)
     }
     Py_DECREF (depth_array);
 
-    return PyArray_Return ((PyArrayObject *) area);
+    return PyArray_Return ((PyArrayObject *) property);
 }
 
-static PyMethodDef PyXS_methods[] = { { "area",
-                                        (PyCFunction) PyXS_area,
-                                        METH_VARARGS,
-                                        "Returns the area for a depth" },
-                                      { NULL } };
+static PyObject *
+PyXS_area (PyXSObject *self, PyObject *args)
+{
+    return PyXS_property (self, args, XS_AREA);
+}
+
+static PyObject *
+PyXS_wetted_perimeter (PyXSObject *self, PyObject *args)
+{
+    return PyXS_property (self, args, XS_WETTED_PERIMETER);
+}
+
+static PyObject *
+PyXS_top_width (PyXSObject *self, PyObject *args)
+{
+    return PyXS_property (self, args, XS_TOP_WIDTH);
+}
+
+static PyObject *
+PyXS_hydraulic_depth (PyXSObject *self, PyObject *args)
+{
+    return PyXS_property (self, args, XS_HYDRAULIC_DEPTH);
+}
+
+static PyObject *
+PyXS_hydraulic_radius (PyXSObject *self, PyObject *args)
+{
+    return PyXS_property (self, args, XS_HYDRAULIC_RADIUS);
+}
+
+static PyObject *
+PyXS_conveyance (PyXSObject *self, PyObject *args)
+{
+    return PyXS_property (self, args, XS_CONVEYANCE);
+}
+
+static PyObject *
+PyXS_velocity_coeff (PyXSObject *self, PyObject *args)
+{
+    return PyXS_property (self, args, XS_VELOCITY_COEFF);
+}
+
+static PyObject *
+PyXS_critical_flow (PyXSObject *self, PyObject *args)
+{
+    return PyXS_property (self, args, XS_CRITICAL_FLOW);
+}
+
+static PyMethodDef PyXS_methods[] = {
+    { "area",
+      (PyCFunction) PyXS_area,
+      METH_VARARGS,
+      "Returns the area for a depth" },
+    { "wetted_perimeter",
+      (PyCFunction) PyXS_wetted_perimeter,
+      METH_VARARGS,
+      "Returns the wetted perimeter for a depth" },
+    { "top_width",
+      (PyCFunction) PyXS_top_width,
+      METH_VARARGS,
+      "Returns the top width for a depth" },
+    { "hydraulic_depth",
+      (PyCFunction) PyXS_hydraulic_depth,
+      METH_VARARGS,
+      "Returns the hydraulic depth for a depth" },
+    { "hydraulic_radius",
+      (PyCFunction) PyXS_hydraulic_radius,
+      METH_VARARGS,
+      "Returns the hydraulic radius for a depth" },
+    { "conveyance",
+      (PyCFunction) PyXS_conveyance,
+      METH_VARARGS,
+      "Returns the conveyance for a depth" },
+    { "velocity_coeff",
+      (PyCFunction) PyXS_velocity_coeff,
+      METH_VARARGS,
+      "Returns the wetted perimeter for a depth" },
+    { "critical_flow",
+      (PyCFunction) PyXS_critical_flow,
+      METH_VARARGS,
+      "Returns the critical flow for a depth" },
+    { NULL }
+};
 
 static PyTypeObject PyXSType = {
     PyVarObject_HEAD_INIT (NULL, 0).tp_name =
