@@ -60,3 +60,17 @@ class TestCrossSection(unittest.TestCase):
         self.assertRaisesRegex(ValueError, descending_message,
                                CrossSection, *(y, z_descending,
                                                roughness))
+
+    def test_get_values(self):
+        """Test values are equal after init of a CrossSection"""
+
+        y = np.array([1, 0, 0, 0, 1])
+        z = np.array([1, 1, 2, 3, 3])
+        roughness = np.array([0.030])
+        z_roughness = np.array([])
+        xs = CrossSection(y, z, roughness)
+
+        self.assertTrue(np.array_equal(y, xs.y))
+        self.assertTrue(np.array_equal(z, xs.z))
+        self.assertTrue(np.array_equal(roughness, xs.roughness))
+        self.assertIsNone(xs.z_roughness)

@@ -11,24 +11,28 @@ typedef struct {
     PyObject_HEAD /* */
         PyObject *y;
     PyObject *    z;
+    PyObject *    roughness;
+    PyObject *    z_roughness;
     CrossSection  xs;
-} PyCrossSection;
+} PyXSObject;
 
 static void
-PyCrossSection_dealloc (PyCrossSection *self)
+PyXS_dealloc (PyXSObject *self)
 {
     Py_XDECREF (self->y);
     Py_XDECREF (self->z);
+    Py_XDECREF (self->roughness);
+    Py_XDECREF (self->z_roughness);
     if (self->xs)
         xs_free (self->xs);
     Py_TYPE (self)->tp_free ((PyObject *) self);
 }
 
 static PyObject *
-PyCrossSection_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
+PyXS_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    PyCrossSection *self;
-    self     = (PyCrossSection *) type->tp_alloc (type, 0);
+    PyXSObject *self;
+    self     = (PyXSObject *) type->tp_alloc (type, 0);
     self->y  = NULL;
     self->z  = NULL;
     self->xs = NULL;
@@ -36,17 +40,15 @@ PyCrossSection_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
 }
 
 static int
-PyCrossSection_init (PyCrossSection *self, PyObject *args, PyObject *kwds)
+PyXS_init (PyXSObject *self, PyObject *args, PyObject *kwds)
 {
-    int       y_size;
-    int       z_size;
-    int       n_roughness;
-    double *  y_data;
-    double *  z_data;
-    double *  roughness_data;
-    double *  z_roughness_data;
-    PyObject *xs_roughness;
-    PyObject *xs_z_roughness;
+    int     y_size;
+    int     z_size;
+    int     n_roughness;
+    double *y_data;
+    double *z_data;
+    double *roughness_data;
+    double *z_roughness_data;
 
     PyObject *   y = NULL, *z = NULL, *roughness = NULL, *z_roughness = NULL;
     static char *kwlist[] = { "y", "z", "roughness", "z_roughness", NULL };
@@ -65,19 +67,19 @@ PyCrossSection_init (PyCrossSection *self, PyObject *args, PyObject *kwds)
     if (self->z == NULL)
         return -1;
 
-    xs_roughness =
+    self->roughness =
         PyArray_FROM_OTF (roughness, NPY_DOUBLE, NPY_ARRAY_C_CONTIGUOUS);
-    if (xs_roughness == NULL)
+    if (self->roughness == NULL)
         return -1;
 
     /* if z_roughness is specified, get an array */
     if (z_roughness != NULL) {
-        xs_z_roughness =
+        self->z_roughness =
             PyArray_FROM_OTF (z_roughness, NPY_DOUBLE, NPY_ARRAY_C_CONTIGUOUS);
-        if (xs_z_roughness == NULL)
+        if (self->z_roughness == NULL)
             return -1;
     } else {
-        xs_z_roughness = NULL;
+        self->z_roughness = NULL;
     }
 
     /* y and z must be 1D */
@@ -104,20 +106,21 @@ PyCrossSection_init (PyCrossSection *self, PyObject *args, PyObject *kwds)
     }
 
     /* roughness must be greater than equal to zero */
-    n_roughness = PyArray_SIZE ((PyArrayObject *) xs_roughness);
+    n_roughness = PyArray_SIZE ((PyArrayObject *) self->roughness);
     if (n_roughness < 1) {
         PyErr_SetString (PyExc_ValueError,
                          "there must be at least one roughness value");
     }
 
-    y_data         = (double *) PyArray_DATA ((PyArrayObject *) self->y);
-    z_data         = (double *) PyArray_DATA ((PyArrayObject *) self->z);
-    roughness_data = (double *) PyArray_DATA ((PyArrayObject *) xs_roughness);
+    y_data = (double *) PyArray_DATA ((PyArrayObject *) self->y);
+    z_data = (double *) PyArray_DATA ((PyArrayObject *) self->z);
+    roughness_data =
+        (double *) PyArray_DATA ((PyArrayObject *) self->roughness);
 
     /* get a pointer to the z_roughness data if z_roughness was specified */
     if (z_roughness != NULL) {
         z_roughness_data =
-            (double *) PyArray_DATA ((PyArrayObject *) xs_z_roughness);
+            (double *) PyArray_DATA ((PyArrayObject *) self->z_roughness);
     } else {
         z_roughness_data = NULL;
     }
@@ -156,16 +159,62 @@ PyCrossSection_init (PyCrossSection *self, PyObject *args, PyObject *kwds)
     return 0;
 }
 
-static PyTypeObject CrossSectionType = {
+static PyObject *
+PyXS_gety (PyXSObject *self, void *closure)
+{
+    return PyArray_NewCopy ((PyArrayObject *) self->y, NPY_CORDER);
+}
+
+static PyObject *
+PyXS_getz (PyXSObject *self, void *closure)
+{
+    return PyArray_NewCopy ((PyArrayObject *) self->z, NPY_CORDER);
+}
+
+static PyObject *
+PyXS_getroughness (PyXSObject *self, void *closure)
+{
+    return PyArray_NewCopy ((PyArrayObject *) self->roughness, NPY_CORDER);
+}
+
+static PyObject *
+PyXS_getz_roughness (PyXSObject *self, void *closure)
+{
+    if (!self->z_roughness) {
+        Py_INCREF (Py_None);
+        return Py_None;
+    } else
+        return PyArray_NewCopy ((PyArrayObject *) self->z_roughness,
+                                NPY_CORDER);
+}
+
+static PyGetSetDef PyXS_getsetters[] = {
+    { "y", (getter) PyXS_gety, NULL, "y coordinate values", NULL },
+    { "z", (getter) PyXS_getz, NULL, "z coordinate values", NULL },
+    { "roughness",
+      (getter) PyXS_getroughness,
+      NULL,
+      "roughness values",
+      NULL },
+    { "z_roughness",
+      (getter) PyXS_getz_roughness,
+      NULL,
+      "z coordinates of roughness values",
+      NULL },
+    { NULL }
+};
+
+static PyTypeObject PyXSType = {
     PyVarObject_HEAD_INIT (NULL, 0).tp_name =
         "pantherapy.panthera.CrossSection",
     .tp_doc       = "Cross section",
-    .tp_basicsize = sizeof (PyCrossSection),
+    .tp_basicsize = sizeof (PyXSObject),
     .tp_itemsize  = 0,
     .tp_flags     = Py_TPFLAGS_DEFAULT,
-    .tp_new       = PyCrossSection_new,
-    .tp_init      = (initproc) PyCrossSection_init,
-    .tp_dealloc   = (destructor) PyCrossSection_dealloc,
+    .tp_new       = PyXS_new,
+    .tp_init      = (initproc) PyXS_init,
+    .tp_dealloc   = (destructor) PyXS_dealloc,
+    .tp_getset    = PyXS_getsetters,
 };
 
 static PyModuleDef pantheramodule = {
@@ -179,7 +228,7 @@ PyMODINIT_FUNC
 PyInit_panthera (void)
 {
     PyObject *m;
-    if (PyType_Ready (&CrossSectionType) < 0)
+    if (PyType_Ready (&PyXSType) < 0)
         return NULL;
 
     m = PyModule_Create (&pantheramodule);
@@ -187,7 +236,7 @@ PyInit_panthera (void)
         return NULL;
     import_array ();
 
-    Py_INCREF (&CrossSectionType);
-    PyModule_AddObject (m, "CrossSection", (PyObject *) &CrossSectionType);
+    Py_INCREF (&PyXSType);
+    PyModule_AddObject (m, "CrossSection", (PyObject *) &PyXSType);
     return m;
 }
