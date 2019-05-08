@@ -61,7 +61,7 @@ class TestCrossSection(unittest.TestCase):
                                CrossSection, *(y, z_descending,
                                                roughness))
 
-    def test_get_values(self):
+    def test_get_init_values(self):
         """Test values are equal after init of a CrossSection"""
 
         y = np.array([1, 0, 0, 0, 1])
@@ -74,3 +74,25 @@ class TestCrossSection(unittest.TestCase):
         self.assertTrue(np.array_equal(z, xs.z))
         self.assertTrue(np.array_equal(roughness, xs.roughness))
         self.assertIsNone(xs.z_roughness)
+
+    def test_area(self):
+        """Test CrossSection.area"""
+
+        # rectangle
+        y = np.array([1, 0, 0, 0, 1])
+        z = np.array([0, 0, 0.5, 1, 1])
+        roughness = np.array([0.030])
+
+        width = z[-1] - z[0]
+
+        depth = np.linspace(0, 1)
+        expected_area = width * depth
+
+        xs = CrossSection(y, z, roughness)
+        calculated_area = xs.area(depth)
+
+        self.assertTrue(np.array_equal(expected_area, calculated_area))
+        self.assertTrue(xs.area(1) == 1)
+        self.assertRaisesRegex(
+            ValueError, 'Depth values must be greater than or equal to ' +
+            'lowest z value in cross section', xs.area, (-1))

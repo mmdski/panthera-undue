@@ -209,10 +209,8 @@ static PyGetSetDef PyXS_getsetters[] = {
 static PyObject *
 PyXS_area (PyXSObject *self, PyObject *args)
 {
-    int       ndim;
-    PyObject *depth_array   = NULL;
-    PyObject *depth_squeeze = NULL;
-    PyObject *depth_arg     = NULL;
+    PyObject *depth_arg   = NULL;
+    PyObject *depth_array = NULL;
 
     PyObject *area          = NULL;
     double *  area_data_ptr = NULL;
@@ -229,35 +227,39 @@ PyXS_area (PyXSObject *self, PyObject *args)
     if (depth_array == NULL)
         return NULL;
 
-    depth_squeeze = PyArray_Squeeze ((PyArrayObject *) depth_array);
-    ndim          = PyArray_NDIM ((PyArrayObject *) depth_squeeze);
-    Py_DECREF (depth_array);
-    if (ndim > 1) {
-        PyErr_SetString (
-            PyExc_ValueError,
-            "depth must be squeeze-able to one dimension or less");
-        return NULL;
-    }
-
     area = PyArray_NewLikeArray (
-        (PyArrayObject *) depth_squeeze, NPY_CORDER, NULL, 1);
+        (PyArrayObject *) depth_array, NPY_CORDER, NULL, 1);
     area_data_ptr = (double *) PyArray_DATA ((PyArrayObject *) area);
 
-    iter = (PyArrayIterObject *) PyArray_IterNew (depth_squeeze);
+    iter = (PyArrayIterObject *) PyArray_IterNew (depth_array);
     if (iter == NULL) {
-        Py_DECREF (depth_squeeze);
+        Py_DECREF (depth_array);
         Py_DECREF (area);
         return NULL;
     }
 
     while (iter->index < iter->size) {
-        xs_props =
-            xs_hydraulic_properties (self->xs, *(double *) iter->dataptr);
-        *(area_data_ptr + (int) iter->index) = xsp_get (xs_props, XS_AREA);
+        TRY
+        {
+            xs_props =
+                xs_hydraulic_properties (self->xs, *(double *) iter->dataptr);
+            *(area_data_ptr + (int) iter->index) = xsp_get (xs_props, XS_AREA);
+        }
+        EXCEPT (xsp_depth_error);
+        {
+            Py_DECREF (depth_array);
+            Py_DECREF (area);
+            PyErr_SetString (PyExc_ValueError,
+                             "Depth values must be greater than or equal to "
+                             "lowest z value in cross section");
+            return NULL;
+        }
+        END_TRY;
+
         xsp_free (xs_props);
         PyArray_ITER_NEXT (iter);
     }
-    Py_DECREF (depth_squeeze);
+    Py_DECREF (depth_array);
 
     return PyArray_Return ((PyArrayObject *) area);
 }
