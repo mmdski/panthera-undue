@@ -156,7 +156,7 @@ test_normal_flow_ds (void)
     xstable_free (xstable);
 }
 
-/* the solution to this problem is table 6-2 of Open-Channnel Flow, 2nd ed. by
+/* the solution to this problem is table 6-2 of Open-Channel Flow, 2nd ed. by
  * Chaudhry (2008)
  */
 void
