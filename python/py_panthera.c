@@ -324,22 +324,22 @@ PyXS_wp_array (PyXSObject *self, PyObject *args)
     PyObject *z;
     PyObject *y;
 
-    int      i;
-    int      nd = 1;
-    int      size;
-    npy_intp ndims[0];
-    double * y_data_ptr;
-    double * z_data_ptr;
+    int       i;
+    int       nd = 1;
+    int       size;
+    npy_intp *ndims;
+    double *  y_data_ptr;
+    double *  z_data_ptr;
 
     PyObject *rslt;
 
     if (!PyArg_ParseTuple (args, "d", &depth))
         return NULL;
 
-    ca       = xs_coarray (self->xs);
-    wp       = coarray_subarray_y (ca, depth);
-    size     = coarray_length (wp);
-    ndims[0] = size;
+    ca     = xs_coarray (self->xs);
+    wp     = coarray_subarray_y (ca, depth);
+    size   = coarray_length (wp);
+    *ndims = size;
 
     y          = PyArray_SimpleNew (nd, ndims, NPY_DOUBLE);
     y_data_ptr = PyArray_DATA ((PyArrayObject *) y);
