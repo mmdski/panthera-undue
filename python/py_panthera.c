@@ -313,6 +313,53 @@ PyXS_critical_flow (PyXSObject *self, PyObject *args)
     return PyXS_property (self, args, XS_CRITICAL_FLOW);
 }
 
+static PyObject *
+PyXS_wp_array (PyXSObject *self, PyObject *args)
+{
+    double depth;
+
+    CoArray ca;
+    CoArray wp;
+
+    PyObject *z;
+    PyObject *y;
+
+    int      i;
+    int      nd = 1;
+    int      size;
+    npy_intp ndims[0];
+    double * y_data_ptr;
+    double * z_data_ptr;
+
+    PyObject *rslt;
+
+    if (!PyArg_ParseTuple (args, "d", &depth))
+        return NULL;
+
+    ca       = xs_coarray (self->xs);
+    wp       = coarray_subarray_y (ca, depth);
+    size     = coarray_length (wp);
+    ndims[0] = size;
+
+    y          = PyArray_SimpleNew (nd, ndims, NPY_DOUBLE);
+    y_data_ptr = PyArray_DATA ((PyArrayObject *) y);
+
+    z          = PyArray_SimpleNew (nd, ndims, NPY_DOUBLE);
+    z_data_ptr = PyArray_DATA ((PyArrayObject *) z);
+
+    for (i = 0; i < size; i++) {
+        *(y_data_ptr + i) = coarray_get_y (wp, i);
+        *(z_data_ptr + i) = coarray_get_z (wp, i);
+    }
+    coarray_free (ca);
+    coarray_free (wp);
+
+    if (!(rslt = Py_BuildValue ("(OO)", y, z)))
+        return NULL;
+
+    return rslt;
+}
+
 static PyMethodDef PyXS_methods[] = {
     { "area",
       (PyCFunction) PyXS_area,
@@ -346,6 +393,10 @@ static PyMethodDef PyXS_methods[] = {
       (PyCFunction) PyXS_critical_flow,
       METH_VARARGS,
       "Returns the critical flow for a depth" },
+    { "wp_array",
+      (PyCFunction) PyXS_wp_array,
+      METH_VARARGS,
+      "Returns y, z ndarrays of wetted perimeter for a depth" },
     { NULL }
 };
 
