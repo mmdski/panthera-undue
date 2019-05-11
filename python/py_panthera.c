@@ -324,33 +324,86 @@ PyXS_wp_array (PyXSObject *self, PyObject *args)
     PyObject *z;
     PyObject *y;
 
-    int       i;
-    int       nd = 1;
-    int       size;
-    npy_intp *ndims;
-    double *  y_data_ptr;
-    double *  z_data_ptr;
+    int      i;
+    int      nd = 1;
+    int      size;
+    npy_intp ndims;
+    double * y_data_ptr;
+    double * z_data_ptr;
 
     PyObject *rslt;
 
     if (!PyArg_ParseTuple (args, "d", &depth))
         return NULL;
 
-    ca     = xs_coarray (self->xs);
-    wp     = coarray_subarray_y (ca, depth);
-    size   = coarray_length (wp);
-    *ndims = size;
+    ca    = xs_coarray (self->xs);
+    wp    = coarray_subarray_y (ca, depth);
+    size  = coarray_length (wp);
+    ndims = size;
 
-    y          = PyArray_SimpleNew (nd, ndims, NPY_DOUBLE);
+    y          = PyArray_SimpleNew (nd, &ndims, NPY_DOUBLE);
     y_data_ptr = PyArray_DATA ((PyArrayObject *) y);
 
-    z          = PyArray_SimpleNew (nd, ndims, NPY_DOUBLE);
+    z          = PyArray_SimpleNew (nd, &ndims, NPY_DOUBLE);
     z_data_ptr = PyArray_DATA ((PyArrayObject *) z);
 
     for (i = 0; i < size; i++) {
         *(y_data_ptr + i) = coarray_get_y (wp, i);
         *(z_data_ptr + i) = coarray_get_z (wp, i);
     }
+    coarray_free (ca);
+    coarray_free (wp);
+
+    if (!(rslt = Py_BuildValue ("(OO)", y, z)))
+        return NULL;
+
+    return rslt;
+}
+
+static PyObject *
+PyXS_tw_array (PyXSObject *self, PyObject *args)
+{
+    double depth;
+
+    CoArray ca;
+    CoArray wp;
+
+    PyObject *z;
+    PyObject *y;
+
+    int      i;
+    int      nd = 1;
+    int      size;
+    npy_intp ndims;
+    double   z_wp;
+    double * y_data_ptr;
+    double * z_data_ptr;
+
+    PyObject *rslt;
+
+    if (!PyArg_ParseTuple (args, "d", &depth))
+        return NULL;
+
+    ca    = xs_coarray (self->xs);
+    wp    = coarray_subarray_y (ca, depth);
+    size  = coarray_length (wp);
+    ndims = size;
+
+    y          = PyArray_SimpleNew (nd, &ndims, NPY_DOUBLE);
+    y_data_ptr = PyArray_DATA ((PyArrayObject *) y);
+
+    z          = PyArray_SimpleNew (nd, &ndims, NPY_DOUBLE);
+    z_data_ptr = PyArray_DATA ((PyArrayObject *) z);
+
+    for (i = 0; i < size; i++) {
+        z_wp              = coarray_get_z (wp, i);
+        *(z_data_ptr + i) = z_wp;
+        if (isnan (z_wp))
+            *(y_data_ptr + i) = NAN;
+        else
+            *(y_data_ptr + i) = depth;
+    }
+
     coarray_free (ca);
     coarray_free (wp);
 
@@ -397,6 +450,10 @@ static PyMethodDef PyXS_methods[] = {
       (PyCFunction) PyXS_wp_array,
       METH_VARARGS,
       "Returns y, z ndarrays of wetted perimeter for a depth" },
+    { "tw_array",
+      (PyCFunction) PyXS_tw_array,
+      METH_VARARGS,
+      "Returns y, z ndarrays of top width for a depth" },
     { NULL }
 };
 
