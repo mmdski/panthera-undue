@@ -22,8 +22,12 @@ Open-channel hydraulics library
 [panthera GitHub project](https://github.com/mmdski/panthera-undue)
 
 ## Status
-It's working!
+Normal depth computation using standard step method
 ![It's working!](images/normalresults.png)
+
+Cross section plot
+![Cross section plot](images/xsplot.png)
+
 
 ## Features
 
