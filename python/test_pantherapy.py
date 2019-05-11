@@ -69,11 +69,10 @@ class TestCrossSection(unittest.TestCase):
         roughness = np.array([0.030])
         z_roughness = np.array([])
         xs = CrossSection(y, z, roughness)
+        y_xs, z_xs = xs.coordinates()
 
-        self.assertTrue(np.array_equal(y, xs.y))
-        self.assertTrue(np.array_equal(z, xs.z))
-        self.assertTrue(np.array_equal(roughness, xs.roughness))
-        self.assertIsNone(xs.z_roughness)
+        self.assertTrue(np.array_equal(y, y_xs))
+        self.assertTrue(np.array_equal(z, z_xs))
 
     def test_area(self):
         """Test CrossSection.area"""
