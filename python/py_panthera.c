@@ -162,51 +162,6 @@ PyXS_init (PyXSObject *self, PyObject *args, PyObject *kwds)
 }
 
 static PyObject *
-PyXS_gety (PyXSObject *self, void *closure)
-{
-    return PyArray_NewCopy ((PyArrayObject *) self->y, NPY_CORDER);
-}
-
-static PyObject *
-PyXS_getz (PyXSObject *self, void *closure)
-{
-    return PyArray_NewCopy ((PyArrayObject *) self->z, NPY_CORDER);
-}
-
-static PyObject *
-PyXS_getroughness (PyXSObject *self, void *closure)
-{
-    return PyArray_NewCopy ((PyArrayObject *) self->roughness, NPY_CORDER);
-}
-
-static PyObject *
-PyXS_getz_roughness (PyXSObject *self, void *closure)
-{
-    if (!self->z_roughness) {
-        Py_INCREF (Py_None);
-        return Py_None;
-    } else
-        return PyArray_NewCopy ((PyArrayObject *) self->z_roughness,
-                                NPY_CORDER);
-}
-
-static PyGetSetDef PyXS_getsetters[] = {
-    { "y", (getter) PyXS_gety, NULL, "y coordinate values", NULL },
-    { "z", (getter) PyXS_getz, NULL, "z coordinate values", NULL },
-    { "roughness",
-      (getter) PyXS_getroughness,
-      NULL,
-      "roughness values",
-      NULL },
-    { "z_roughness",
-      (getter) PyXS_getz_roughness,
-      NULL,
-      "z coordinates of roughness values",
-      NULL },
-    { NULL }
-};
-
-static PyObject *
 PyXS_property (PyXSObject *self, PyObject *args, xs_prop xs_property)
 {
     PyObject *depth_arg   = NULL;
@@ -272,15 +227,30 @@ PyXS_area (PyXSObject *self, PyObject *args)
 }
 
 static PyObject *
-PyXS_wetted_perimeter (PyXSObject *self, PyObject *args)
+PyXS_conveyance (PyXSObject *self, PyObject *args)
 {
-    return PyXS_property (self, args, XS_WETTED_PERIMETER);
+    return PyXS_property (self, args, XS_CONVEYANCE);
 }
 
 static PyObject *
-PyXS_top_width (PyXSObject *self, PyObject *args)
+PyXS_coordinates (PyXSObject *self, PyObject *Py_UNUSED (ignored))
 {
-    return PyXS_property (self, args, XS_TOP_WIDTH);
+    PyObject *y;
+    PyObject *z;
+    PyObject *rslt;
+
+    y = PyArray_NewCopy ((PyArrayObject *) self->y, NPY_CORDER);
+    z = PyArray_NewCopy ((PyArrayObject *) self->z, NPY_CORDER);
+    if (!(rslt = Py_BuildValue ("(OO)", y, z)))
+        return NULL;
+
+    return rslt;
+}
+
+static PyObject *
+PyXS_critical_flow (PyXSObject *self, PyObject *args)
+{
+    return PyXS_property (self, args, XS_CRITICAL_FLOW);
 }
 
 static PyObject *
@@ -296,68 +266,9 @@ PyXS_hydraulic_radius (PyXSObject *self, PyObject *args)
 }
 
 static PyObject *
-PyXS_conveyance (PyXSObject *self, PyObject *args)
+PyXS_top_width (PyXSObject *self, PyObject *args)
 {
-    return PyXS_property (self, args, XS_CONVEYANCE);
-}
-
-static PyObject *
-PyXS_velocity_coeff (PyXSObject *self, PyObject *args)
-{
-    return PyXS_property (self, args, XS_VELOCITY_COEFF);
-}
-
-static PyObject *
-PyXS_critical_flow (PyXSObject *self, PyObject *args)
-{
-    return PyXS_property (self, args, XS_CRITICAL_FLOW);
-}
-
-static PyObject *
-PyXS_wp_array (PyXSObject *self, PyObject *args)
-{
-    double depth;
-
-    CoArray ca;
-    CoArray wp;
-
-    PyObject *z;
-    PyObject *y;
-
-    int      i;
-    int      nd = 1;
-    int      size;
-    npy_intp ndims;
-    double * y_data_ptr;
-    double * z_data_ptr;
-
-    PyObject *rslt;
-
-    if (!PyArg_ParseTuple (args, "d", &depth))
-        return NULL;
-
-    ca    = xs_coarray (self->xs);
-    wp    = coarray_subarray_y (ca, depth);
-    size  = coarray_length (wp);
-    ndims = size;
-
-    y          = PyArray_SimpleNew (nd, &ndims, NPY_DOUBLE);
-    y_data_ptr = PyArray_DATA ((PyArrayObject *) y);
-
-    z          = PyArray_SimpleNew (nd, &ndims, NPY_DOUBLE);
-    z_data_ptr = PyArray_DATA ((PyArrayObject *) z);
-
-    for (i = 0; i < size; i++) {
-        *(y_data_ptr + i) = coarray_get_y (wp, i);
-        *(z_data_ptr + i) = coarray_get_z (wp, i);
-    }
-    coarray_free (ca);
-    coarray_free (wp);
-
-    if (!(rslt = Py_BuildValue ("(OO)", y, z)))
-        return NULL;
-
-    return rslt;
+    return PyXS_property (self, args, XS_TOP_WIDTH);
 }
 
 static PyObject *
@@ -413,19 +324,91 @@ PyXS_tw_array (PyXSObject *self, PyObject *args)
     return rslt;
 }
 
+static PyObject *
+PyXS_velocity_coeff (PyXSObject *self, PyObject *args)
+{
+    return PyXS_property (self, args, XS_VELOCITY_COEFF);
+}
+
+static PyObject *
+PyXS_wetted_perimeter (PyXSObject *self, PyObject *args)
+{
+    return PyXS_property (self, args, XS_WETTED_PERIMETER);
+}
+
+static PyObject *
+PyXS_wp_array (PyXSObject *self, PyObject *args)
+{
+    double depth;
+
+    CoArray ca;
+    CoArray wp;
+
+    PyObject *z;
+    PyObject *y;
+
+    int      i;
+    int      nd = 1;
+    int      size;
+    npy_intp ndims;
+    double * y_data_ptr;
+    double * z_data_ptr;
+
+    PyObject *rslt;
+
+    if (!PyArg_ParseTuple (args, "d", &depth))
+        return NULL;
+
+    ca    = xs_coarray (self->xs);
+    wp    = coarray_subarray_y (ca, depth);
+    size  = coarray_length (wp);
+    ndims = size;
+
+    y          = PyArray_SimpleNew (nd, &ndims, NPY_DOUBLE);
+    y_data_ptr = PyArray_DATA ((PyArrayObject *) y);
+
+    z          = PyArray_SimpleNew (nd, &ndims, NPY_DOUBLE);
+    z_data_ptr = PyArray_DATA ((PyArrayObject *) z);
+
+    for (i = 0; i < size; i++) {
+        *(y_data_ptr + i) = coarray_get_y (wp, i);
+        *(z_data_ptr + i) = coarray_get_z (wp, i);
+    }
+    coarray_free (ca);
+    coarray_free (wp);
+
+    if (!(rslt = Py_BuildValue ("(OO)", y, z)))
+        return NULL;
+
+    return rslt;
+}
+
 static PyMethodDef PyXS_methods[] = {
     { "area",
       (PyCFunction) PyXS_area,
       METH_VARARGS,
       "Returns the area for a depth" },
-    { "wetted_perimeter",
-      (PyCFunction) PyXS_wetted_perimeter,
+
+    { "conveyance",
+      (PyCFunction) PyXS_conveyance,
       METH_VARARGS,
-      "Returns the wetted perimeter for a depth" },
+      "Returns the conveyance for a depth" },
+    { "critical_flow",
+      (PyCFunction) PyXS_critical_flow,
+      METH_VARARGS,
+      "Returns the critical flow for a depth" },
+    { "coordinates",
+      (PyCFunction) PyXS_coordinates,
+      METH_VARARGS,
+      "Returns y, z ndarrays of cross section coordinates" },
     { "top_width",
       (PyCFunction) PyXS_top_width,
       METH_VARARGS,
       "Returns the top width for a depth" },
+    { "tw_array",
+      (PyCFunction) PyXS_tw_array,
+      METH_VARARGS,
+      "Returns y, z ndarrays of top width for a depth" },
     { "hydraulic_depth",
       (PyCFunction) PyXS_hydraulic_depth,
       METH_VARARGS,
@@ -434,26 +417,18 @@ static PyMethodDef PyXS_methods[] = {
       (PyCFunction) PyXS_hydraulic_radius,
       METH_VARARGS,
       "Returns the hydraulic radius for a depth" },
-    { "conveyance",
-      (PyCFunction) PyXS_conveyance,
-      METH_VARARGS,
-      "Returns the conveyance for a depth" },
     { "velocity_coeff",
       (PyCFunction) PyXS_velocity_coeff,
       METH_VARARGS,
       "Returns the wetted perimeter for a depth" },
-    { "critical_flow",
-      (PyCFunction) PyXS_critical_flow,
+    { "wetted_perimeter",
+      (PyCFunction) PyXS_wetted_perimeter,
       METH_VARARGS,
-      "Returns the critical flow for a depth" },
+      "Returns the wetted perimeter for a depth" },
     { "wp_array",
       (PyCFunction) PyXS_wp_array,
       METH_VARARGS,
       "Returns y, z ndarrays of wetted perimeter for a depth" },
-    { "tw_array",
-      (PyCFunction) PyXS_tw_array,
-      METH_VARARGS,
-      "Returns y, z ndarrays of top width for a depth" },
     { NULL }
 };
 
@@ -468,7 +443,6 @@ static PyTypeObject PyXSType = {
     .tp_init      = (initproc) PyXS_init,
     .tp_dealloc   = (destructor) PyXS_dealloc,
     .tp_methods   = PyXS_methods,
-    .tp_getset    = PyXS_getsetters,
 };
 
 static PyModuleDef pantheramodule = {
