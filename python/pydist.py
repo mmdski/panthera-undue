@@ -33,7 +33,7 @@ setup(name="pantherapy",
     license="GPLv3",
     packages=["pantherapy"],
     ext_modules=[xsmodule],
-    install_requires = ["numpy"]
+    install_requires = ["numpy", "matplotlib"]
 )
 """
 
