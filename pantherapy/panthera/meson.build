@@ -10,11 +10,4 @@ m_dep = cc.find_library('m', required : false)
 subdir('src')
 subdir('app')
 
-pymod = import('python')
-py_installation = pymod.find_installation('python3', required : false)
-if py_installation.found()
-    pydep = py_installation.dependency()
-    subdir('python')
-endif
-
 subdir('tests')
