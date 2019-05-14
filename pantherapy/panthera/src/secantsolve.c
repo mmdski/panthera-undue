@@ -15,7 +15,7 @@ secant_solve (int              max_iterations,
 
     int    i;
     double x_new;
-    double x_computed;
+    double x_computed = NAN;
     bool   solution_found;
 
     SecantSolution *solution;
