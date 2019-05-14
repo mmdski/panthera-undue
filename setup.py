@@ -11,7 +11,7 @@ panthera_src = glob.glob('pantherapy/panthera/src/**/*.c', recursive=True)
 pantherapy_src = ['pantherapy/py_panthera.c']
 pantherapy_src.extend(panthera_src)
 
-xsmodule = Extension('pantherapy.panthera',
+panthera = Extension('pantherapy.panthera',
                      sources=pantherapy_src,
                      include_dirs=[
                          panthera_inc,
@@ -30,6 +30,6 @@ setup(name="pantherapy",
       description="1-D hydraulics computation library",
       license="GPLv3",
       packages=["pantherapy"],
-      ext_modules=[xsmodule],
+      ext_modules=[panthera],
       install_requires=["numpy", "matplotlib"]
       )
