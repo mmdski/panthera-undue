@@ -9,6 +9,7 @@ class CrossSectionPlot:
     Parameters
     ----------
     cross_section : pantherapy.CrossSection
+        Cross section to plot
 
     """
 
@@ -22,17 +23,18 @@ class CrossSectionPlot:
         Parameters
         ----------
         h : float, optional
-            Water surface elevation relative to cross section coordinate 
-            elevations, optional (default is None). If not None, wetted 
-            properties will be plotted if h is greater than the lowest 
+            Water surface elevation relative to cross section coordinate
+            elevations, optional (default is None). If not None, wetted
+            properties will be plotted if h is greater than the lowest
             y-coordinate in the cross section.
         ax : matplotlib.axes.Axes, optional
-            Axes to plot on, optional (the default is None, which creates a 
+            Plot axes, optional (the default is None, which creates a
             new Axes instance).
 
         Returns
         -------
         matplotlib.axes.Axes
+            Plot axes
 
         """
 

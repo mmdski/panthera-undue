@@ -432,10 +432,25 @@ static PyMethodDef PyXS_methods[] = {
     { NULL }
 };
 
+char xs_doc[] = "Hydraulic cross section\n\n"
+                "Parameters\n"
+                "----------\n"
+                "y : numpy.ndarray\n"
+                "    vertical values of cross section coordinates\n"
+                "z : numpy.ndarray\n"
+                "    lateral values of cross section coordinates\n"
+                "roughness : numpy.ndarray\n"
+                "    Manning coefficient for cross section subsections\n"
+                "z_roughness : numpy.ndarray, optional\n"
+                "    z values of cross section subsections defined by\n"
+                "    roughness values (optional). If `roughness` contains\n"
+                "    more than one element, `z_roughness` must be passed and\n"
+                "    contain one less element than `roughness`.\n";
+
 static PyTypeObject PyXSType = {
     PyVarObject_HEAD_INIT (NULL, 0).tp_name =
         "pantherapy.panthera.CrossSection",
-    .tp_doc       = "Cross section",
+    .tp_doc       = xs_doc,
     .tp_basicsize = sizeof (PyXSObject),
     .tp_itemsize  = 0,
     .tp_flags     = Py_TPFLAGS_DEFAULT,
