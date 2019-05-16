@@ -272,9 +272,13 @@ check_simple_xsp (xs_fixture *xsf, xs_test_data test_data, double depth)
     if (test_data.n_roughness == 1) {
         double calculated_conveyance = xsp_get (xsp, XS_CONVEYANCE);
         double expected_conveyance   = calc_conveyance (test_data, depth);
-        is_close                     = test_is_close (
-            calculated_conveyance, expected_conveyance, ABS_TOL, REL_TOL);
-        g_assert_true (is_close);
+        if (calculated_area == 0 && calculated_wp == 0) {
+            g_assert_true (isnan (calculated_conveyance));
+        } else {
+            is_close = test_is_close (
+                calculated_conveyance, expected_conveyance, ABS_TOL, REL_TOL);
+            g_assert_true (is_close);
+        }
 
         double calculated_velocity_coeff = xsp_get (xsp, XS_VELOCITY_COEFF);
         double expected_velocity_coeff   = 1;

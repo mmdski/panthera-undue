@@ -177,9 +177,9 @@ ss_hydraulic_properties (Subsection ss, double y)
         top_width += z2 - z1;
     }
 
-    if (area <= 0) {
-        conveyance       = 0;
-        hydraulic_radius = 0;
+    if (area == 0 && perimeter == 0) {
+        hydraulic_radius = NAN;
+        conveyance       = NAN;
     } else {
         hydraulic_radius = area / perimeter;
         conveyance = 1 / ss->n * area * pow (hydraulic_radius, 2.0 / 3.0);
