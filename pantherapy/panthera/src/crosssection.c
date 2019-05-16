@@ -177,13 +177,8 @@ ss_hydraulic_properties (Subsection ss, double y)
         top_width += z2 - z1;
     }
 
-    if (area == 0 && perimeter == 0) {
-        hydraulic_radius = NAN;
-        conveyance       = NAN;
-    } else {
-        hydraulic_radius = area / perimeter;
-        conveyance = 1 / ss->n * area * pow (hydraulic_radius, 2.0 / 3.0);
-    }
+    hydraulic_radius = area / perimeter;
+    conveyance       = 1 / ss->n * area * pow (hydraulic_radius, 2.0 / 3.0);
 
     xsp_set (xsp, XS_AREA, area);
     xsp_set (xsp, XS_TOP_WIDTH, top_width);
@@ -289,64 +284,54 @@ _calc_hydraulic_properties (CrossSection xs, double h)
     int n_subsections = xs->n_subsections;
     int i;
 
-    double a    = 0; /* area */
-    double a_ss = 0; /* subsection area */
-    double t    = 0; /* top width */
-    double w    = 0; /* wetted perimeter */
-    double d;        /* hydraulic depth */
-    double r;        /* hydraulic radius */
-    double k    = 0; /* conveyance */
-    double k_ss = 0; /* subsection conveyance */
-    double sum  = 0; /* sum for velocity coefficient */
-    double alpha;    /* velocity coefficient */
-    double qc;       /* critical flow */
+    double area        = 0; /* area */
+    double area_ss     = 0; /* subsection area */
+    double top_width   = 0; /* top width */
+    double w_perimeter = 0; /* wetted perimeter */
+    double h_depth;         /* hydraulic depth */
+    double h_radius;        /* hydraulic radius */
+    double conveyance = 0;  /* conveyance */
+    double k_ss       = 0;  /* subsection conveyance */
+    double sum        = 0;  /* sum for velocity coefficient */
+    double alpha;           /* velocity coefficient */
+    double crit_flow;       /* critical flow */
 
     CrossSectionProps xsp = xsp_new ();
     CrossSectionProps xsp_ss;
     Subsection        ss;
 
     for (i = 0; i < n_subsections; i++) {
-        ss     = *(xs->ss + i);
-        xsp_ss = ss_hydraulic_properties (ss, h);
-        a_ss   = xsp_get (xsp_ss, XS_AREA);
-        k_ss   = xsp_get (xsp_ss, XS_CONVEYANCE);
-        t += xsp_get (xsp_ss, XS_TOP_WIDTH);
-        w += xsp_get (xsp_ss, XS_WETTED_PERIMETER);
+        ss      = *(xs->ss + i);
+        xsp_ss  = ss_hydraulic_properties (ss, h);
+        area_ss = xsp_get (xsp_ss, XS_AREA);
+        k_ss    = xsp_get (xsp_ss, XS_CONVEYANCE);
+        top_width += xsp_get (xsp_ss, XS_TOP_WIDTH);
+        w_perimeter += xsp_get (xsp_ss, XS_WETTED_PERIMETER);
 
-        if (a_ss > 0) {
-            sum += (k_ss * k_ss * k_ss) / (a_ss * a_ss);
+        if (area_ss > 0) {
+            sum += (k_ss * k_ss * k_ss) / (area_ss * area_ss);
         }
 
         xsp_free (xsp_ss);
 
-        a += a_ss;
-        k += k_ss;
+        area += area_ss;
+        conveyance += k_ss;
     }
 
-    /* if area is zero, assume top_width and perimeter are also 0 and set
-     * hydraulic_depth and hydraulic_radius to 0.
-     */
-    if (a <= 0) {
-        d     = 0;
-        r     = 0;
-        alpha = NAN;
-        qc    = NAN;
-    } else {
-        d     = a / t;
-        r     = a / w;
-        alpha = (a * a) * sum / (k * k * k);
-        qc    = a * sqrt (GRAVITY * a / (alpha * t));
-    }
+    h_depth   = area / top_width;
+    h_radius  = area / w_perimeter;
+    alpha     = (area * area) * sum / (conveyance * conveyance * conveyance);
+    crit_flow = area * sqrt (GRAVITY * area / (alpha * top_width));
 
     xsp_set (xsp, XS_DEPTH, h);
-    xsp_set (xsp, XS_AREA, a);
-    xsp_set (xsp, XS_TOP_WIDTH, t);
-    xsp_set (xsp, XS_WETTED_PERIMETER, w);
-    xsp_set (xsp, XS_HYDRAULIC_DEPTH, d);
-    xsp_set (xsp, XS_HYDRAULIC_RADIUS, r);
-    xsp_set (xsp, XS_CONVEYANCE, k);
+    xsp_set (xsp, XS_AREA, area);
+    xsp_set (xsp, XS_TOP_WIDTH, top_width);
+    xsp_set (xsp, XS_WETTED_PERIMETER, w_perimeter);
+    xsp_set (xsp, XS_HYDRAULIC_DEPTH, h_depth);
+    xsp_set (xsp, XS_HYDRAULIC_RADIUS, h_radius);
+    xsp_set (xsp, XS_CONVEYANCE, conveyance);
     xsp_set (xsp, XS_VELOCITY_COEFF, alpha);
-    xsp_set (xsp, XS_CRITICAL_FLOW, qc);
+    xsp_set (xsp, XS_CRITICAL_FLOW, crit_flow);
 
     return xsp;
 }
@@ -416,7 +401,8 @@ xs_new (CoArray ca, int n_roughness, double *roughness, double *z_roughness)
 
     xs->ca = coarray_copy (ca);
 
-    /* initialize a results cache to store depths up to 2 * DEPTH_INTERP_DELTA
+    /* initialize a results cache to store depths up to 2 *
+     * DEPTH_INTERP_DELTA
      */
     xs->results = res_new (1);
 

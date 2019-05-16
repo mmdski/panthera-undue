@@ -260,13 +260,24 @@ check_simple_xsp (xs_fixture *xsf, xs_test_data test_data, double depth)
 
     double calculated_hd = xsp_get (xsp, XS_HYDRAULIC_DEPTH);
     double expected_hd   = calc_hydraulic_depth (test_data, depth);
-    is_close = test_is_close (calculated_hd, expected_hd, ABS_TOL, REL_TOL);
-    g_assert_true (is_close);
+    if (calculated_area == 0 && calculated_tw == 0)
+        g_assert_true (isnan (calculated_hd));
+    else {
+        is_close =
+            test_is_close (calculated_hd, expected_hd, ABS_TOL, REL_TOL);
+        g_assert_true (is_close);
+    }
 
     double calculated_hr = xsp_get (xsp, XS_HYDRAULIC_RADIUS);
     double expected_hr   = calc_hydraulic_radius (test_data, depth);
-    is_close = test_is_close (calculated_hr, expected_hr, ABS_TOL, REL_TOL);
-    g_assert_true (is_close);
+
+    if (calculated_area == 0 && calculated_tw == 0)
+        g_assert_true (isnan (calculated_hr));
+    else {
+        is_close =
+            test_is_close (calculated_hr, expected_hr, ABS_TOL, REL_TOL);
+        g_assert_true (is_close);
+    }
 
     /* only test cross sections that contain a single subsection */
     if (test_data.n_roughness == 1) {
