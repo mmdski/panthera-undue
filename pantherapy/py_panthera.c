@@ -387,48 +387,146 @@ static PyMethodDef PyXS_methods[] = {
     { "area",
       (PyCFunction) PyXS_area,
       METH_VARARGS,
-      "Returns the area for a depth" },
+      "Computes area\n\n"
+      "Parameters\n"
+      "----------\n"
+      "elevation : array_like\n"
+      "    Elevation of computed area\n\n"
+      "Returns\n"
+      "-------\n"
+      "numpy.ndarray\n"
+      "    Computed area\n" },
 
     { "conveyance",
       (PyCFunction) PyXS_conveyance,
       METH_VARARGS,
-      "Returns the conveyance for a depth" },
-    { "critical_flow",
-      (PyCFunction) PyXS_critical_flow,
-      METH_VARARGS,
-      "Returns the critical flow for a depth" },
+      "Computes conveyance\n\n"
+      "Parameters\n"
+      "----------\n"
+      "elevation : array_like\n"
+      "    Elevation of computed conveyance\n\n"
+      "Returns\n"
+      "-------\n"
+      "numpy.ndarray\n"
+      "    Computed conveyance\n\n"
+      "Notes\n"
+      "-----\n"
+      "Cross section conveyance is computed as the sum of the conveyance of\n"
+      "the subsections within the cross section\n" },
+
     { "coordinates",
       (PyCFunction) PyXS_coordinates,
       METH_VARARGS,
-      "Returns y, z ndarrays of cross section coordinates" },
-    { "top_width",
-      (PyCFunction) PyXS_top_width,
+      "Returns cross section coordinates\n\n"
+      "Returns\n"
+      "-------\n"
+      "numpy.ndarray, numpy.ndarray\n"
+      "    Tuple of arrays containing y, z values of cross section "
+      "coordinates\n" },
+
+    { "critical_flow",
+      (PyCFunction) PyXS_critical_flow,
       METH_VARARGS,
-      "Returns the top width for a depth" },
-    { "tw_array",
-      (PyCFunction) PyXS_tw_array,
-      METH_VARARGS,
-      "Returns y, z ndarrays of top width for a depth" },
+      "Computes critical flow\n\n"
+      "Parameters\n"
+      "----------\n"
+      "elevation : array_like\n"
+      "    Elevation of computed critical flow\n\n"
+      "Returns\n"
+      "-------\n"
+      "numpy.ndarray\n"
+      "    Computed critical flow\n" },
+
     { "hydraulic_depth",
       (PyCFunction) PyXS_hydraulic_depth,
       METH_VARARGS,
-      "Returns the hydraulic depth for a depth" },
+      "Computes hydraulic depth\n\n"
+      "Parameters\n"
+      "----------\n"
+      "elevation : array_like\n"
+      "    Elevation of hydraulic depth\n\n"
+      "Returns\n"
+      "-------\n"
+      "numpy.ndarray\n"
+      "    Computed hydraulic depth\n" },
+
     { "hydraulic_radius",
       (PyCFunction) PyXS_hydraulic_radius,
       METH_VARARGS,
-      "Returns the hydraulic radius for a depth" },
+      "Computes hydraulic radius\n\n"
+      "Parameters\n"
+      "----------\n"
+      "elevation : array_like\n"
+      "    Elevation of hydraulic radius\n\n"
+      "Returns\n"
+      "-------\n"
+      "numpy.ndarray\n"
+      "    Computed hydraulic radius\n" },
+
+    { "top_width",
+      (PyCFunction) PyXS_top_width,
+      METH_VARARGS,
+      "Computes top width\n\n"
+      "Parameters\n"
+      "----------\n"
+      "elevation : array_like\n"
+      "    Elevation of computed top width\n\n"
+      "Returns\n"
+      "-------\n"
+      "numpy.ndarray\n"
+      "    Computed top width\n" },
+
+    { "tw_array",
+      (PyCFunction) PyXS_tw_array,
+      METH_VARARGS,
+      "Returns coordinates of top width\n\n"
+      "Parameters\n"
+      "----------\n"
+      "elevation : array_like\n"
+      "    Elevation of top width\n\n"
+      "Returns\n"
+      "-------\n"
+      "numpy.ndarray, numpy.ndarray\n"
+      "    Tuple of arrays containing y, z values of top width "
+      "coordinates\n" },
+
     { "velocity_coeff",
       (PyCFunction) PyXS_velocity_coeff,
       METH_VARARGS,
-      "Returns the wetted perimeter for a depth" },
+      "Computes velocity coefficient\n\n"
+      "Parameters\n"
+      "----------\n"
+      "elevation : array_like\n\n"
+      "Returns\n"
+      "-------\n"
+      "numpy.ndarray\n"
+      "    Computed velocity coefficient\n" },
+
     { "wetted_perimeter",
       (PyCFunction) PyXS_wetted_perimeter,
       METH_VARARGS,
-      "Returns the wetted perimeter for a depth" },
+      "Computes wetted perimeter\n\n"
+      "Parameters\n"
+      "----------\n"
+      "elevation : array_like\n\n"
+      "Returns\n"
+      "-------\n"
+      "numpy.ndarray\n"
+      "    Computed wetted perimeter\n" },
+
     { "wp_array",
       (PyCFunction) PyXS_wp_array,
       METH_VARARGS,
-      "Returns y, z ndarrays of wetted perimeter for a depth" },
+      "Returns coordinates of wetted perimeter\n\n"
+      "Parameters\n"
+      "----------\n"
+      "elevation : array_like\n\n"
+      "Returns\n"
+      "-------\n"
+      "numpy.ndarray, numpy.ndarray\n"
+      "    Tuple of arrays containing y, z values of wetted perimeter "
+      "coordinates\n" },
+
     { NULL }
 };
 
