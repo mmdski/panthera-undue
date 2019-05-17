@@ -6,6 +6,11 @@
 
 #include <panthera/crosssection.h>
 #include <panthera/exceptions.h>
+#include <panthera/xstable.h>
+
+/*
+ * Py_CrossSection type definition
+ */
 
 typedef struct {
     PyObject_HEAD /* */
@@ -561,6 +566,71 @@ static PyTypeObject PyXSType = {
     .tp_methods   = PyXS_methods,
 };
 
+/*
+ * Py_XSTable type definition
+ */
+
+typedef struct {
+    PyObject_HEAD /* */
+        XSTable xs_table;
+} PyXSTableObject;
+
+static void
+PyXSTable_dealloc (PyXSTableObject *self)
+{
+    if (self->xs_table)
+        xstable_free (self->xs_table);
+    Py_TYPE (self)->tp_free ((PyObject *) self);
+}
+
+static PyObject *
+PyXSTable_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    PyXSTableObject *self;
+    self           = (PyXSTableObject *) type->tp_alloc (type, 0);
+    self->xs_table = NULL;
+    return (PyObject *) self;
+}
+
+static int
+PyXSTable_init (PyXSTableObject *self, PyObject *args, PyObject *kwds)
+{
+    self->xs_table = xstable_new ();
+
+    return 0;
+}
+
+static PyObject *
+PyXSTable_put (PyXSTableObject *self, PyObject *args)
+{
+    int       key;
+    PyObject *py_xs;
+
+    if (!PyArg_ParseTuple (args, "iO", &key, &py_xs))
+        return NULL;
+
+    xstable_put (self->xs_table, key, *(CrossSection *) py_xs);
+
+    Py_INCREF (Py_None);
+    return Py_None;
+}
+
+static PyMethodDef PyXSTable_methods[] = {
+    { "put", (PyCFunction) PyXSTable_put, METH_VARARGS, "" },
+    { NULL }
+};
+
+static PyTypeObject PyXSTableType = {
+    PyVarObject_HEAD_INIT (NULL, 0).tp_name = "pantherapy.panthera.XSTable",
+    .tp_basicsize                           = sizeof (PyXSTableObject),
+    .tp_itemsize                            = 0,
+    .tp_flags                               = Py_TPFLAGS_DEFAULT,
+    .tp_new                                 = PyXSTable_new,
+    .tp_init                                = (initproc) PyXSTable_init,
+    .tp_dealloc                             = (destructor) PyXSTable_dealloc,
+    .tp_methods                             = PyXSTable_methods,
+};
+
 static PyModuleDef pantheramodule = {
     PyModuleDef_HEAD_INIT,
     .m_name = "panthera",
@@ -574,6 +644,8 @@ PyInit_panthera (void)
     PyObject *m;
     if (PyType_Ready (&PyXSType) < 0)
         return NULL;
+    if (PyType_Ready (&PyXSTableType) < 0)
+        return NULL;
 
     m = PyModule_Create (&pantheramodule);
     if (m == NULL)
@@ -582,5 +654,6 @@ PyInit_panthera (void)
 
     Py_INCREF (&PyXSType);
     PyModule_AddObject (m, "CrossSection", (PyObject *) &PyXSType);
+    PyModule_AddObject (m, "XSTable", (PyObject *) &PyXSTableType);
     return m;
 }
