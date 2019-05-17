@@ -182,9 +182,8 @@ build*/
 *~
 
 # hotdoc
-docs/built_docs
+built_docs
 hotdoc-*
-docs/include
 
 # vscode
 .vscode/
