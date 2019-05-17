@@ -487,7 +487,7 @@ static PyMethodDef PyXS_methods[] = {
       "Returns\n"
       "-------\n"
       "numpy.ndarray, numpy.ndarray\n"
-      "    Tuple of arrays containing y, z values of top width "
+      "    Tuple of arrays containing y, z values of top width"
       "coordinates\n" },
 
     { "velocity_coeff",
@@ -497,6 +497,7 @@ static PyMethodDef PyXS_methods[] = {
       "Parameters\n"
       "----------\n"
       "elevation : array_like\n\n"
+      "    Elevation of velocity coefficient\n"
       "Returns\n"
       "-------\n"
       "numpy.ndarray\n"
@@ -509,6 +510,7 @@ static PyMethodDef PyXS_methods[] = {
       "Parameters\n"
       "----------\n"
       "elevation : array_like\n\n"
+      "    Elevation of wetted perimeter\n"
       "Returns\n"
       "-------\n"
       "numpy.ndarray\n"
@@ -521,6 +523,7 @@ static PyMethodDef PyXS_methods[] = {
       "Parameters\n"
       "----------\n"
       "elevation : array_like\n\n"
+      "    Elevation of wetted perimeter\n"
       "Returns\n"
       "-------\n"
       "numpy.ndarray, numpy.ndarray\n"
