@@ -1,1 +1,1 @@
-from pantherapy.panthera import CrossSection
+from pantherapy.panthera import CrossSection, XSTable

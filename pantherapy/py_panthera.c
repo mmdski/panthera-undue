@@ -668,20 +668,42 @@ PyXSTable_init (PyXSTableObject *self, PyObject *args, PyObject *kwds)
 static PyObject *
 PyXSTable_put (PyXSTableObject *self, PyObject *args)
 {
-    int       key;
-    PyObject *py_xs;
+    int         key;
+    PyObject *  ob;
+    PyXSObject *py_xs;
 
-    if (!PyArg_ParseTuple (args, "iO", &key, &py_xs))
+    if (!PyArg_ParseTuple (args, "iO", &key, &ob))
         return NULL;
 
-    xstable_put (self->xs_table, key, *(CrossSection *) py_xs);
+    if (!PyObject_TypeCheck (ob, &PyXSType)) {
+        PyErr_SetString (PyExc_RuntimeError, "xs must be a cross section");
+        return NULL;
+    }
+
+    py_xs = (PyXSObject *) ob;
+
+    xstable_put (self->xs_table, key, py_xs->xs);
 
     Py_INCREF (Py_None);
     return Py_None;
 }
 
+PyDoc_STRVAR (xstable_put__doc__,
+              "put($self, key, xs, /)\n"
+              "--\n"
+              "\n"
+              "Puts a cross section in this reference table\n\n"
+              "If `key` already exists in this table, then the `xs` "
+              "referenced by `key` will be overwritten\n\n"
+              "Parameters\n"
+              "----------\n"
+              "key : int\n"
+              "    Key to store `xs`\n"
+              "xs : :class:`pantherapy.panthera.CrossSection`\n"
+              "    Cross section to store");
+
 static PyMethodDef PyXSTable_methods[] = {
-    { "put", (PyCFunction) PyXSTable_put, METH_VARARGS, "" },
+    { "put", (PyCFunction) PyXSTable_put, METH_VARARGS, xstable_put__doc__ },
     { NULL }
 };
 
