@@ -347,6 +347,81 @@ test_xs_coarray_fail (void)
 }
 
 void
+test_xs_roughness (void)
+{
+    int     i;
+    int     n           = 5;
+    double  z[]         = { 0, 0, 0.5, 1, 1 };
+    double  y[]         = { 1, 0, 0, 0, 1 };
+    int     n_roughness = 1;
+    double  r[]         = { 0.030 };
+    double *z_r         = NULL;
+
+    int     n_roughness_test;
+    double *r_test;
+    double *z_r_test = NULL;
+
+    CoArray      ca = coarray_new (n, y, z);
+    CrossSection xs = xs_new (ca, n_roughness, r, z_r);
+
+    n_roughness_test = xs_n_subsections (xs);
+    g_assert_true (n_roughness == n_roughness_test);
+
+    r_test =
+        Mem_calloc (n_roughness_test, sizeof (double), __FILE__, __LINE__);
+    xs_roughness (xs, r_test);
+    for (i = 0; i < n_roughness_test; i++)
+        g_assert_true (*(r + i) == *(r_test + i));
+
+    xs_z_roughness (xs, z_r_test);
+    g_assert_true (z_r == z_r_test);
+
+    xs_free (xs);
+    coarray_free (ca);
+    Mem_free (r_test, __FILE__, __LINE__);
+}
+
+void
+test_xs_n_roughness (void)
+{
+    int    i;
+    int    n           = 5;
+    double z[]         = { 0, 0, 0.5, 1, 1 };
+    double y[]         = { 1, 0, 0, 0, 1 };
+    int    n_roughness = 3;
+    double r[]         = { 0.030, 0.015, 0.030 };
+    double z_r[]       = { 0.25, 0.75 };
+
+    int     n_roughness_test;
+    double *r_test;
+    double *z_r_test;
+
+    CoArray      ca = coarray_new (n, y, z);
+    CrossSection xs = xs_new (ca, n_roughness, r, z_r);
+
+    n_roughness_test = xs_n_subsections (xs);
+    g_assert_true (n_roughness == n_roughness_test);
+
+    r_test =
+        Mem_calloc (n_roughness_test, sizeof (double), __FILE__, __LINE__);
+    xs_roughness (xs, r_test);
+    for (i = 0; i < n_roughness_test; i++)
+        g_assert_true (*(r + i) == *(r_test + i));
+
+    z_r_test =
+        Mem_calloc (n_roughness_test - 1, sizeof (double), __FILE__, __LINE__);
+    xs_z_roughness (xs, z_r_test);
+    for (i = 0; i < n_roughness_test - 1; i++) {
+        g_assert_true (*(z_r + i) == *(z_r_test + i));
+    }
+
+    xs_free (xs);
+    coarray_free (ca);
+    Mem_free (r_test, __FILE__, __LINE__);
+    Mem_free (z_r_test, __FILE__, __LINE__);
+}
+
+void
 add_xs_new_test ()
 {
     int    n        = 5;
@@ -511,6 +586,15 @@ add_xs_coarray_test ()
 }
 
 void
+add_xs_roughness_test ()
+{
+    g_test_add_func ("/panthera/xs/crosssection/xs_roughness",
+                     test_xs_roughness);
+    g_test_add_func ("/panthera/xs/crosssection/xs_roughness/n=3",
+                     test_xs_n_roughness);
+}
+
+void
 add_crosssection_tests ()
 {
     add_xs_new_test ();
@@ -520,4 +604,5 @@ add_crosssection_tests ()
     add_xs_trapezoid_test ();
     add_xs_double_triangle_test ();
     add_xs_coarray_test ();
+    add_xs_roughness_test ();
 }

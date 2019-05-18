@@ -172,6 +172,61 @@ CoArray
 xs_coarray (CrossSection xs);
 
 /**
+ * xs_n_subsections:
+ * @xs: a #CrossSection
+ *
+ * Returns the number of sections in @xs.
+ *
+ * **Raises:**
+ *
+ * #null_ptr_arg_error if @xs is `NULL`
+ *
+ * Returns: number of subsections
+ */
+extern int
+xs_n_subsections (CrossSection xs);
+
+/**
+ * xs_roughness:
+ * @xs: a #CrossSection
+ * @roughness: a pointer to an array of doubles
+ *
+ * Fills @roughness with the roughness values of the subsections in @xs.
+ *
+ * @roughness must be allocated as an array of doubles with the number of
+ * subsections in @xs as the number of elements. Use xs_n_subsections() to get
+ * the number of subsections in @xs.
+ *
+ * **Raises:**
+ *
+ * #null_ptr_arg_error if @xs or @roughness are `NULL`
+ *
+ * Returns: None
+ */
+extern void
+xs_roughness (CrossSection xs, double *roughness);
+
+/**
+ * xs_z_roughness:
+ * @xs: a #CrossSection
+ * @z_roughness: a pointer to an array of doubles
+ *
+ * Fills @z_roughness with the z-values of the subsection splits in @xs.
+ *
+ * @roughness must be allocated as an array of doubles with the number of
+ * subsections in @xs minus one as the number of elements. Use
+ * xs_n_subsections() to get the number of subsections in @xs.
+ *
+ * **Raises:**
+ *
+ * #null_ptr_arg_error if @xs or @z_roughness are `NULL`
+ *
+ * Returns: None
+ */
+extern void
+xs_z_roughness (CrossSection xs, double *z_roughness);
+
+/**
  * xs_hydraulic_properties:
  * @xs:  a #CrossSection
  * @h:   depth

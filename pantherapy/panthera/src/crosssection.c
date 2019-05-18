@@ -192,7 +192,16 @@ ss_hydraulic_properties (Subsection ss, double y)
     return xsp;
 }
 
-/* results cache interface */
+double
+ss_roughness (Subsection ss)
+{
+    assert (ss);
+    return ss->n;
+}
+
+/*
+ * results cache interface
+ */
 typedef struct ResultsCache {
     int                size;
     CrossSectionProps *xsp;
@@ -265,7 +274,9 @@ res_resize (int new_size, ResultsCache *old_res)
     return new_res;
 }
 
-/* cross section interface */
+/*
+ * cross section interface
+ */
 
 struct CrossSection {
     int           ref_count;     /* reference count */
@@ -495,4 +506,45 @@ xs_coarray (CrossSection xs)
         RAISE (null_ptr_arg_error);
 
     return coarray_copy (xs->ca);
+}
+
+int
+xs_n_subsections (CrossSection xs)
+{
+    if (!xs)
+        RAISE (null_ptr_arg_error);
+
+    return xs->n_subsections;
+}
+
+void
+xs_roughness (CrossSection xs, double *roughness)
+{
+    if (!xs || !roughness)
+        RAISE (null_ptr_arg_error);
+
+    int        i;
+    int        n_subsections = xs->n_subsections;
+    Subsection ss;
+
+    for (i = 0; i < n_subsections; i++) {
+        ss               = *(xs->ss + i);
+        *(roughness + i) = ss_roughness (ss);
+    }
+}
+
+void
+xs_z_roughness (CrossSection xs, double *z_roughness)
+{
+    if (!xs)
+        RAISE (null_ptr_arg_error);
+
+    int        i;
+    int        n_subsections = xs->n_subsections;
+    Subsection ss;
+
+    for (i = 1; i < n_subsections; i++) {
+        ss                     = *(xs->ss + i);
+        *(z_roughness + i - 1) = coarray_get_z (ss->array, 0);
+    }
 }
