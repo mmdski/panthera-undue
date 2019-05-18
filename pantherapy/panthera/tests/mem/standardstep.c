@@ -1,11 +1,7 @@
-#include <math.h>
-#include <panthera/cii/mem.h>
-#include <panthera/coarray.h>
-#include <panthera/standardstep.h>
-#include <stddef.h>
+#include "memtest.h"
 
-int
-main (void)
+void
+test_standardstep (void)
 {
 
     int i;

@@ -1,10 +1,7 @@
-#include "testlib.h"
-#include <panthera/cii/mem.h>
-#include <panthera/reach.h>
-#include <stddef.h>
+#include "memtest.h"
 
-int
-main (void)
+void
+test_reach (void)
 {
     int i, j;
     int n_nodes = 5;
@@ -52,6 +49,4 @@ main (void)
     Mem_free (stream_distance, __FILE__, __LINE__);
     reach_free (reach);
     xstable_free (xstable);
-
-    return 0;
 }

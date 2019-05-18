@@ -1,12 +1,7 @@
-#include "testlib.h"
-#include <panthera/cii/mem.h>
-#include <panthera/coarray.h>
-#include <panthera/crosssection.h>
-#include <panthera/xstable.h>
-#include <stdlib.h>
+#include "memtest.h"
 
-int
-main (void)
+void
+test_xstable (void)
 {
     int          i;
     int          key;
@@ -60,6 +55,4 @@ main (void)
     }
 
     xstable_free (xstable);
-
-    return 0;
 }

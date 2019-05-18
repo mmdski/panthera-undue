@@ -1,6 +1,4 @@
-#include <panthera/cii/mem.h>
-#include <panthera/crosssection.h>
-#include <stddef.h>
+#include "memtest.h"
 
 void
 test_xs_roughness (void)
@@ -64,12 +62,4 @@ test_xs_n_roughness (void)
     coarray_free (ca);
     Mem_free (r_test, __FILE__, __LINE__);
     Mem_free (z_r_test, __FILE__, __LINE__);
-}
-
-int
-main (void)
-{
-    test_xs_roughness ();
-    test_xs_n_roughness ();
-    return 0;
 }
