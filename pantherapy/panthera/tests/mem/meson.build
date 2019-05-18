@@ -1,6 +1,18 @@
 include_dirs = [inc, test_inc]
 link_libs = [pantheralib, testlib]
 
+xs_mem_test = executable('xs_mem_test', 'crosssection.c',
+                         include_directories : include_dirs,
+                         link_with : link_libs)
+test('mem_test_xs', vlgnd,
+     args : [
+             '--leak-check=full',
+             '--errors-for-leak-kinds=all',
+             '--error-exitcode=33',
+             xs_mem_test.full_path()
+            ]
+     )
+
 xstable_mem_test = executable('xstable_mem_test', 'xstable.c',
                               include_directories : include_dirs,
                               link_with: link_libs)
