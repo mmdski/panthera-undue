@@ -22,6 +22,7 @@ main (void)
         key = rand ();
         xs  = new_cross_section ();
         xstable_put (xstable, key, xs);
+        xs_free (xs);
     }
 
     /* remove half of the cross sections from the table */
@@ -38,6 +39,7 @@ main (void)
         key = rand ();
         xs  = new_cross_section ();
         xstable_put (xstable, key, xs);
+        xs_free (xs);
     }
 
     /* remove all of the cross sections from the table */
@@ -54,6 +56,7 @@ main (void)
         key = rand ();
         xs  = new_cross_section ();
         xstable_put (xstable, key, xs);
+        xs_free (xs);
     }
 
     xstable_free (xstable);

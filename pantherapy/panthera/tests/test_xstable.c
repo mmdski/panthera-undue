@@ -19,6 +19,7 @@ test_xstable_put (void)
     XSTable      xstable = xstable_new ();
     CrossSection xs      = new_cross_section ();
     xstable_put (xstable, key, xs);
+    xs_free (xs);
     g_assert_true (xstable_size (xstable) == 1);
 
     /* test that an error is raised when a null xstable is passed to put */
@@ -51,6 +52,7 @@ test_xs_table_put_multi (void)
     for (i = 0; i < n_xs; i++) {
         CrossSection xs = new_cross_section ();
         xstable_put (xstable, keys[i], xs);
+        xs_free (xs);
     }
 
     g_assert_true (xstable_size (xstable) == n_xs);
@@ -67,6 +69,7 @@ test_xstable_get (void)
     XSTable      xstable = xstable_new ();
     CrossSection xs      = new_cross_section ();
     xstable_put (xstable, key, xs);
+    xs_free (xs);
     CrossSection xs1 = xstable_get (xstable, key);
     g_assert_true (xs == xs1);
 
@@ -102,6 +105,7 @@ test_xstable_get_multi_xs (void)
 
     for (i = 0; i < n_xs; i++) {
         xstable_put (xstable, keys[i], *(xs_in_xstable + i));
+        xs_free (*(xs_in_xstable + i));
     }
 
     for (i = 0; i < n_xs; i++) {

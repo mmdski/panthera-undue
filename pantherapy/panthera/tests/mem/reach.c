@@ -33,6 +33,7 @@ main (void)
     xstable = xstable_new ();
 
     xstable_put (xstable, 0, xs);
+    xs_free (xs);
 
     reach = reach_new (n_nodes, x, y, xs_number, xstable);
 

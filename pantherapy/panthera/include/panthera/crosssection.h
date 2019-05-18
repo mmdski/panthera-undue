@@ -128,7 +128,8 @@ xs_new (CoArray ca, int n_roughness, double *roughness, double *z_roughness);
  * xs_free:
  * @xs: a #CrossSection
  *
- * Frees a #CrossSection.
+ * Decreases the reference count of @xs. Frees @xs if the reference count is
+ * zero.
  *
  * **Raises:**
  *
@@ -138,6 +139,21 @@ xs_new (CoArray ca, int n_roughness, double *roughness, double *z_roughness);
  */
 extern void
 xs_free (CrossSection xs);
+
+/**
+ * xs_incref:
+ * @xs: a #CrossSection
+ *
+ * Increases the reference count of @xs.
+ *
+ * **Raises:**
+ *
+ * #null_ptr_arg_error if @xs is `NULL`
+ *
+ * Returns: None
+ */
+extern void
+xs_incref (CrossSection xs);
 
 /**
  * xs_coarray:

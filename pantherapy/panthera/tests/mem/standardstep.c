@@ -47,6 +47,7 @@ main (void)
 
     XSTable xstable = xstable_new ();
     xstable_put (xstable, 0, xs);
+    xs_free (xs);
 
     for (i = 0; i < n_nodes; i++) {
         x[i]         = i * dx;

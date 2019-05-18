@@ -354,6 +354,7 @@ xstable_put (XSTable xstable, int key, CrossSection xs)
     if (!xstable || !xs)
         RAISE (null_ptr_arg_error);
 
+    xs_incref (xs);
     xstable->root        = tree_put (xstable->root, key, xs);
     xstable->root->color = BLACK;
 }
