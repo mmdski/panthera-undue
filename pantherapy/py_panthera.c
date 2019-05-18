@@ -688,6 +688,41 @@ PyXSTable_put (PyXSTableObject *self, PyObject *args)
     return Py_None;
 }
 
+PyDoc_STRVAR (xstable_get__doc__,
+              "get($self, key, /)\n"
+              "--\n"
+              "\n"
+              "Gets a cross section from this reference table\n\n"
+              "If no cross section is stored in the value of `key`, this\n"
+              "method returns None.\n\n"
+              "Parameters\n"
+              "----------\n"
+              "key : int\n"
+              "    Key to store `xs`\n"
+              "xs : :class:`pantherapy.panthera.CrossSection`\n"
+              "    Cross section to store");
+
+static PyObject *
+PyXSTable_get (PyXSTableObject *self, PyObject *args)
+{
+    int          key;
+    CrossSection xs;
+    PyXSObject * py_xs;
+
+    if (!PyArg_ParseTuple (args, "i", &key))
+        return NULL;
+
+    xs = xstable_get (self->xs_table, key);
+    if (xs) {
+        py_xs     = (PyXSObject *) PyXS_new (&PyXSType, NULL, NULL);
+        py_xs->xs = xs;
+        return py_xs;
+    } else {
+        Py_INCREF (Py_None);
+        return Py_None;
+    }
+}
+
 PyDoc_STRVAR (xstable_put__doc__,
               "put($self, key, xs, /)\n"
               "--\n"
