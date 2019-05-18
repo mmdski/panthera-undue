@@ -8,7 +8,7 @@ class CrossSectionPlot:
 
     Parameters
     ----------
-    cross_section : pantherapy.CrossSection
+    cross_section : :class:`pantherapy.panthera.CrossSection`
         Cross section to plot
 
     """
