@@ -4,6 +4,7 @@
 #define NPY_NO_DEPRECATED_API NPY_API_VERSION
 #include <numpy/arrayobject.h>
 
+#include <panthera/cii/mem.h>
 #include <panthera/crosssection.h>
 #include <panthera/exceptions.h>
 #include <panthera/xstable.h>
@@ -14,20 +15,12 @@
 
 typedef struct {
     PyObject_HEAD /* */
-        PyObject *y;
-    PyObject *    z;
-    PyObject *    roughness;
-    PyObject *    z_roughness;
-    CrossSection  xs;
+        CrossSection xs;
 } PyXSObject;
 
 static void
 PyXS_dealloc (PyXSObject *self)
 {
-    Py_XDECREF (self->y);
-    Py_XDECREF (self->z);
-    Py_XDECREF (self->roughness);
-    Py_XDECREF (self->z_roughness);
     if (self->xs)
         xs_free (self->xs);
     Py_TYPE (self)->tp_free ((PyObject *) self);
@@ -37,12 +30,8 @@ static PyObject *
 PyXS_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     PyXSObject *self;
-    self              = (PyXSObject *) type->tp_alloc (type, 0);
-    self->y           = NULL;
-    self->z           = NULL;
-    self->roughness   = NULL;
-    self->z_roughness = NULL;
-    self->xs          = NULL;
+    self     = (PyXSObject *) type->tp_alloc (type, 0);
+    self->xs = NULL;
     return (PyObject *) self;
 }
 
@@ -57,77 +46,83 @@ PyXS_init (PyXSObject *self, PyObject *args, PyObject *kwds)
     double *roughness_data;
     double *z_roughness_data;
 
+    PyObject *y_array;
+    PyObject *z_array;
+    PyObject *roughness_array;
+    PyObject *z_roughness_array = NULL;
+
     PyObject *   y = NULL, *z = NULL, *roughness = NULL, *z_roughness = NULL;
     static char *kwlist[] = { "y", "z", "roughness", "z_roughness", NULL };
 
-    CoArray ca;
+    CoArray ca = NULL;
 
     if (!PyArg_ParseTupleAndKeywords (
             args, kwds, "OOO|O", kwlist, &y, &z, &roughness, &z_roughness))
         return -1;
 
-    self->y = PyArray_FROM_OTF (y, NPY_DOUBLE, NPY_ARRAY_C_CONTIGUOUS);
-    if (self->y == NULL)
-        return -1;
+    y_array = PyArray_FROM_OTF (y, NPY_DOUBLE, NPY_ARRAY_C_CONTIGUOUS);
+    if (y_array == NULL)
+        goto fail;
 
-    self->z = PyArray_FROM_OTF (z, NPY_DOUBLE, NPY_ARRAY_C_CONTIGUOUS);
-    if (self->z == NULL)
-        return -1;
+    z_array = PyArray_FROM_OTF (z, NPY_DOUBLE, NPY_ARRAY_C_CONTIGUOUS);
+    if (z_array == NULL)
+        goto fail;
 
-    self->roughness =
+    roughness_array =
         PyArray_FROM_OTF (roughness, NPY_DOUBLE, NPY_ARRAY_C_CONTIGUOUS);
-    if (self->roughness == NULL)
-        return -1;
+    if (roughness_array == NULL)
+        goto fail;
 
     /* if z_roughness is specified, get an array */
     if (z_roughness != NULL) {
-        self->z_roughness =
+        z_roughness_array =
             PyArray_FROM_OTF (z_roughness, NPY_DOUBLE, NPY_ARRAY_C_CONTIGUOUS);
-        if (self->z_roughness == NULL)
-            return -1;
+        if (z_roughness_array == NULL)
+            goto fail;
     } else {
-        self->z_roughness = NULL;
+        z_roughness_array = NULL;
     }
 
     /* y and z must be 1D */
-    if (PyArray_NDIM ((PyArrayObject *) self->y) != 1 ||
-        PyArray_NDIM ((PyArrayObject *) self->z) != 1) {
+    if (PyArray_NDIM ((PyArrayObject *) y_array) != 1 ||
+        PyArray_NDIM ((PyArrayObject *) z_array) != 1) {
         PyErr_SetString (PyExc_ValueError, "y and z must be 1D arrays");
-        return -1;
+        goto fail;
     }
 
     /* y and z must be the same size */
-    y_size = PyArray_SIZE ((PyArrayObject *) self->y);
-    z_size = PyArray_SIZE ((PyArrayObject *) self->z);
+    y_size = PyArray_SIZE ((PyArrayObject *) y_array);
+    z_size = PyArray_SIZE ((PyArrayObject *) z_array);
     if (y_size != z_size) {
         PyErr_SetString (PyExc_ValueError,
                          "the size of y and z must be equal");
-        return -1;
+        goto fail;
     }
 
     /* size must be greater than two */
     if (y_size < 2) {
         PyErr_SetString (PyExc_ValueError,
                          "the length of y and z must be greater than 2");
-        return -1;
+        goto fail;
     }
 
     /* roughness must be greater than equal to zero */
-    n_roughness = PyArray_SIZE ((PyArrayObject *) self->roughness);
+    n_roughness = PyArray_SIZE ((PyArrayObject *) roughness_array);
     if (n_roughness < 1) {
         PyErr_SetString (PyExc_ValueError,
                          "there must be at least one roughness value");
+        goto fail;
     }
 
-    y_data = (double *) PyArray_DATA ((PyArrayObject *) self->y);
-    z_data = (double *) PyArray_DATA ((PyArrayObject *) self->z);
+    y_data = (double *) PyArray_DATA ((PyArrayObject *) y_array);
+    z_data = (double *) PyArray_DATA ((PyArrayObject *) z_array);
     roughness_data =
-        (double *) PyArray_DATA ((PyArrayObject *) self->roughness);
+        (double *) PyArray_DATA ((PyArrayObject *) roughness_array);
 
     /* get a pointer to the z_roughness data if z_roughness was specified */
-    if (z_roughness != NULL) {
+    if (z_roughness_array != NULL) {
         z_roughness_data =
-            (double *) PyArray_DATA ((PyArrayObject *) self->z_roughness);
+            (double *) PyArray_DATA ((PyArrayObject *) z_roughness_array);
     } else {
         z_roughness_data = NULL;
     }
@@ -137,7 +132,7 @@ PyXS_init (PyXSObject *self, PyObject *args, PyObject *kwds)
     {
         PyErr_SetString (PyExc_ValueError,
                          "z must be in ascending or equal order");
-        return -1;
+        goto fail;
     }
     END_TRY;
 
@@ -150,20 +145,31 @@ PyXS_init (PyXSObject *self, PyObject *args, PyObject *kwds)
         coarray_free (ca);
         PyErr_SetString (PyExc_ValueError,
                          "Roughness values must be greater than zero");
-        return -1;
+        goto fail;
     }
     EXCEPT (null_ptr_arg_error);
     {
         coarray_free (ca);
         PyErr_SetString (PyExc_ValueError,
                          "z_roughess must be specified if len(roughness) > 1");
-        return -1;
+        goto fail;
     }
     END_TRY;
 
     coarray_free (ca);
 
     return 0;
+
+fail:
+
+    Py_XDECREF (y_array);
+    Py_XDECREF (z_array);
+    Py_XDECREF (roughness_array);
+    Py_XDECREF (z_roughness_array);
+    if (ca)
+        coarray_free (ca);
+
+    return -1;
 }
 
 static PyObject *
@@ -240,12 +246,42 @@ PyXS_conveyance (PyXSObject *self, PyObject *args)
 static PyObject *
 PyXS_coordinates (PyXSObject *self, PyObject *Py_UNUSED (ignored))
 {
-    PyObject *y;
+    CoArray ca;
+
     PyObject *z;
+    PyObject *y;
+
+    int      i;
+    int      nd = 1;
+    int      size;
+    npy_intp ndims;
+    double   y_coordinate;
+    double   z_coordinate;
+    double * y_data_ptr;
+    double * z_data_ptr;
+
     PyObject *rslt;
 
-    y = PyArray_NewCopy ((PyArrayObject *) self->y, NPY_CORDER);
-    z = PyArray_NewCopy ((PyArrayObject *) self->z, NPY_CORDER);
+    ca    = xs_coarray (self->xs);
+    size  = coarray_length (ca);
+    ndims = size;
+
+    y          = PyArray_SimpleNew (nd, &ndims, NPY_DOUBLE);
+    y_data_ptr = PyArray_DATA ((PyArrayObject *) y);
+
+    z          = PyArray_SimpleNew (nd, &ndims, NPY_DOUBLE);
+    z_data_ptr = PyArray_DATA ((PyArrayObject *) z);
+
+    for (i = 0; i < size; i++) {
+        y_coordinate      = coarray_get_y (ca, i);
+        *(y_data_ptr + i) = y_coordinate;
+
+        z_coordinate      = coarray_get_z (ca, i);
+        *(z_data_ptr + i) = z_coordinate;
+    }
+
+    coarray_free (ca);
+
     if (!(rslt = Py_BuildValue ("(OO)", y, z)))
         return NULL;
 
@@ -676,7 +712,7 @@ PyXSTable_put (PyXSTableObject *self, PyObject *args)
         return NULL;
 
     if (!PyObject_TypeCheck (ob, &PyXSType)) {
-        PyErr_SetString (PyExc_RuntimeError, "xs must be a cross section");
+        PyErr_SetString (PyExc_TypeError, "xs must be a cross section");
         return NULL;
     }
 
@@ -707,16 +743,17 @@ PyXSTable_get (PyXSTableObject *self, PyObject *args)
 {
     int          key;
     CrossSection xs;
-    PyXSObject * py_xs;
+    PyObject *   ob;
 
     if (!PyArg_ParseTuple (args, "i", &key))
         return NULL;
 
     xs = xstable_get (self->xs_table, key);
     if (xs) {
-        py_xs     = (PyXSObject *) PyXS_new (&PyXSType, NULL, NULL);
-        py_xs->xs = xs;
-        return py_xs;
+        ob = PyXS_new (&PyXSType, NULL, NULL);
+        xs_incref (xs);
+        ((PyXSObject *) ob)->xs = xs;
+        return ob;
     } else {
         Py_INCREF (Py_None);
         return Py_None;
@@ -729,7 +766,7 @@ PyDoc_STRVAR (xstable_put__doc__,
               "\n"
               "Puts a cross section in this reference table\n\n"
               "If `key` already exists in this table, then the `xs` "
-              "referenced by `key` will be overwritten\n\n"
+              "referenced by `key` will be overwritten.\n\n"
               "Parameters\n"
               "----------\n"
               "key : int\n"
@@ -739,6 +776,7 @@ PyDoc_STRVAR (xstable_put__doc__,
 
 static PyMethodDef PyXSTable_methods[] = {
     { "put", (PyCFunction) PyXSTable_put, METH_VARARGS, xstable_put__doc__ },
+    { "get", (PyCFunction) PyXSTable_get, METH_VARARGS, xstable_get__doc__ },
     { NULL }
 };
 

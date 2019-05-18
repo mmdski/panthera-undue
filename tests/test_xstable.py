@@ -18,12 +18,17 @@ def init_xs():
 
 class TestXSTable(unittest.TestCase):
 
-    def test_put(self):
+    def test_put_get(self):
 
         xs = init_xs()
         xs_table = XSTable()
 
         xs_table.put(0, xs)
 
-        xs = init_xs()
-        xs_table.put(0, xs)
+        y, z = xs.coordinates()
+
+        got_xs = xs_table.get(0)
+        y_got, z_got = got_xs.coordinates()
+
+        self.assertTrue(np.array_equiv(y, y_got))
+        self.assertTrue(np.array_equiv(z, z_got))
