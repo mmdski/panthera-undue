@@ -142,26 +142,27 @@ PyXS_init (PyXSObject *self, PyObject *args, PyObject *kwds)
     }
     EXCEPT (value_arg_error);
     {
-        coarray_free (ca);
         PyErr_SetString (PyExc_ValueError,
                          "Roughness values must be greater than zero");
         goto fail;
     }
     EXCEPT (null_ptr_arg_error);
     {
-        coarray_free (ca);
         PyErr_SetString (PyExc_ValueError,
                          "z_roughess must be specified if len(roughness) > 1");
         goto fail;
     }
     END_TRY;
 
+    Py_DECREF (y_array);
+    Py_DECREF (z_array);
+    Py_DECREF (roughness_array);
+    Py_XDECREF (z_roughness_array);
     coarray_free (ca);
 
     return 0;
 
 fail:
-
     Py_XDECREF (y_array);
     Py_XDECREF (z_array);
     Py_XDECREF (roughness_array);
@@ -191,18 +192,15 @@ PyXS_property (PyXSObject *self, PyObject *args, xs_prop xs_property)
     depth_array =
         PyArray_FROM_OTF (depth_arg, NPY_DOUBLE, NPY_ARRAY_C_CONTIGUOUS);
     if (depth_array == NULL)
-        return NULL;
+        goto fail;
 
     property = PyArray_NewLikeArray (
         (PyArrayObject *) depth_array, NPY_CORDER, NULL, 1);
     property_data_ptr = (double *) PyArray_DATA ((PyArrayObject *) property);
 
     iter = (PyArrayIterObject *) PyArray_IterNew (depth_array);
-    if (iter == NULL) {
-        Py_DECREF (depth_array);
-        Py_DECREF (property);
-        return NULL;
-    }
+    if (iter == NULL)
+        goto fail;
 
     while (iter->index < iter->size) {
         TRY
@@ -214,12 +212,10 @@ PyXS_property (PyXSObject *self, PyObject *args, xs_prop xs_property)
         }
         EXCEPT (xsp_depth_error);
         {
-            Py_DECREF (depth_array);
-            Py_DECREF (property);
             PyErr_SetString (PyExc_ValueError,
                              "Depth values must be greater than or equal to "
                              "lowest z value in cross section");
-            return NULL;
+            goto fail;
         }
         END_TRY;
 
@@ -227,8 +223,16 @@ PyXS_property (PyXSObject *self, PyObject *args, xs_prop xs_property)
         PyArray_ITER_NEXT (iter);
     }
     Py_DECREF (depth_array);
+    Py_DECREF (iter);
 
     return PyArray_Return ((PyArrayObject *) property);
+
+fail:
+
+    Py_XDECREF (depth_array);
+    Py_XDECREF (property);
+
+    return NULL;
 }
 
 PyDoc_STRVAR (xs_area__doc__,
@@ -326,8 +330,11 @@ PyXS_coordinates (PyXSObject *self, PyObject *Py_UNUSED (ignored))
 
     coarray_free (ca);
 
-    if (!(rslt = Py_BuildValue ("(OO)", y, z)))
+    if (!(rslt = Py_BuildValue ("(OO)", y, z))) {
+        Py_DECREF (y);
+        Py_DECREF (z);
         return NULL;
+    }
 
     return rslt;
 }
@@ -474,8 +481,11 @@ PyXS_tw_array (PyXSObject *self, PyObject *args)
     coarray_free (ca);
     coarray_free (wp);
 
-    if (!(rslt = Py_BuildValue ("(OO)", y, z)))
+    if (!(rslt = Py_BuildValue ("(OO)", y, z))) {
+        Py_DECREF (y);
+        Py_DECREF (z);
         return NULL;
+    }
 
     return rslt;
 }
@@ -576,8 +586,11 @@ PyXS_wp_array (PyXSObject *self, PyObject *args)
     coarray_free (ca);
     coarray_free (wp);
 
-    if (!(rslt = Py_BuildValue ("(OO)", y, z)))
+    if (!(rslt = Py_BuildValue ("(OO)", y, z))) {
+        Py_DECREF (y);
+        Py_DECREF (z);
         return NULL;
+    }
 
     return rslt;
 }
