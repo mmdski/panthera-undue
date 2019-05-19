@@ -231,17 +231,61 @@ PyXS_property (PyXSObject *self, PyObject *args, xs_prop xs_property)
     return PyArray_Return ((PyArrayObject *) property);
 }
 
+PyDoc_STRVAR (xs_area__doc__,
+              "area($self, elevation, /)\n"
+              "--\n"
+              "\n"
+              "Computes area\n\n"
+              "Parameters\n"
+              "----------\n"
+              "elevation : array_like\n"
+              "    Elevation of computed area\n\n"
+              "Returns\n"
+              "-------\n"
+              "numpy.ndarray\n"
+              "    Computed area\n");
+
 static PyObject *
 PyXS_area (PyXSObject *self, PyObject *args)
 {
     return PyXS_property (self, args, XS_AREA);
 }
 
+PyDoc_STRVAR (xs_conveyance__doc__,
+              "conveyance($self, elevation, /)\n"
+              "--\n"
+              "\n"
+              "Computes conveyance\n\n"
+              "Parameters\n"
+              "----------\n"
+              "elevation : array_like\n"
+              "    Elevation of computed conveyance\n\n"
+              "Returns\n"
+              "-------\n"
+              "numpy.ndarray\n"
+              "    Computed conveyance\n\n"
+              "Notes\n"
+              "-----\n"
+              "Cross section conveyance is computed as "
+              "the sum of the conveyance of\n"
+              "the subsections within the cross section\n");
+
 static PyObject *
 PyXS_conveyance (PyXSObject *self, PyObject *args)
 {
     return PyXS_property (self, args, XS_CONVEYANCE);
 }
+
+PyDoc_STRVAR (xs_coordinates__doc__,
+              "coordinates($self, /)\n"
+              "--\n"
+              "\n"
+              "Returns cross section coordinates\n\n"
+              "Returns\n"
+              "-------\n"
+              "numpy.ndarray, numpy.ndarray\n"
+              "    Tuple of arrays containing y, z values of cross section "
+              "coordinates\n");
 
 static PyObject *
 PyXS_coordinates (PyXSObject *self, PyObject *Py_UNUSED (ignored))
@@ -288,11 +332,39 @@ PyXS_coordinates (PyXSObject *self, PyObject *Py_UNUSED (ignored))
     return rslt;
 }
 
+PyDoc_STRVAR (xs_critical_flow__doc__,
+              "critical_flow($self, elevation, /)\n"
+              "--\n"
+              "\n"
+              "Computes critical flow\n\n"
+              "Parameters\n"
+              "----------\n"
+              "elevation : array_like\n"
+              "    Elevation of computed critical flow\n\n"
+              "Returns\n"
+              "-------\n"
+              "numpy.ndarray\n"
+              "    Computed critical flow\n");
+
 static PyObject *
 PyXS_critical_flow (PyXSObject *self, PyObject *args)
 {
     return PyXS_property (self, args, XS_CRITICAL_FLOW);
 }
+
+PyDoc_STRVAR (xs_hydraulic_depth__doc__,
+              "hydraulic_depth($self, elevation, /)\n"
+              "--\n"
+              "\n"
+              "Computes hydraulic depth\n\n"
+              "Parameters\n"
+              "----------\n"
+              "elevation : array_like\n"
+              "    Elevation of hydraulic depth\n\n"
+              "Returns\n"
+              "-------\n"
+              "numpy.ndarray\n"
+              "    Computed hydraulic depth\n");
 
 static PyObject *
 PyXS_hydraulic_depth (PyXSObject *self, PyObject *args)
@@ -300,17 +372,60 @@ PyXS_hydraulic_depth (PyXSObject *self, PyObject *args)
     return PyXS_property (self, args, XS_HYDRAULIC_DEPTH);
 }
 
+PyDoc_STRVAR (xs_hydraulic_radius__doc__,
+              "hydraulic_radius($self, elevation, /)\n"
+              "--\n"
+              "\n"
+              "Computes hydraulic radius\n\n"
+              "Parameters\n"
+              "----------\n"
+              "elevation : array_like\n"
+              "    Elevation of hydraulic radius\n\n"
+              "Returns\n"
+              "-------\n"
+              "numpy.ndarray\n"
+              "    Computed hydraulic radius\n");
+
 static PyObject *
 PyXS_hydraulic_radius (PyXSObject *self, PyObject *args)
 {
     return PyXS_property (self, args, XS_HYDRAULIC_RADIUS);
 }
 
+PyDoc_STRVAR (xs_top_width__doc__,
+              "top_width($self, elevation, /)\n"
+              "--\n"
+              "\n"
+              "Computes top width\n\n"
+              "Parameters\n"
+              "----------\n"
+              "elevation : array_like\n"
+              "    Elevation of computed top width\n\n"
+              "Returns\n"
+              "-------\n"
+              "numpy.ndarray\n"
+              "    Computed top width\n");
+
 static PyObject *
 PyXS_top_width (PyXSObject *self, PyObject *args)
 {
     return PyXS_property (self, args, XS_TOP_WIDTH);
 }
+
+PyDoc_STRVAR (xs_tw_array__doc__,
+              "tw_array($self, elevation, /)\n"
+              "--\n"
+              "\n"
+              "Returns coordinates of top width\n\n"
+              "Parameters\n"
+              "----------\n"
+              "elevation : array_like\n"
+              "    Elevation of top width\n\n"
+              "Returns\n"
+              "-------\n"
+              "numpy.ndarray, numpy.ndarray\n"
+              "    Tuple of arrays containing y, z values of top width"
+              "coordinates\n");
 
 static PyObject *
 PyXS_tw_array (PyXSObject *self, PyObject *args)
@@ -365,17 +480,60 @@ PyXS_tw_array (PyXSObject *self, PyObject *args)
     return rslt;
 }
 
+PyDoc_STRVAR (xs_velocity_coeff__doc__,
+              "velocity_coeff($self, elevation, /)\n"
+              "--\n"
+              "\n"
+              "Computes velocity coefficient\n\n"
+              "Parameters\n"
+              "----------\n"
+              "elevation : array_like\n"
+              "    Elevation of velocity coefficient\n\n"
+              "Returns\n"
+              "-------\n"
+              "numpy.ndarray\n"
+              "    Computed velocity coefficient\n");
+
 static PyObject *
 PyXS_velocity_coeff (PyXSObject *self, PyObject *args)
 {
     return PyXS_property (self, args, XS_VELOCITY_COEFF);
 }
 
+PyDoc_STRVAR (xs_wetted_perimeter__doc__,
+              "wetted_perimeter($self, elevation, /)\n"
+              "--\n"
+              "\n"
+              "Computes wetted perimeter\n\n"
+              "Parameters\n"
+              "----------\n"
+              "elevation : array_like\n"
+              "    Elevation of wetted perimeter\n\n"
+              "Returns\n"
+              "-------\n"
+              "numpy.ndarray\n"
+              "    Computed wetted perimeter\n");
+
 static PyObject *
 PyXS_wetted_perimeter (PyXSObject *self, PyObject *args)
 {
     return PyXS_property (self, args, XS_WETTED_PERIMETER);
 }
+
+PyDoc_STRVAR (xs_wp_array__doc__,
+              "wp_array($self, elevation, /)\n"
+              "--\n"
+              "\n"
+              "Returns coordinates of wetted perimeter\n\n"
+              "Parameters\n"
+              "----------\n"
+              "elevation : array_like\n"
+              "    Elevation of wetted perimeter\n\n"
+              "Returns\n"
+              "-------\n"
+              "numpy.ndarray, numpy.ndarray\n"
+              "    Tuple of arrays containing y, z values of wetted perimeter "
+              "coordinates\n");
 
 static PyObject *
 PyXS_wp_array (PyXSObject *self, PyObject *args)
@@ -423,164 +581,6 @@ PyXS_wp_array (PyXSObject *self, PyObject *args)
 
     return rslt;
 }
-
-PyDoc_STRVAR (xs_area__doc__,
-              "area($self, elevation, /)\n"
-              "--\n"
-              "\n"
-              "Computes area\n\n"
-              "Parameters\n"
-              "----------\n"
-              "elevation : array_like\n"
-              "    Elevation of computed area\n\n"
-              "Returns\n"
-              "-------\n"
-              "numpy.ndarray\n"
-              "    Computed area\n");
-
-PyDoc_STRVAR (xs_conveyance__doc__,
-              "conveyance($self, elevation, /)\n"
-              "--\n"
-              "\n"
-              "Computes conveyance\n\n"
-              "Parameters\n"
-              "----------\n"
-              "elevation : array_like\n"
-              "    Elevation of computed conveyance\n\n"
-              "Returns\n"
-              "-------\n"
-              "numpy.ndarray\n"
-              "    Computed conveyance\n\n"
-              "Notes\n"
-              "-----\n"
-              "Cross section conveyance is computed as "
-              "the sum of the conveyance of\n"
-              "the subsections within the cross section\n");
-
-PyDoc_STRVAR (xs_coordinates__doc__,
-              "coordinates($self, /)\n"
-              "--\n"
-              "\n"
-              "Returns cross section coordinates\n\n"
-              "Returns\n"
-              "-------\n"
-              "numpy.ndarray, numpy.ndarray\n"
-              "    Tuple of arrays containing y, z values of cross section "
-              "coordinates\n");
-
-PyDoc_STRVAR (xs_critical_flow__doc__,
-              "critical_flow($self, elevation, /)\n"
-              "--\n"
-              "\n"
-              "Computes critical flow\n\n"
-              "Parameters\n"
-              "----------\n"
-              "elevation : array_like\n"
-              "    Elevation of computed critical flow\n\n"
-              "Returns\n"
-              "-------\n"
-              "numpy.ndarray\n"
-              "    Computed critical flow\n");
-
-PyDoc_STRVAR (xs_hydraulic_depth__doc__,
-              "hydraulic_depth($self, elevation, /)\n"
-              "--\n"
-              "\n"
-              "Computes hydraulic depth\n\n"
-              "Parameters\n"
-              "----------\n"
-              "elevation : array_like\n"
-              "    Elevation of hydraulic depth\n\n"
-              "Returns\n"
-              "-------\n"
-              "numpy.ndarray\n"
-              "    Computed hydraulic depth\n");
-
-PyDoc_STRVAR (xs_hydraulic_radius__doc__,
-              "hydraulic_radius($self, elevation, /)\n"
-              "--\n"
-              "\n"
-              "Computes hydraulic radius\n\n"
-              "Parameters\n"
-              "----------\n"
-              "elevation : array_like\n"
-              "    Elevation of hydraulic radius\n\n"
-              "Returns\n"
-              "-------\n"
-              "numpy.ndarray\n"
-              "    Computed hydraulic radius\n");
-
-PyDoc_STRVAR (xs_top_width__doc__,
-              "top_width($self, elevation, /)\n"
-              "--\n"
-              "\n"
-              "Computes top width\n\n"
-              "Parameters\n"
-              "----------\n"
-              "elevation : array_like\n"
-              "    Elevation of computed top width\n\n"
-              "Returns\n"
-              "-------\n"
-              "numpy.ndarray\n"
-              "    Computed top width\n");
-
-PyDoc_STRVAR (xs_tw_array__doc__,
-              "tw_array($self, elevation, /)\n"
-              "--\n"
-              "\n"
-              "Returns coordinates of top width\n\n"
-              "Parameters\n"
-              "----------\n"
-              "elevation : array_like\n"
-              "    Elevation of top width\n\n"
-              "Returns\n"
-              "-------\n"
-              "numpy.ndarray, numpy.ndarray\n"
-              "    Tuple of arrays containing y, z values of top width"
-              "coordinates\n");
-
-PyDoc_STRVAR (xs_velocity_coeff__doc__,
-              "velocity_coeff($self, elevation, /)\n"
-              "--\n"
-              "\n"
-              "Computes velocity coefficient\n\n"
-              "Parameters\n"
-              "----------\n"
-              "elevation : array_like\n"
-              "    Elevation of velocity coefficient\n\n"
-              "Returns\n"
-              "-------\n"
-              "numpy.ndarray\n"
-              "    Computed velocity coefficient\n");
-
-PyDoc_STRVAR (xs_wetted_perimeter__doc__,
-              "wetted_perimeter($self, elevation, /)\n"
-              "--\n"
-              "\n"
-              "Computes wetted perimeter\n\n"
-              "Parameters\n"
-              "----------\n"
-              "elevation : array_like\n"
-              "    Elevation of wetted perimeter\n\n"
-              "Returns\n"
-              "-------\n"
-              "numpy.ndarray\n"
-              "    Computed wetted perimeter\n");
-
-PyDoc_STRVAR (xs_wp_array__doc__,
-              "wp_array($self, elevation, /)\n"
-              "--\n"
-              "\n"
-              "Returns coordinates of wetted perimeter\n\n"
-              "Parameters\n"
-              "----------\n"
-              "elevation : array_like\n"
-              "    Elevation of wetted perimeter\n\n"
-              "Returns\n"
-              "-------\n"
-              "numpy.ndarray, numpy.ndarray\n"
-              "    Tuple of arrays containing y, z values of wetted perimeter "
-              "coordinates\n");
 
 static PyMethodDef PyXS_methods[] = {
     { "area", (PyCFunction) PyXS_area, METH_VARARGS, xs_area__doc__ },
@@ -701,6 +701,20 @@ PyXSTable_init (PyXSTableObject *self, PyObject *args, PyObject *kwds)
     return 0;
 }
 
+PyDoc_STRVAR (xstable_put__doc__,
+              "put($self, key, xs, /)\n"
+              "--\n"
+              "\n"
+              "Puts a cross section in this reference table\n\n"
+              "If `key` already exists in this table, then the `xs` "
+              "referenced by `key` will be overwritten.\n\n"
+              "Parameters\n"
+              "----------\n"
+              "key : int\n"
+              "    Key to store `xs`\n"
+              "xs : :class:`pantherapy.panthera.CrossSection`\n"
+              "    Cross section to store");
+
 static PyObject *
 PyXSTable_put (PyXSTableObject *self, PyObject *args)
 {
@@ -759,20 +773,6 @@ PyXSTable_get (PyXSTableObject *self, PyObject *args)
         return Py_None;
     }
 }
-
-PyDoc_STRVAR (xstable_put__doc__,
-              "put($self, key, xs, /)\n"
-              "--\n"
-              "\n"
-              "Puts a cross section in this reference table\n\n"
-              "If `key` already exists in this table, then the `xs` "
-              "referenced by `key` will be overwritten.\n\n"
-              "Parameters\n"
-              "----------\n"
-              "key : int\n"
-              "    Key to store `xs`\n"
-              "xs : :class:`pantherapy.panthera.CrossSection`\n"
-              "    Cross section to store");
 
 static PyMethodDef PyXSTable_methods[] = {
     { "put", (PyCFunction) PyXSTable_put, METH_VARARGS, xstable_put__doc__ },
