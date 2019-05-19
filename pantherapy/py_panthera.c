@@ -7,6 +7,7 @@
 #include <panthera/cii/mem.h>
 #include <panthera/crosssection.h>
 #include <panthera/exceptions.h>
+#include <panthera/reach.h>
 #include <panthera/xstable.h>
 
 /*
@@ -167,6 +168,7 @@ fail:
     Py_XDECREF (z_array);
     Py_XDECREF (roughness_array);
     Py_XDECREF (z_roughness_array);
+
     if (ca)
         coarray_free (ca);
 
@@ -710,7 +712,6 @@ static int
 PyXSTable_init (PyXSTableObject *self, PyObject *args, PyObject *kwds)
 {
     self->xs_table = xstable_new ();
-
     return 0;
 }
 
