@@ -653,21 +653,25 @@ static PyMethodDef PyXS_methods[] = {
     { NULL }
 };
 
-PyDoc_STRVAR (xs_doc,
-              "Hydraulic cross section\n\n"
-              "Parameters\n"
-              "----------\n"
-              "y : numpy.ndarray\n"
-              "    vertical values of cross section coordinates\n"
-              "z : numpy.ndarray\n"
-              "    lateral values of cross section coordinates\n"
-              "roughness : numpy.ndarray\n"
-              "    Manning coefficient for cross section subsections\n"
-              "z_roughness : numpy.ndarray, optional\n"
-              "    z values of cross section subsections defined by\n"
-              "    roughness values (optional). If `roughness` contains\n"
-              "    more than one element, `z_roughness` must be passed and\n"
-              "    contain one less element than `roughness`.\n");
+PyDoc_STRVAR (
+    xs_doc,
+    "CrossSection(y, x, roughness) -> new CrossSection with one subsection\n"
+    "CrossSection(y, x, roughness, z_roughness) -> new CrossSection with\n"
+    "    len(roughness) subsections\n\n"
+    "Hydraulic cross section\n\n"
+    "Parameters\n"
+    "----------\n"
+    "y : array_like\n"
+    "    Vertical values of cross section coordinates\n"
+    "z : array_like\n"
+    "    Lateral values of cross section coordinates\n"
+    "roughness : array_like\n"
+    "    Manning coefficient for cross section subsections\n"
+    "z_roughness : array_like, optional\n"
+    "    z values of cross section subsections defined by\n"
+    "    roughness values (optional). If `roughness` contains\n"
+    "    more than one element, `z_roughness` must be passed and\n"
+    "    contain one less element than `roughness`.\n");
 
 static PyTypeObject PyXSType = {
     PyVarObject_HEAD_INIT (NULL, 0).tp_name =
@@ -968,9 +972,31 @@ fail:
     return -1;
 }
 
+PyDoc_STRVAR (
+    reach_doc,
+    "reach(x, y, xs_number, xs_table) -> new reach\n\n"
+    "River reach\n\n"
+    "Parameters\n"
+    "----------\n"
+    "x : array_like\n"
+    "    Longitudinal distances of each node\n"
+    "y : array_like\n"
+    "    Vertical location of the thalweg of each node\n"
+    "xs_number : array_like\n"
+    "    Number of the cross section in each node. The number must\n"
+    "    correspond to a key in `xs_table`\n"
+    "xs_table : dict_like\n"
+    "    `dict` containing key, value pairs of cross section key (`int`),\n"
+    "    :class:`pantherapy.panthera.CrossSection`\n\n"
+    "Notes\n"
+    "-----\n"
+    "`x`, `y`, and `xs_number` must have the same length.\n\n"
+    "`xs_table` must have an `items` method that returns an iterator with\n"
+    "key, value pairs as elements (like a `dict`)\n");
+
 static PyTypeObject PyReachType = {
     PyVarObject_HEAD_INIT (NULL, 0).tp_name = "pantherapy.panthera.Reach",
-    .tp_doc                                 = "panthera Reach",
+    .tp_doc                                 = reach_doc,
     .tp_basicsize                           = sizeof (PyReachObject),
     .tp_itemsize                            = 0,
     .tp_flags                               = Py_TPFLAGS_DEFAULT,
