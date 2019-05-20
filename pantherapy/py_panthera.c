@@ -11,7 +11,7 @@
 #include <panthera/xstable.h>
 
 /*
- * Py_CrossSection type definition
+ * PyXS implementation
  */
 
 typedef struct {
@@ -687,127 +687,8 @@ static PyTypeObject PyXSType = {
 };
 
 /*
- * Py_XSTable type definition
+ * PyReach implementation
  */
-
-typedef struct {
-    PyObject_HEAD /* */
-        XSTable xs_table;
-} PyXSTableObject;
-
-static void
-PyXSTable_dealloc (PyXSTableObject *self)
-{
-    if (self->xs_table)
-        xstable_free (self->xs_table);
-    Py_TYPE (self)->tp_free ((PyObject *) self);
-}
-
-static PyObject *
-PyXSTable_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
-{
-    PyXSTableObject *self;
-    self           = (PyXSTableObject *) type->tp_alloc (type, 0);
-    self->xs_table = NULL;
-    return (PyObject *) self;
-}
-
-static int
-PyXSTable_init (PyXSTableObject *self, PyObject *args, PyObject *kwds)
-{
-    self->xs_table = xstable_new ();
-    return 0;
-}
-
-PyDoc_STRVAR (xstable_put__doc__,
-              "put($self, key, xs, /)\n"
-              "--\n"
-              "\n"
-              "Puts a cross section in this reference table\n\n"
-              "If `key` already exists in this table, then the `xs` "
-              "referenced by `key` will be overwritten.\n\n"
-              "Parameters\n"
-              "----------\n"
-              "key : int\n"
-              "    Key to store `xs`\n"
-              "xs : :class:`pantherapy.panthera.CrossSection`\n"
-              "    Cross section to store");
-
-static PyObject *
-PyXSTable_put (PyXSTableObject *self, PyObject *args)
-{
-    int         key;
-    PyObject *  ob;
-    PyXSObject *py_xs;
-
-    if (!PyArg_ParseTuple (args, "iO", &key, &ob))
-        return NULL;
-
-    if (!PyObject_TypeCheck (ob, &PyXSType)) {
-        PyErr_SetString (PyExc_TypeError, "xs must be a cross section");
-        return NULL;
-    }
-
-    py_xs = (PyXSObject *) ob;
-
-    xstable_put (self->xs_table, key, py_xs->xs);
-
-    Py_INCREF (Py_None);
-    return Py_None;
-}
-
-PyDoc_STRVAR (xstable_get__doc__,
-              "get($self, key, /)\n"
-              "--\n"
-              "\n"
-              "Gets a cross section from this reference table\n\n"
-              "If no cross section is stored in the value of `key`, this\n"
-              "method returns None.\n\n"
-              "Parameters\n"
-              "----------\n"
-              "key : int\n"
-              "    Key to store `xs`\n"
-              "xs : :class:`pantherapy.panthera.CrossSection`\n"
-              "    Cross section to store");
-
-static PyObject *
-PyXSTable_get (PyXSTableObject *self, PyObject *args)
-{
-    int          key;
-    CrossSection xs;
-    PyObject *   ob;
-
-    if (!PyArg_ParseTuple (args, "i", &key))
-        return NULL;
-
-    xs = xstable_get (self->xs_table, key);
-    if (xs) {
-        ob = PyXS_new (&PyXSType, NULL, NULL);
-        xs_incref (xs);
-        ((PyXSObject *) ob)->xs = xs;
-        return ob;
-    } else {
-        Py_INCREF (Py_None);
-        return Py_None;
-    }
-}
-
-static PyMethodDef PyXSTable_methods[] = {
-    { "put", (PyCFunction) PyXSTable_put, METH_VARARGS, xstable_put__doc__ },
-    { "get", (PyCFunction) PyXSTable_get, METH_VARARGS, xstable_get__doc__ },
-    { NULL }
-};
-
-static PyTypeObject PyXSTableType = {
-    PyVarObject_HEAD_INIT (NULL, 0).tp_name = "pantherapy.panthera.XSTable",
-    .tp_basicsize                           = sizeof (PyXSTableObject),
-    .tp_itemsize                            = 0,
-    .tp_flags                               = Py_TPFLAGS_DEFAULT,
-    .tp_new                                 = PyXSTable_new,
-    .tp_init                                = (initproc) PyXSTable_init,
-    .tp_dealloc                             = (destructor) PyXSTable_dealloc,
-    .tp_methods                             = PyXSTable_methods,
-};
 
 typedef struct {
     PyObject_HEAD /* */
@@ -1018,8 +899,6 @@ PyInit_panthera (void)
     PyObject *m;
     if (PyType_Ready (&PyXSType) < 0)
         return NULL;
-    if (PyType_Ready (&PyXSTableType) < 0)
-        return NULL;
     if (PyType_Ready (&PyReachType) < 0)
         return NULL;
 
@@ -1030,7 +909,6 @@ PyInit_panthera (void)
 
     Py_INCREF (&PyXSType);
     PyModule_AddObject (m, "CrossSection", (PyObject *) &PyXSType);
-    PyModule_AddObject (m, "XSTable", (PyObject *) &PyXSTableType);
     PyModule_AddObject (m, "Reach", (PyObject *) &PyReachType);
     return m;
 }
