@@ -47,9 +47,9 @@ PyXS_init (PyXSObject *self, PyObject *args, PyObject *kwds)
     double *roughness_data;
     double *z_roughness_data;
 
-    PyObject *y_array;
-    PyObject *z_array;
-    PyObject *roughness_array;
+    PyObject *y_array = NULL;
+    PyObject *z_array = NULL;
+    PyObject *roughness_array = NULL;
     PyObject *z_roughness_array = NULL;
 
     PyObject *   y = NULL, *z = NULL, *roughness = NULL, *z_roughness = NULL;
