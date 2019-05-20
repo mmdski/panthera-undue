@@ -805,6 +805,180 @@ static PyTypeObject PyXSTableType = {
     .tp_methods                             = PyXSTable_methods,
 };
 
+typedef struct {
+    PyObject_HEAD /* */
+        Reach reach;
+} PyReachObject;
+
+static void
+PyReach_dealloc (PyReachObject *self)
+{
+    if (self->reach)
+        reach_free (self->reach);
+    Py_TYPE (self)->tp_free ((PyObject *) self);
+}
+
+static PyObject *
+PyReach_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    PyReachObject *self;
+    self        = (PyReachObject *) type->tp_alloc (type, 0);
+    self->reach = NULL;
+    return (PyObject *) self;
+}
+
+static int
+PyReach_init (PyReachObject *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *x_array = NULL, *y_array = NULL, *xs_number_array = NULL,
+             *xs_table_items = NULL, *iterator = NULL, *item = NULL,
+             *key = NULL, *value = NULL;
+
+    int         x_size;
+    int         y_size;
+    int         xs_num_size;
+    PyXSObject *py_xs    = NULL;
+    XSTable     xs_table = NULL;
+    int         xs_key;
+    double *    x_array_data;
+    double *    y_array_data;
+    int *       xs_number_data;
+
+    /* create array objects from arguments */
+    PyObject *x, *y, *xs_number, *xs_table_ob;
+    if (!PyArg_ParseTuple (args, "OOOO", &x, &y, &xs_number, &xs_table_ob))
+        return -1;
+
+    x_array = PyArray_FROM_OTF (y, NPY_DOUBLE, NPY_ARRAY_C_CONTIGUOUS);
+    if (x_array == NULL)
+        goto fail;
+
+    y_array = PyArray_FROM_OTF (x, NPY_DOUBLE, NPY_ARRAY_C_CONTIGUOUS);
+    if (y_array == NULL)
+        goto fail;
+
+    xs_number_array =
+        PyArray_FROM_OTF (xs_number, NPY_INT, NPY_ARRAY_C_CONTIGUOUS);
+    if (xs_number_array == NULL)
+        goto fail;
+
+    /* x, y, and xs numbers must be 1D */
+    if (PyArray_NDIM ((PyArrayObject *) x_array) != 1) {
+        PyErr_SetString (PyExc_ValueError, "'x' must be 1D");
+        goto fail;
+    }
+    if (PyArray_NDIM ((PyArrayObject *) y_array) != 1) {
+        PyErr_SetString (PyExc_ValueError, "'y' must be 1D");
+        goto fail;
+    }
+    if (PyArray_NDIM ((PyArrayObject *) xs_number_array) != 1) {
+        PyErr_SetString (PyExc_ValueError, "'xs_number' must be 1D");
+        goto fail;
+    }
+
+    /* x, y, and xs numbers must be the same size */
+    x_size      = PyArray_SIZE ((PyArrayObject *) x_array);
+    y_size      = PyArray_SIZE ((PyArrayObject *) y_array);
+    xs_num_size = PyArray_SIZE ((PyArrayObject *) xs_number_array);
+    if (x_size != y_size || x_size != xs_num_size) {
+        PyErr_SetString (PyExc_ValueError,
+                         "the size of x, y, and xs_number must be equal");
+        goto fail;
+    }
+
+    /* create a cross section table for the call to reach_new */
+    xs_table       = xstable_new ();
+    xs_table_items = PyObject_CallMethod (xs_table_ob, "items", NULL);
+    if (!xs_table_items)
+        goto fail;
+    iterator = PyObject_GetIter (xs_table_items);
+    if (!xs_table_items)
+        goto fail;
+    while ((item = PyIter_Next (iterator))) {
+        /* get the key, value pair from the item tuple */
+        if (!(key = PySequence_GetItem (item, 0)))
+            goto fail;
+        if (!(value = PySequence_GetItem (item, 1)))
+            goto fail;
+
+        /* get the key as an integer */
+        xs_key = (int) PyLong_AsLong (key);
+        if (PyErr_Occurred ())
+            goto fail;
+
+        /* get the value as a cross section */
+        if (!PyObject_TypeCheck (value, &PyXSType)) {
+            PyErr_SetString (PyExc_TypeError,
+                             "xs_table values must be cross section type");
+            goto fail;
+        }
+        py_xs = (PyXSObject *) value;
+
+        xstable_put (xs_table, xs_key, py_xs->xs);
+
+        Py_DECREF (key);
+        Py_DECREF (value);
+        Py_DECREF (item);
+    }
+
+    Py_DECREF (iterator);
+
+    if (PyErr_Occurred ())
+        goto fail;
+
+    x_array_data   = (double *) PyArray_DATA ((PyArrayObject *) x_array);
+    y_array_data   = (double *) PyArray_DATA ((PyArrayObject *) y_array);
+    xs_number_data = (int *) PyArray_DATA ((PyArrayObject *) xs_number_array);
+
+    TRY
+    {
+        self->reach = reach_new (
+            x_size, x_array_data, y_array_data, xs_number_data, xs_table);
+    }
+    EXCEPT (reach_xs_num_error);
+    {
+        PyErr_SetString (PyExc_ValueError,
+                         "Values in 'xs_number' must be keys in 'xs_table'");
+        goto fail;
+    }
+    EXCEPT (reach_x_order_error);
+    {
+        PyErr_SetString (PyExc_ValueError,
+                         "Values in 'x' must be in ascending or equal order");
+        goto fail;
+    }
+    END_TRY;
+
+    Py_DECREF (x_array);
+    Py_DECREF (y_array);
+    Py_DECREF (xs_number_array);
+
+    return 0;
+
+fail:
+    Py_XDECREF (x_array);
+    Py_XDECREF (y_array);
+    Py_XDECREF (xs_number_array);
+    Py_XDECREF (key);
+    Py_XDECREF (value);
+    Py_XDECREF (item);
+    Py_XDECREF (iterator);
+    if (xs_table)
+        xstable_free (xs_table);
+    return -1;
+}
+
+static PyTypeObject PyReachType = {
+    PyVarObject_HEAD_INIT (NULL, 0).tp_name = "pantherapy.panthera.Reach",
+    .tp_doc                                 = "panthera Reach",
+    .tp_basicsize                           = sizeof (PyReachObject),
+    .tp_itemsize                            = 0,
+    .tp_flags                               = Py_TPFLAGS_DEFAULT,
+    .tp_new                                 = PyReach_new,
+    .tp_init                                = (initproc) PyReach_init,
+    .tp_dealloc                             = (destructor) PyReach_dealloc,
+};
+
 static PyModuleDef pantheramodule = {
     PyModuleDef_HEAD_INIT,
     .m_name = "panthera",
@@ -820,6 +994,8 @@ PyInit_panthera (void)
         return NULL;
     if (PyType_Ready (&PyXSTableType) < 0)
         return NULL;
+    if (PyType_Ready (&PyReachType) < 0)
+        return NULL;
 
     m = PyModule_Create (&pantheramodule);
     if (m == NULL)
@@ -829,5 +1005,6 @@ PyInit_panthera (void)
     Py_INCREF (&PyXSType);
     PyModule_AddObject (m, "CrossSection", (PyObject *) &PyXSType);
     PyModule_AddObject (m, "XSTable", (PyObject *) &PyXSTableType);
+    PyModule_AddObject (m, "Reach", (PyObject *) &PyReachType);
     return m;
 }
