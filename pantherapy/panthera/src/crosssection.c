@@ -279,7 +279,6 @@ res_resize (int new_size, ResultsCache *old_res)
  */
 
 struct CrossSection {
-    int           ref_count;     /* reference count */
     int           n_coordinates; /* number of coordinates */
     int           n_subsections; /* number of subsections */
     CoArray       ca;            /* coordinate array */
@@ -443,9 +442,6 @@ xs_new (CoArray ca, int n_roughness, double *roughness, double *z_roughness)
 
     Mem_free (z_splits, __FILE__, __LINE__);
 
-    /* initialize the reference count to 1 */
-    xs->ref_count = 1;
-
     return xs;
 }
 
@@ -456,35 +452,21 @@ xs_free (CrossSection xs)
     if (!xs)
         RAISE (null_ptr_arg_error);
 
-    xs->ref_count--;
+    int i;
+    int n = xs->n_subsections;
 
-    if (xs->ref_count == 0) {
+    /* free the coordinate array */
+    coarray_free (xs->ca);
 
-        int i;
-        int n = xs->n_subsections;
-
-        /* free the coordinate array */
-        coarray_free (xs->ca);
-
-        /* free the subsections and subsection array */
-        for (i = 0; i < n; i++) {
-            ss_free (*(xs->ss + i));
-        }
-        Mem_free (xs->ss, __FILE__, __LINE__);
-
-        /* free the results cache */
-        res_free (xs->results);
-        FREE (xs);
+    /* free the subsections and subsection array */
+    for (i = 0; i < n; i++) {
+        ss_free (*(xs->ss + i));
     }
-}
+    Mem_free (xs->ss, __FILE__, __LINE__);
 
-void
-xs_incref (CrossSection xs)
-{
-    if (!xs)
-        RAISE (null_ptr_arg_error);
-
-    xs->ref_count++;
+    /* free the results cache */
+    res_free (xs->results);
+    FREE (xs);
 }
 
 CrossSectionProps

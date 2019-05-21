@@ -141,21 +141,6 @@ extern void
 xs_free (CrossSection xs);
 
 /**
- * xs_incref:
- * @xs: a #CrossSection
- *
- * Increases the reference count of @xs.
- *
- * **Raises:**
- *
- * #null_ptr_arg_error if @xs is `NULL`
- *
- * Returns: None
- */
-extern void
-xs_incref (CrossSection xs);
-
-/**
  * xs_coarray:
  * @xs: a #CrossSection
  *
