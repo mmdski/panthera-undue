@@ -734,11 +734,11 @@ PyReach_init (PyReachObject *self, PyObject *args, PyObject *kwds)
     if (!PyArg_ParseTuple (args, "OOOO", &x, &y, &xs_number, &xs_table_ob))
         return -1;
 
-    x_array = PyArray_FROM_OTF (y, NPY_DOUBLE, NPY_ARRAY_C_CONTIGUOUS);
+    x_array = PyArray_FROM_OTF (x, NPY_DOUBLE, NPY_ARRAY_C_CONTIGUOUS);
     if (x_array == NULL)
         goto fail;
 
-    y_array = PyArray_FROM_OTF (x, NPY_DOUBLE, NPY_ARRAY_C_CONTIGUOUS);
+    y_array = PyArray_FROM_OTF (y, NPY_DOUBLE, NPY_ARRAY_C_CONTIGUOUS);
     if (y_array == NULL)
         goto fail;
 
@@ -767,7 +767,7 @@ PyReach_init (PyReachObject *self, PyObject *args, PyObject *kwds)
     xs_num_size = PyArray_SIZE ((PyArrayObject *) xs_number_array);
     if (x_size != y_size || x_size != xs_num_size) {
         PyErr_SetString (PyExc_ValueError,
-                         "the size of x, y, and xs_number must be equal");
+                         "The size of x, y, and xs_number must be equal");
         goto fail;
     }
 
