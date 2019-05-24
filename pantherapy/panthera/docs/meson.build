@@ -1,4 +1,4 @@
-project('panthera docs', version: '0.0.X')
+project('panthera docs', version: '0.0.0')
 
 sources = ['../include/panthera/*.h']
 
