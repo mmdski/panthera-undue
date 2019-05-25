@@ -1,7 +1,9 @@
 #include <panthera/cii/assert.h>
+#include <panthera/cii/mem.h>
 #include <panthera/redblackbst.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdio.h>
 
 typedef struct TreeNode TreeNode;
 
@@ -9,8 +11,8 @@ enum color { BLACK, RED };
 
 struct TreeNode {
 
-    void *key;
-    void *value;
+    const void *key;
+    void *      value;
 
     int  size;
     bool color; /* red or black */
@@ -20,7 +22,7 @@ struct TreeNode {
 };
 
 static TreeNode *
-tree_node_new (void *key, void *value)
+tree_node_new (const void *key, void *value)
 {
     TreeNode *node;
     NEW (node);
@@ -77,21 +79,24 @@ tree_max (TreeNode *node)
 }
 
 static TreeNode *
-tree_get (TreeNode *node, KeyCompareFunc compare_func, void *key)
+tree_get (TreeNode *node, KeyCompareFunc compare_func, const void *key)
 {
+    assert (compare_func && key);
     if (node == NULL)
         return NULL;
 
-    if (compare_func (key, node->key) < 0)
+    int cmp = compare_func (key, node->key);
+
+    if (cmp < 0)
         return tree_get (node->l, compare_func, key);
-    else if (compare_func (key, node->key) > 0)
+    else if (cmp > 0)
         return tree_get (node->r, compare_func, key);
     else
         return node;
 }
 
 static bool
-tree_contains (TreeNode *node, KeyCompareFunc compare_func, void *key)
+tree_contains (TreeNode *node, KeyCompareFunc compare_func, const void *key)
 {
     return tree_get (node, compare_func, key) != NULL;
 }
@@ -217,24 +222,24 @@ tree_delete_min (TreeNode *node)
 
 /* delete the node with the given key rooted at node */
 static TreeNode *
-tree_delete (TreeNode *node, KeyCompareFunc compare_func, void *key)
+tree_delete (TreeNode *node, KeyCompareFunc compare_func, const void *key)
 {
-    assert (tree_get (node, key, compare_func) != NULL);
+    assert (tree_get (node, compare_func, key) != NULL);
 
-    if (key < node->key) {
+    if (compare_func (key, node->key) < 0) {
         if (!tree_is_red (node->l) && !tree_is_red (node->l->l))
             node = tree_move_red_left (node);
         node->l = tree_delete (node->l, compare_func, key);
     } else {
         if (tree_is_red (node->l))
             node = tree_rotate_right (node);
-        if (key == node->key && node->r == NULL) {
+        if (compare_func (key, node->key) == 0 && node->r == NULL) {
             tree_node_free (node);
             return NULL;
         }
         if (!tree_is_red (node->r) && !tree_is_red (node->r->l))
             node = tree_move_red_right (node);
-        if (key == node->key) {
+        if (compare_func (key, node->key) == 0) {
             TreeNode *min_r = tree_min (node->r);
             node->key       = min_r->key;
             node->value     = min_r->value;
@@ -251,14 +256,17 @@ tree_keys (TreeNode *node, int i, void **key_array)
 {
     if (node) {
         i                  = tree_keys (node->l, i, key_array);
-        *(key_array + i++) = node->key;
+        *(key_array + i++) = (void *) node->key;
         i                  = tree_keys (node->r, i, key_array);
     }
     return i;
 }
 
 static TreeNode *
-tree_put (TreeNode *node, KeyCompareFunc compare_func, void *key, void *value)
+tree_put (TreeNode *     node,
+          KeyCompareFunc compare_func,
+          const void *   key,
+          void *         value)
 {
     if (!node)
         return tree_node_new (key, value);
@@ -268,7 +276,8 @@ tree_put (TreeNode *node, KeyCompareFunc compare_func, void *key, void *value)
     else if (compare_func (key, node->key) > 0)
         node->r = tree_put (node->r, compare_func, key, value);
     else {
-        node->value = value;
+        /* should not be reached */
+        assert (true);
     }
 
     /* fix any right-leaning links */
@@ -290,6 +299,7 @@ struct RedBlackBST {
 RedBlackBST
 redblackbst_new (KeyCompareFunc compare_func)
 {
+    assert (compare_func);
     RedBlackBST tree;
     NEW (tree);
     tree->root         = NULL;
@@ -305,68 +315,72 @@ redblackbst_free (RedBlackBST tree)
     FREE (tree);
 }
 
+void
+redblackbst_free_item (Item *item)
+{
+    assert (item);
+    FREE (item);
+}
+
 int
 redblackbst_size (RedBlackBST tree)
 {
     assert (tree);
-    return tree_size (tree);
+    return tree_size (tree->root);
 }
 
 void *
 redblackbst_min_key (RedBlackBST tree)
 {
     assert (tree);
-    assert (tree_size (tree) > 0);
+    assert (tree_size (tree->root) > 0);
     TreeNode *min = tree_min (tree->root);
-    return min->key;
+    return (void *) min->key;
 }
 
 void *
 redblackbst_max_key (RedBlackBST tree)
 {
     assert (tree);
-    assert (tree_size (tree) > 0);
+    assert (tree_size (tree->root) > 0);
     TreeNode *max = tree_max (tree->root);
-    return max->key;
+    return (void *) max->key;
 }
 
-void *
-redblackbst_get (RedBlackBST tree, void *key)
+Item *
+redblackbst_get (RedBlackBST tree, const void *key)
 {
     assert (tree && key);
-    TreeNode *node = tree_get (tree->root, key, tree->compare_func);
-    if (node)
-        return node->value;
-    else
-        return NULL;
+    Item *    item;
+    TreeNode *node = tree_get (tree->root, tree->compare_func, key);
+    if (node) {
+        NEW (item);
+        item->key   = (void *) node->key;
+        item->value = node->value;
+    } else {
+        item = NULL;
+    }
+
+    return item;
 }
 
-void *
-redblackbst_put (RedBlackBST tree, void *key, void *value)
+void
+redblackbst_put (RedBlackBST tree, const void *key, void *value)
 {
     assert (tree && key && value);
-    void *    old_value;
-    TreeNode *node = tree_get (tree->root, key, tree->compare_func);
-    if (node) {
-        old_value   = node->value;
-        node->value = value;
-    } else {
-        old_value  = NULL;
-        tree->root = tree_put (tree->root, tree->compare_func, key, value);
-        tree->root->color = BLACK;
-    }
-    return old_value;
+    tree->root        = tree_put (tree->root, tree->compare_func, key, value);
+    tree->root->color = BLACK;
 }
 
 bool
-redblackbst_contains (RedBlackBST tree, void *key)
+redblackbst_contains (RedBlackBST tree, const void *key)
 {
     assert (tree && key);
     return tree_contains (tree->root, tree->compare_func, key);
 }
 
 void
-redblackbst_delete (RedBlackBST tree, void *key)
+redblackbst_delete (RedBlackBST tree, const void *key)
 {
     assert (tree && key);
     if (!tree_contains (tree->root, tree->compare_func, key))

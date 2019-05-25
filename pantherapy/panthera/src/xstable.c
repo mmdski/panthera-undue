@@ -9,11 +9,14 @@ struct XSTable {
 };
 
 int
-xs_key_compare_func (void *x, void *y)
+xs_key_compare_func (const void *x, const void *y)
 {
-    if (*(int *) x < *(int *) y)
+    int x_val = *(int *) x;
+    int y_val = *(int *) y;
+
+    if (x_val < y_val)
         return -1;
-    else if (*(int *) x > *(int *) y)
+    else if (x_val > y_val)
         return 1;
     else
         return 0;
@@ -24,47 +27,35 @@ xstable_new (void)
 {
     XSTable xstable;
     NEW (xstable);
-
-    xstable->tree = redblackbst_new (xs_key_compare_func);
+    xstable->tree = redblackbst_new (&xs_key_compare_func);
     return xstable;
 }
 
 void
 xstable_free (XSTable xstable)
 {
-    int size;
+    if (!xstable)
+        RAISE (null_ptr_arg_error);
+    int    size = xstable_size (xstable);
+    int    i;
+    int    k;
+    void **keys = Mem_calloc (size, sizeof (void *), __FILE__, __LINE__);
+    redblackbst_keys (xstable->tree, keys);
+    for (i = 0; i < size; i++) {
+        k = *(int *) *(keys + i);
+        xstable_delete (xstable, k);
+    }
     redblackbst_free (xstable->tree);
     FREE (xstable);
+    Mem_free (keys, __FILE__, __LINE__);
 }
 
 int
 xstable_size (XSTable xstable)
 {
-    return tree_size (xstable->root);
-}
-
-double
-xstable_min_x (XSTable xstable)
-{
     if (!xstable)
         RAISE (null_ptr_arg_error);
-    if (xstable_size (xstable) == 0)
-        RAISE (empty_table_error);
-
-    TreeNode *min = tree_min (xstable->root);
-    return min->key;
-}
-
-double
-xstable_max_key (XSTable xstable)
-{
-    if (!xstable)
-        RAISE (null_ptr_arg_error);
-    if (xstable_size (xstable) == 0)
-        RAISE (empty_table_error);
-
-    TreeNode *max = tree_max (xstable->root);
-    return max->key;
+    return redblackbst_size (xstable->tree);
 }
 
 CrossSection
@@ -72,11 +63,16 @@ xstable_get (XSTable xstable, int key)
 {
     if (!xstable)
         RAISE (null_ptr_arg_error);
-    TreeNode *node = tree_get (xstable->root, key);
-    if (node)
-        return node->value;
-    else
-        return NULL;
+
+    CrossSection xs;
+
+    Item *item = redblackbst_get (xstable->tree, &key);
+    if (item) {
+        xs = (CrossSection) item->value;
+        redblackbst_free_item (item);
+    } else
+        xs = NULL;
+    return xs;
 }
 
 void
@@ -85,8 +81,18 @@ xstable_put (XSTable xstable, int key, CrossSection xs)
     if (!xstable || !xs)
         RAISE (null_ptr_arg_error);
 
-    xstable->root        = tree_put (xstable->root, key, xs);
-    xstable->root->color = BLACK;
+    int *tree_key;
+
+    Item *item = redblackbst_get (xstable->tree, &key);
+    if (item) {
+        tree_key = item->key;
+        redblackbst_free_item (item);
+    } else {
+        tree_key  = Mem_alloc (sizeof (int), __FILE__, __LINE__);
+        *tree_key = key;
+    }
+
+    redblackbst_put (xstable->tree, tree_key, xs);
 }
 
 bool
@@ -94,7 +100,7 @@ xstable_contains (XSTable xstable, int key)
 {
     if (!xstable)
         RAISE (null_ptr_arg_error);
-    return tree_contains (xstable->root, key);
+    return redblackbst_contains (xstable->tree, &key);
 }
 
 void
@@ -102,16 +108,14 @@ xstable_delete (XSTable xstable, int key)
 {
     if (!xstable)
         RAISE (null_ptr_arg_error);
-    if (!tree_contains (xstable->root, key))
+    if (!xstable_contains (xstable, key))
         return;
-
-    /* if both children of root are black, set root to red */
-    if (!tree_is_red (xstable->root->l) && !tree_is_red (xstable->root->r))
-        xstable->root->color = RED;
-
-    xstable->root = tree_delete (xstable->root, key);
-    if (xstable_size (xstable) > 0)
-        xstable->root->color = BLACK;
+    Item *item = redblackbst_get (xstable->tree, &key);
+    redblackbst_delete (xstable->tree, &key);
+    if (item) {
+        Mem_free (item->key, __FILE__, __LINE__);
+        redblackbst_free_item (item);
+    }
 }
 
 int
@@ -120,10 +124,19 @@ xstable_keys (XSTable xstable, int **keys)
     if (!xstable || !keys)
         RAISE (null_ptr_arg_error);
 
-    int size = tree_size (xstable->root);
+    int    i;
+    int    size = redblackbst_size (xstable->tree);
+    int *  k;
+    void **tree_keys = Mem_calloc (size, sizeof (void *), __FILE__, __LINE__);
 
-    *keys = Mem_calloc (size, sizeof (int), __FILE__, __LINE__);
-    tree_keys (xstable->root, 0, *keys);
+    k = Mem_calloc (size, sizeof (int), __FILE__, __LINE__);
+    redblackbst_keys (xstable->tree, tree_keys);
+    for (i = 0; i < size; i++) {
+        *(k + i) = *(int *) *(tree_keys + i);
+    }
+
+    *keys = k;
+    Mem_free (tree_keys, __FILE__, __LINE__);
 
     return size;
 }

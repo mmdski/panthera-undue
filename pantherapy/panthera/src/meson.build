@@ -12,6 +12,7 @@ panthera_sources = [
                     'reach.c',
                     'standardstep.c',
                     'secantsolve.c',
+                    'redblackbst.c',
                     cii_sources
                     ]
 
