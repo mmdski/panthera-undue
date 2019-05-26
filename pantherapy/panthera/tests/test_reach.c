@@ -96,6 +96,7 @@ test_reach_new (void)
     END_TRY;
 
     xstable_free (xstable);
+    xs_free (xs);
 }
 
 void
@@ -142,6 +143,7 @@ test_reach_node_props (void)
 
     reach_free (reach);
     xstable_free (xstable);
+    xs_free (xs);
 
     reach = NULL;
 
@@ -192,6 +194,7 @@ test_reach_stream_distance (void)
     Mem_free (stream_distance, __FILE__, __LINE__);
     reach_free (reach);
     xstable_free (xstable);
+    xs_free (xs);
 }
 
 int

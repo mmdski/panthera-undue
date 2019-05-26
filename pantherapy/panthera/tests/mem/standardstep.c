@@ -62,4 +62,5 @@ test_standardstep (void)
     ss_res_free (res);
     reach_free (reach);
     xstable_free (xstable);
+    xs_free (xs);
 }

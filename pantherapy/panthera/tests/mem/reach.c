@@ -48,4 +48,5 @@ test_reach (void)
     Mem_free (stream_distance, __FILE__, __LINE__);
     reach_free (reach);
     xstable_free (xstable);
+    xs_free (xs);
 }

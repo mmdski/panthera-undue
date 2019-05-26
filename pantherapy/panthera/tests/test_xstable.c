@@ -37,23 +37,30 @@ test_xstable_put (void)
     END_TRY;
 
     xstable_free (xstable);
+    xs_free (xs);
 }
 
 void
 test_xs_table_put_multi (void)
 {
-    int i;
-    int n_xs   = 5;
-    int keys[] = { 0, 1, 2, 3, 4, 5 };
+    int          i;
+    int          n_xs   = 5;
+    int          keys[] = { 0, 1, 2, 3, 4, 5 };
+    CrossSection xs;
 
     XSTable xstable = xstable_new ();
 
     for (i = 0; i < n_xs; i++) {
-        CrossSection xs = new_cross_section ();
+        xs = new_cross_section ();
         xstable_put (xstable, keys[i], xs);
     }
 
     g_assert_true (xstable_size (xstable) == n_xs);
+
+    for (i = 0; i < n_xs; i++) {
+        xs = xstable_get (xstable, keys[i]);
+        xs_free (xs);
+    }
 
     xstable_free (xstable);
 }
@@ -80,6 +87,7 @@ test_xstable_get (void)
     ;
     END_TRY;
 
+    xs_free (xs);
     xstable_free (xstable);
 }
 
@@ -107,6 +115,11 @@ test_xstable_get_multi_xs (void)
     for (i = 0; i < n_xs; i++) {
         xs = xstable_get (xstable, keys[i]);
         g_assert_true (xs == *(xs_in_xstable + i));
+    }
+
+    for (i = 0; i < n_xs; i++) {
+        xs = xstable_get (xstable, keys[i]);
+        xs_free (xs);
     }
 
     xstable_free (xstable);
@@ -152,6 +165,9 @@ test_xstable_delete (void)
     END_TRY;
 
     xstable_free (xstable);
+    for (i = 0; i < n_xs; i++) {
+        xs_free (*(xs_in_xstable + i));
+    }
     Mem_free (xs_in_xstable, __FILE__, __LINE__);
 }
 
@@ -170,22 +186,31 @@ test_xstable_delete_random (void)
 
     while (xstable_size (xstable) < n_xs) {
         random_key = rand ();
-        xs         = new_cross_section ();
-        xstable_put (xstable, random_key, xs);
+        if (!xstable_contains (xstable, random_key)) {
+            xs = new_cross_section ();
+            xstable_put (xstable, random_key, xs);
+        }
     }
 
     n_xs = xstable_keys (xstable, &key_array);
     while (xstable_size (xstable) > n_xs / 2) {
-        i = rand () % n_xs;
-        xstable_delete (xstable, key_array[i]);
+        i          = rand () % n_xs;
+        random_key = key_array[i];
+        if (xstable_contains (xstable, random_key)) {
+            xs = xstable_get (xstable, random_key);
+            xs_free (xs);
+            xstable_delete (xstable, random_key);
+        }
     }
     Mem_free (key_array, __FILE__, __LINE__);
     key_array = NULL;
 
     while (xstable_size (xstable) < 10 * n_xs) {
         random_key = rand ();
-        xs         = new_cross_section ();
-        xstable_put (xstable, random_key, xs);
+        if (!xstable_contains (xstable, random_key)) {
+            xs = new_cross_section ();
+            xstable_put (xstable, random_key, xs);
+        }
     }
 
     n_xs = xstable_keys (xstable, &key_array);
@@ -194,6 +219,12 @@ test_xstable_delete_random (void)
         xstable_delete (xstable, key_array[i]);
     }
     Mem_free (key_array, __FILE__, __LINE__);
+
+    n_xs = xstable_keys (xstable, &key_array);
+    for (i = 0; i < n_xs; i++) {
+        xs = xstable_get (xstable, *(key_array + i));
+        xs_free (xs);
+    }
 
     xstable_free (xstable);
 }
@@ -249,6 +280,8 @@ test_xstable_keys (void)
     END_TRY;
 
     xstable_free (xstable);
+    for (i = 0; i < n_xs; i++)
+        xs_free (*(xs_in_xstable + i));
     Mem_free (xs_in_xstable, __FILE__, __LINE__);
     Mem_free (keys_array, __FILE__, __LINE__);
 }
@@ -287,6 +320,8 @@ test_xstable_keys_unordered (void)
     }
 
     xstable_free (xstable);
+    for (i = 0; i < n_xs; i++)
+        xs_free (*(xs_in_xstable + i));
     Mem_free (xs_in_xstable, __FILE__, __LINE__);
     Mem_free (keys_array, __FILE__, __LINE__);
 }
@@ -325,6 +360,8 @@ test_xstable_keys_random (void)
     }
 
     xstable_free (xstable);
+    for (i = 0; i < n_xs; i++)
+        xs_free (*(xs_in_xstable + i));
     Mem_free (xs_in_xstable, __FILE__, __LINE__);
     Mem_free (keys_array, __FILE__, __LINE__);
 }

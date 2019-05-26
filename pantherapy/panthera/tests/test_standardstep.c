@@ -79,6 +79,7 @@ test_normal_flow_us (void)
     ss_res_free (res);
     reach_free (reach);
     xstable_free (xstable);
+    xs_free (xs);
 }
 
 void
@@ -154,6 +155,7 @@ test_normal_flow_ds (void)
     ss_res_free (res);
     reach_free (reach);
     xstable_free (xstable);
+    xs_free (xs);
 }
 
 /* the solution to this problem is table 6-2 of Open-Channel Flow, 2nd ed. by
@@ -225,6 +227,7 @@ test_trapezoid (void)
     ss_res_free (res);
     reach_free (reach);
     xstable_free (xstable);
+    xs_free (xs);
 }
 
 int
