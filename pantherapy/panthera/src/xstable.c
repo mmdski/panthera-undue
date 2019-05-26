@@ -36,18 +36,21 @@ xstable_free (XSTable xstable)
 {
     if (!xstable)
         RAISE (null_ptr_arg_error);
-    int    size = xstable_size (xstable);
-    int    i;
-    int    k;
-    void **keys = Mem_calloc (size, sizeof (void *), __FILE__, __LINE__);
-    redblackbst_keys (xstable->tree, keys);
-    for (i = 0; i < size; i++) {
-        k = *(int *) *(keys + i);
-        xstable_delete (xstable, k);
+    int size = xstable_size (xstable);
+    int i;
+    int k;
+
+    if (size > 0) {
+        void **keys = Mem_calloc (size, sizeof (void *), __FILE__, __LINE__);
+        redblackbst_keys (xstable->tree, keys);
+        for (i = 0; i < size; i++) {
+            k = *(int *) *(keys + i);
+            xstable_delete (xstable, k);
+        }
+        Mem_free (keys, __FILE__, __LINE__);
     }
     redblackbst_free (xstable->tree);
     FREE (xstable);
-    Mem_free (keys, __FILE__, __LINE__);
 }
 
 int
