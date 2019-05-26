@@ -36,8 +36,8 @@ xstable_new (void);
  * xstable_free:
  * @xstable: a #XSTable
  *
- * Frees a cross section symbol table. All cross sections contained in the
- * table are also freed.
+ * Frees a cross section symbol table. The cross sections contained in
+ * @xstable are not freed.
  *
  * **Raises:**
  *
@@ -122,7 +122,8 @@ xstable_contains (XSTable xstable, int key);
  * @xstable: a #XSTable
  * @key:     cross section number
  *
- * Removes and frees the cross section associated with @key from @xstable.
+ * Removes the item in @xstable associated with @key. The cross section
+ * associated with @key is not freed.
  *
  * **Raises:**
  *
