@@ -84,3 +84,28 @@ class TestReach(unittest.TestCase):
             ValueError, "Values in 'x' must be in ascending or equal order",
             Reach, *(x_descending, y, xs_numbers, xs_table)
         )
+
+    def test_thalweg(self):
+        """Test the thalweg method of Reach"""
+
+        # test successful init
+        xs_y = np.array([1, 0, 0, 0, 1])
+        xs_z = np.array([1, 1, 2, 3, 3])
+        roughness = np.array([0.030])
+        xs = CrossSection(xs_y, xs_z, roughness)
+
+        slope = 0.001
+
+        x = np.linspace(0, 1e3)
+
+        y = slope * x
+
+        xs_numbers = np.zeros_like(x, dtype='int32')
+        xs_table = {0: xs}
+
+        reach = Reach(x, y, xs_numbers, xs_table)
+
+        thalweg = reach.thalweg()
+
+        self.assertTrue(np.array_equal(x, thalweg[0]))
+        self.assertTrue(np.array_equal(y, thalweg[1]))

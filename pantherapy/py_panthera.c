@@ -47,9 +47,9 @@ PyXS_init(PyXSObject *self, PyObject *args, PyObject *kwds)
     double *roughness_data;
     double *z_roughness_data;
 
-    PyObject *y_array = NULL;
-    PyObject *z_array = NULL;
-    PyObject *roughness_array = NULL;
+    PyObject *y_array           = NULL;
+    PyObject *z_array           = NULL;
+    PyObject *roughness_array   = NULL;
     PyObject *z_roughness_array = NULL;
 
     PyObject *   y = NULL, *z = NULL, *roughness = NULL, *z_roughness = NULL;
@@ -800,8 +800,6 @@ PyReach_init(PyReachObject *self, PyObject *args, PyObject *kwds)
 
         xstable_put(xs_table, xs_key, py_xs->xs);
 
-        Py_DECREF(key);
-        Py_DECREF(value);
         Py_DECREF(item);
     }
 
@@ -844,12 +842,71 @@ fail:
     Py_XDECREF(y_array);
     Py_XDECREF(xs_number_array);
     Py_XDECREF(key);
-    Py_XDECREF(value);
     Py_XDECREF(item);
     Py_XDECREF(iterator);
     if (xs_table)
         xstable_free(xs_table);
     return -1;
+}
+
+PyDoc_STRVAR(reach_thalweg__doc__,
+             "thalweg($self, /)\n"
+             "--\n"
+             "\n"
+             "Returns thalweg coordinates\n\n"
+             "Returns\n"
+             "-------\n"
+             "numpy.ndarray, numpy.ndarray\n"
+             "    Tuple of arrays containing x, y values of reach thalweg "
+             "coordinates\n");
+
+static PyObject *
+PyReach_thalweg(PyReachObject *self, PyObject *Py_UNUSED(ignored))
+{
+    PyObject *x;
+    PyObject *y;
+
+    int      i;
+    int      nd = 1;
+    int      size;
+    npy_intp ndims;
+    double * stream_distance;
+    double * elevation;
+    double * x_data_ptr;
+    double * y_data_ptr;
+
+    PyObject *rslt;
+
+    size  = reach_size(self->reach);
+    ndims = size;
+
+    stream_distance = Mem_calloc(size, sizeof(double), __FILE__, __LINE__);
+    reach_stream_distance(self->reach, stream_distance);
+
+    elevation = Mem_calloc(size, sizeof(double), __FILE__, __LINE__);
+    reach_elevation(self->reach, elevation);
+
+    x          = PyArray_SimpleNew(nd, &ndims, NPY_DOUBLE);
+    x_data_ptr = PyArray_DATA((PyArrayObject *) x);
+
+    y          = PyArray_SimpleNew(nd, &ndims, NPY_DOUBLE);
+    y_data_ptr = PyArray_DATA((PyArrayObject *) y);
+
+    for (i = 0; i < size; i++) {
+        *(x_data_ptr + i) = *(stream_distance + i);
+        *(y_data_ptr + i) = *(elevation + i);
+    }
+
+    Mem_free(stream_distance, __FILE__, __LINE__);
+    Mem_free(elevation, __FILE__, __LINE__);
+
+    if (!(rslt = Py_BuildValue("(OO)", x, y))) {
+        Py_DECREF(x);
+        Py_DECREF(y);
+        return NULL;
+    }
+
+    return rslt;
 }
 
 PyDoc_STRVAR(
@@ -874,6 +931,12 @@ PyDoc_STRVAR(
     "`xs_table` must have an `items` method that returns an iterator with\n"
     "key, value pairs as elements (like a `dict`)\n");
 
+static PyMethodDef PyReach_methods[] = { { "thalweg",
+                                           (PyCFunction) PyReach_thalweg,
+                                           METH_VARARGS,
+                                           reach_thalweg__doc__ },
+                                         { NULL } };
+
 static PyTypeObject PyReachType = {
     PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pantherapy.panthera.Reach",
     .tp_doc                                = reach_doc,
@@ -883,6 +946,7 @@ static PyTypeObject PyReachType = {
     .tp_new                                = PyReach_new,
     .tp_init                               = (initproc) PyReach_init,
     .tp_dealloc                            = (destructor) PyReach_dealloc,
+    .tp_methods                            = PyReach_methods,
 };
 
 static PyModuleDef pantheramodule = {
