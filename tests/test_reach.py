@@ -22,7 +22,7 @@ class TestReach(unittest.TestCase):
         xs_numbers = np.zeros_like(x, dtype='int32')
         xs_table = {0: xs}
         reach = Reach(x, y, xs_numbers, xs_table)
-        self.assertIsNotNone(reach)
+        self.assertIsInstance(reach, Reach)
 
         # test init with non-dict_like object as table
         self.assertRaisesRegex(
@@ -67,7 +67,7 @@ class TestReach(unittest.TestCase):
         # test failure with non-cross section values in xs_table
         xs_table_no_xs = {0: 1}
         self.assertRaisesRegex(
-            TypeError, "xs_table values must be cross section type",
+            TypeError, "xs_table values must be CrossSection type",
             Reach, *(x, y, xs_numbers, xs_table_no_xs)
         )
 
