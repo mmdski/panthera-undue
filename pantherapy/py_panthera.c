@@ -775,25 +775,43 @@ PyReach_init(PyReachObject *self, PyObject *args, PyObject *kwds)
     xs_table_items = PyObject_CallMethod(xs_table_ob, "items", NULL);
     if (!xs_table_items)
         goto fail;
+
     iterator = PyObject_GetIter(xs_table_items);
-    if (!xs_table_items)
+    if (!iterator)
         goto fail;
+
     while ((item = PyIter_Next(iterator))) {
         /* get the key, value pair from the item tuple */
-        if (!(key = PySequence_GetItem(item, 0)))
+        if (!(key = PySequence_GetItem(item, 0))) {
+            Py_DECREF(item);
+            Py_DECREF(iterator);
             goto fail;
-        if (!(value = PySequence_GetItem(item, 1)))
+        }
+        if (!(value = PySequence_GetItem(item, 1))) {
+            Py_DECREF(item);
+            Py_DECREF(iterator);
+            Py_DECREF(key);
             goto fail;
+        }
 
         /* get the key as an integer */
         xs_key = (int) PyLong_AsLong(key);
-        if (PyErr_Occurred())
+        if (PyErr_Occurred()) {
+            Py_DECREF(item);
+            Py_DECREF(iterator);
+            Py_DECREF(key);
+            Py_DECREF(value);
             goto fail;
+        }
 
         /* get the value as a cross section */
         if (!PyObject_TypeCheck(value, &PyXSType)) {
             PyErr_SetString(PyExc_TypeError,
                             "xs_table values must be CrossSection type");
+            Py_DECREF(item);
+            Py_DECREF(iterator);
+            Py_DECREF(key);
+            Py_DECREF(value);
             goto fail;
         }
         py_xs = (PyXSObject *) value;
@@ -801,9 +819,12 @@ PyReach_init(PyReachObject *self, PyObject *args, PyObject *kwds)
         xstable_put(xs_table, xs_key, py_xs->xs);
 
         Py_DECREF(item);
+        Py_DECREF(key);
+        Py_DECREF(value);
     }
 
     Py_DECREF(iterator);
+    Py_DECREF(xs_table_items);
 
     if (PyErr_Occurred())
         goto fail;
@@ -841,9 +862,7 @@ fail:
     Py_XDECREF(x_array);
     Py_XDECREF(y_array);
     Py_XDECREF(xs_number_array);
-    Py_XDECREF(key);
-    Py_XDECREF(item);
-    Py_XDECREF(iterator);
+    Py_XDECREF(xs_table_items);
     if (xs_table)
         xstable_free(xs_table);
     return -1;
