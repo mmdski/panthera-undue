@@ -775,25 +775,43 @@ PyReach_init(PyReachObject *self, PyObject *args, PyObject *kwds)
     xs_table_items = PyObject_CallMethod(xs_table_ob, "items", NULL);
     if (!xs_table_items)
         goto fail;
+
     iterator = PyObject_GetIter(xs_table_items);
-    if (!xs_table_items)
+    if (!iterator)
         goto fail;
+
     while ((item = PyIter_Next(iterator))) {
         /* get the key, value pair from the item tuple */
-        if (!(key = PySequence_GetItem(item, 0)))
+        if (!(key = PySequence_GetItem(item, 0))) {
+            Py_DECREF(item);
+            Py_DECREF(iterator);
             goto fail;
-        if (!(value = PySequence_GetItem(item, 1)))
+        }
+        if (!(value = PySequence_GetItem(item, 1))) {
+            Py_DECREF(item);
+            Py_DECREF(iterator);
+            Py_DECREF(key);
             goto fail;
+        }
 
         /* get the key as an integer */
         xs_key = (int) PyLong_AsLong(key);
-        if (PyErr_Occurred())
+        if (PyErr_Occurred()) {
+            Py_DECREF(item);
+            Py_DECREF(iterator);
+            Py_DECREF(key);
+            Py_DECREF(value);
             goto fail;
+        }
 
         /* get the value as a cross section */
         if (!PyObject_TypeCheck(value, &PyXSType)) {
             PyErr_SetString(PyExc_TypeError,
-                            "xs_table values must be cross section type");
+                            "xs_table values must be CrossSection type");
+            Py_DECREF(item);
+            Py_DECREF(iterator);
+            Py_DECREF(key);
+            Py_DECREF(value);
             goto fail;
         }
         py_xs = (PyXSObject *) value;
@@ -801,9 +819,12 @@ PyReach_init(PyReachObject *self, PyObject *args, PyObject *kwds)
         xstable_put(xs_table, xs_key, py_xs->xs);
 
         Py_DECREF(item);
+        Py_DECREF(key);
+        Py_DECREF(value);
     }
 
     Py_DECREF(iterator);
+    Py_DECREF(xs_table_items);
 
     if (PyErr_Occurred())
         goto fail;
@@ -841,9 +862,7 @@ fail:
     Py_XDECREF(x_array);
     Py_XDECREF(y_array);
     Py_XDECREF(xs_number_array);
-    Py_XDECREF(key);
-    Py_XDECREF(item);
-    Py_XDECREF(iterator);
+    Py_XDECREF(xs_table_items);
     if (xs_table)
         xstable_free(xs_table);
     return -1;
@@ -911,7 +930,7 @@ PyReach_thalweg(PyReachObject *self, PyObject *Py_UNUSED(ignored))
 
 PyDoc_STRVAR(
     reach_doc,
-    "reach(x, y, xs_number, xs_table) -> new reach\n\n"
+    "Reach(x, y, xs_number, xs_table) -> new Reach\n\n"
     "River reach\n\n"
     "Parameters\n"
     "----------\n"
@@ -949,6 +968,69 @@ static PyTypeObject PyReachType = {
     .tp_methods                            = PyReach_methods,
 };
 
+/*
+ * Standard step solver implementation
+ */
+
+typedef struct {
+    PyObject_HEAD /* */
+        PyReachObject *py_reach;
+} PySStepObject;
+
+static void
+PySStep_dealloc(PySStepObject *self)
+{
+    Py_XDECREF(self->py_reach);
+    Py_TYPE(self)->tp_free((PyObject *) self);
+}
+
+static PyObject *
+PySStep_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    PySStepObject *self;
+    self           = (PySStepObject *) type->tp_alloc(type, 0);
+    self->py_reach = NULL;
+    return (PyObject *) self;
+}
+
+static int
+PySStep_init(PySStepObject *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *py_reach;
+
+    if (!PyArg_ParseTuple(args, "O", &py_reach))
+        return -1;
+
+    if (!PyObject_TypeCheck(py_reach, &PyReachType)) {
+        PyErr_SetString(PyExc_TypeError, "reach must be Reach type");
+        return -1;
+    }
+
+    Py_INCREF(py_reach);
+    self->py_reach = (PyReachObject *) py_reach;
+
+    return 0;
+}
+
+PyDoc_STRVAR(sstep_doc,
+             "StandardStep(reach) -> new StandardStep solver\n\n"
+             "Standard step method solver\n\n"
+             "Parameters\n"
+             "----------\n"
+             "reach : :class:`Reach`\n"
+             "    A reach for the basis of the solution\n");
+
+PyTypeObject PySStepType = {
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name =
+        "pantherapy.panthera.StandardStep",
+    .tp_doc      = sstep_doc,
+    .tp_itemsize = 0,
+    .tp_flags    = Py_TPFLAGS_DEFAULT,
+    .tp_new      = PySStep_new,
+    .tp_init     = (initproc) PySStep_init,
+    .tp_dealloc  = (destructor) PySStep_dealloc,
+};
+
 static PyModuleDef pantheramodule = {
     PyModuleDef_HEAD_INIT,
     .m_name = "panthera",
@@ -964,6 +1046,8 @@ PyInit_panthera(void)
         return NULL;
     if (PyType_Ready(&PyReachType) < 0)
         return NULL;
+    if (PyType_Ready(&PySStepType) < 0)
+        return NULL;
 
     m = PyModule_Create(&pantheramodule);
     if (m == NULL)
@@ -973,5 +1057,6 @@ PyInit_panthera(void)
     Py_INCREF(&PyXSType);
     PyModule_AddObject(m, "CrossSection", (PyObject *) &PyXSType);
     PyModule_AddObject(m, "Reach", (PyObject *) &PyReachType);
+    PyModule_AddObject(m, "StandardStep", (PyObject *) &PySStepType);
     return m;
 }
