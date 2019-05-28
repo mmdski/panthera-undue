@@ -692,7 +692,6 @@ static PyTypeObject PyXSType = {
 typedef struct {
     PyObject_HEAD /* */
         Reach reach;
-    PyObject *xs_list;
 } PyReachObject;
 
 static void
@@ -700,7 +699,6 @@ PyReach_dealloc(PyReachObject *self)
 {
     if (self->reach)
         reach_free(self->reach);
-    Py_XDECREF(self->xs_list);
     Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
@@ -708,9 +706,8 @@ static PyObject *
 PyReach_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     PyReachObject *self;
-    self          = (PyReachObject *) type->tp_alloc(type, 0);
-    self->reach   = NULL;
-    self->xs_list = NULL;
+    self        = (PyReachObject *) type->tp_alloc(type, 0);
+    self->reach = NULL;
     return (PyObject *) self;
 }
 
@@ -721,17 +718,15 @@ PyReach_init(PyReachObject *self, PyObject *args, PyObject *kwds)
              *xs_table_items = NULL, *iterator = NULL, *item = NULL,
              *key = NULL, *value = NULL;
 
-    int        x_size;
-    int        y_size;
-    int        xs_num_size;
-    int        xs_key;
-    Py_ssize_t num_xs;
-    Py_ssize_t i;
-    XSTable    xs_table = NULL;
-    double *   x_array_data;
-    double *   y_array_data;
-    int *      xs_number_data;
-    PyObject * xs_list = NULL;
+    int         x_size;
+    int         y_size;
+    int         xs_num_size;
+    PyXSObject *py_xs    = NULL;
+    XSTable     xs_table = NULL;
+    int         xs_key;
+    double *    x_array_data;
+    double *    y_array_data;
+    int *       xs_number_data;
 
     /* create array objects from arguments */
     PyObject *x, *y, *xs_number, *xs_table_ob;
@@ -783,15 +778,6 @@ PyReach_init(PyReachObject *self, PyObject *args, PyObject *kwds)
     iterator = PyObject_GetIter(xs_table_items);
     if (!xs_table_items)
         goto fail;
-
-    /* create a new list to keep references of the Python cross sections in the
-     * cross section table */
-    num_xs = PyObject_Length(xs_table_ob);
-    if (num_xs == -1)
-        goto fail;
-    xs_list = PyList_New(num_xs);
-
-    i = 0;
     while ((item = PyIter_Next(iterator))) {
         /* get the key, value pair from the item tuple */
         if (!(key = PySequence_GetItem(item, 0)))
@@ -810,11 +796,9 @@ PyReach_init(PyReachObject *self, PyObject *args, PyObject *kwds)
                             "xs_table values must be cross section type");
             goto fail;
         }
+        py_xs = (PyXSObject *) value;
 
-        if ((PyList_SetItem(xs_list, i++, value)))
-            goto fail;
-
-        xstable_put(xs_table, xs_key, ((PyXSObject *) value)->xs);
+        xstable_put(xs_table, xs_key, py_xs->xs);
 
         Py_DECREF(item);
     }
@@ -847,9 +831,6 @@ PyReach_init(PyReachObject *self, PyObject *args, PyObject *kwds)
     }
     END_TRY;
 
-    self->xs_list = xs_list;
-    Py_INCREF(xs_list);
-
     Py_DECREF(x_array);
     Py_DECREF(y_array);
     Py_DECREF(xs_number_array);
@@ -863,7 +844,6 @@ fail:
     Py_XDECREF(key);
     Py_XDECREF(item);
     Py_XDECREF(iterator);
-    Py_XDECREF(xs_list);
     if (xs_table)
         xstable_free(xs_table);
     return -1;
