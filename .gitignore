@@ -103,6 +103,9 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 
+# setuptools test
+test/
+
 # Translations
 *.mo
 *.pot
