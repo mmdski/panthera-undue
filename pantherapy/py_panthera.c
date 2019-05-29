@@ -606,7 +606,7 @@ static PyMethodDef PyXS_methods[] = {
 
     { "coordinates",
       (PyCFunction) PyXS_coordinates,
-      METH_VARARGS,
+      METH_NOARGS,
       xs_coordinates__doc__ },
 
     { "critical_flow",
@@ -952,7 +952,7 @@ PyDoc_STRVAR(
 
 static PyMethodDef PyReach_methods[] = { { "thalweg",
                                            (PyCFunction) PyReach_thalweg,
-                                           METH_VARARGS,
+                                           METH_NOARGS,
                                            reach_thalweg__doc__ },
                                          { NULL } };
 
