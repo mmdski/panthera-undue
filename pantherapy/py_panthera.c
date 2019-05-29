@@ -8,6 +8,7 @@
 #include <panthera/crosssection.h>
 #include <panthera/exceptions.h>
 #include <panthera/reach.h>
+#include <panthera/standardstep.h>
 #include <panthera/xstable.h>
 
 /*
@@ -969,6 +970,134 @@ static PyTypeObject PyReachType = {
 };
 
 /*
+ * Standard step solution options implementation
+ */
+
+typedef struct {
+    PyObject_HEAD /* */
+        double boundary_wse;
+    bool       us_boundary;
+    PyObject * discharge_nodes;
+    PyObject * discharge;
+} PySStepOptObject;
+
+static void
+PySStepOpt_dealloc(PySStepOptObject *self)
+{
+    Py_XDECREF(self->discharge_nodes);
+    Py_XDECREF(self->discharge);
+    Py_TYPE(self)->tp_free((PyObject *) self);
+}
+
+static PyObject *
+PySStepOpt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    PySStepOptObject *self;
+    self                  = (PySStepOptObject *) type->tp_alloc(type, 0);
+    self->discharge_nodes = NULL;
+    self->discharge       = NULL;
+    return (PyObject *) self;
+}
+
+static int
+PySStepOpt_init(PySStepOptObject *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *q_table = NULL, *discharge_nodes = NULL, *discharge = NULL;
+    double    boundary_wse;
+    bool      us_boundary;
+
+    int      i;
+    int      node;
+    int      nd = 1;
+    npy_intp ndims;
+    double   node_q;
+    int *    node_q_data_ptr;
+    double * q_data_ptr;
+
+    PyObject *items = NULL, *iterator = NULL, *item = NULL, *key = NULL,
+             *value = NULL;
+
+    if (!PyArg_ParseTuple(args, "Odb", &q_table, &boundary_wse, &us_boundary))
+        return -1;
+
+    ndims = (npy_intp) PyObject_Length(q_table);
+
+    discharge_nodes = PyArray_SimpleNew(nd, &ndims, NPY_INT);
+    discharge       = PyArray_SimpleNew(nd, &ndims, NPY_DOUBLE);
+
+    node_q_data_ptr = (int *) PyArray_DATA((PyArrayObject *) discharge_nodes);
+    q_data_ptr      = (double *) PyArray_DATA((PyArrayObject *) discharge);
+
+    items = PyObject_CallMethod(q_table, "items", NULL);
+    if (!items)
+        goto fail;
+
+    iterator = PyObject_GetIter(items);
+    if (!iterator)
+        goto fail;
+
+    i = 0;
+    while ((item = PyIter_Next(iterator))) {
+        if (!(key = PySequence_GetItem(item, 0))) {
+            goto fail;
+        }
+
+        if (!(value = PySequence_GetItem(item, 1))) {
+            goto fail;
+        }
+
+        node = (int) PyLong_AsLong(key);
+        if (PyErr_Occurred()) {
+            goto fail;
+        }
+
+        node_q = (double) PyFloat_AsDouble(value);
+        if (PyErr_Occurred()) {
+            goto fail;
+        }
+
+        *(node_q_data_ptr + i) = node;
+        *(q_data_ptr + i)      = node_q;
+
+        Py_DECREF(item);
+        Py_DECREF(key);
+        Py_DECREF(value);
+    }
+
+    Py_DECREF(iterator);
+    Py_DECREF(items);
+
+    self->boundary_wse    = boundary_wse;
+    self->us_boundary     = us_boundary;
+    self->discharge       = discharge;
+    self->discharge_nodes = discharge_nodes;
+
+    return 0;
+
+fail:
+    Py_XDECREF(discharge_nodes);
+    Py_XDECREF(discharge);
+    Py_XDECREF(items);
+    Py_XDECREF(item);
+    Py_XDECREF(iterator);
+    Py_XDECREF(key);
+    Py_XDECREF(value);
+
+    return -1;
+}
+
+PyTypeObject PySStepOptType = {
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name =
+        "pantherapy.panthera.StandardStepOptions",
+    .tp_doc      = " ",
+    .tp_itemsize = 0,
+    .tp_flags    = Py_TPFLAGS_DEFAULT,
+    .tp_new      = PySStepOpt_new,
+    .tp_init     = (initproc) PySStepOpt_init,
+    .tp_dealloc  = (destructor) PySStepOpt_dealloc,
+};
+
+/*
  * Standard step solver implementation
  */
 
@@ -1048,6 +1177,8 @@ PyInit_panthera(void)
         return NULL;
     if (PyType_Ready(&PySStepType) < 0)
         return NULL;
+    if (PyType_Ready(&PySStepOptType) < 0)
+        return NULL;
 
     m = PyModule_Create(&pantheramodule);
     if (m == NULL)
@@ -1058,5 +1189,6 @@ PyInit_panthera(void)
     PyModule_AddObject(m, "CrossSection", (PyObject *) &PyXSType);
     PyModule_AddObject(m, "Reach", (PyObject *) &PyReachType);
     PyModule_AddObject(m, "StandardStep", (PyObject *) &PySStepType);
+    PyModule_AddObject(m, "StandardStepOptions", (PyObject *) &PySStepOptType);
     return m;
 }
