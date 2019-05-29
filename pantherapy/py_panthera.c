@@ -691,7 +691,8 @@ static PyTypeObject PyXSType = {
 
 typedef struct {
     PyObject_HEAD /* */
-        Reach reach;
+        PyObject *xs_list;
+    Reach         reach;
 } PyReachObject;
 
 static void
@@ -699,6 +700,7 @@ PyReach_dealloc(PyReachObject *self)
 {
     if (self->reach)
         reach_free(self->reach);
+    Py_XDECREF(self->xs_list);
     Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
@@ -706,8 +708,9 @@ static PyObject *
 PyReach_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     PyReachObject *self;
-    self        = (PyReachObject *) type->tp_alloc(type, 0);
-    self->reach = NULL;
+    self          = (PyReachObject *) type->tp_alloc(type, 0);
+    self->xs_list = NULL;
+    self->reach   = NULL;
     return (PyObject *) self;
 }
 
@@ -856,6 +859,8 @@ PyReach_init(PyReachObject *self, PyObject *args, PyObject *kwds)
     Py_DECREF(y_array);
     Py_DECREF(xs_number_array);
 
+    self->xs_list = PyDict_Values(xs_table_ob);
+
     return 0;
 
 fail:
@@ -941,14 +946,12 @@ PyDoc_STRVAR(
     "xs_number : array_like\n"
     "    Number of the cross section in each node. The number must\n"
     "    correspond to a key in `xs_table`\n"
-    "xs_table : dict_like\n"
+    "xs_table : dict\n"
     "    `dict` containing key, value pairs of cross section key (`int`),\n"
     "    :class:`pantherapy.panthera.CrossSection`\n\n"
     "Notes\n"
     "-----\n"
-    "`x`, `y`, and `xs_number` must have the same length.\n\n"
-    "`xs_table` must have an `items` method that returns an iterator with\n"
-    "key, value pairs as elements (like a `dict`)\n");
+    "`x`, `y`, and `xs_number` must have the same length.\n");
 
 static PyMethodDef PyReach_methods[] = { { "thalweg",
                                            (PyCFunction) PyReach_thalweg,
