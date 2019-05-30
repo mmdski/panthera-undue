@@ -93,8 +93,8 @@ PyXS_init(PyXSObject *self, PyObject *args, PyObject *kwds)
     }
 
     /* y and z must be the same size */
-    y_size = PyArray_SIZE((PyArrayObject *) y_array);
-    z_size = PyArray_SIZE((PyArrayObject *) z_array);
+    y_size = (int) PyArray_SIZE((PyArrayObject *) y_array);
+    z_size = (int) PyArray_SIZE((PyArrayObject *) z_array);
     if (y_size != z_size) {
         PyErr_SetString(PyExc_ValueError, "the size of y and z must be equal");
         goto fail;
@@ -108,7 +108,7 @@ PyXS_init(PyXSObject *self, PyObject *args, PyObject *kwds)
     }
 
     /* roughness must be greater than equal to zero */
-    n_roughness = PyArray_SIZE((PyArrayObject *) roughness_array);
+    n_roughness = (int) PyArray_SIZE((PyArrayObject *) roughness_array);
     if (n_roughness < 1) {
         PyErr_SetString(PyExc_ValueError,
                         "there must be at least one roughness value");
@@ -765,9 +765,9 @@ PyReach_init(PyReachObject *self, PyObject *args, PyObject *kwds)
     }
 
     /* x, y, and xs numbers must be the same size */
-    x_size      = PyArray_SIZE((PyArrayObject *) x_array);
-    y_size      = PyArray_SIZE((PyArrayObject *) y_array);
-    xs_num_size = PyArray_SIZE((PyArrayObject *) xs_number_array);
+    x_size      = (int) PyArray_SIZE((PyArrayObject *) x_array);
+    y_size      = (int) PyArray_SIZE((PyArrayObject *) y_array);
+    xs_num_size = (int) PyArray_SIZE((PyArrayObject *) xs_number_array);
     if (x_size != y_size || x_size != xs_num_size) {
         PyErr_SetString(PyExc_ValueError,
                         "The size of x, y, and xs_number must be equal");
