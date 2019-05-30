@@ -1101,6 +1101,54 @@ PyTypeObject PySStepOptType = {
 };
 
 /*
+ * Standard step results implementation
+ */
+
+typedef struct {
+    PyObject_HEAD /* */
+        PyReachObject * py_reach;
+    PySStepOptObject *  py_sstep_opt;
+    StandardStepResults results;
+} PySStepResObject;
+
+static void
+PySStepRes_dealloc(PySStepResObject *self)
+{
+    Py_XDECREF(self->py_reach);
+    Py_XDECREF(self->py_sstep_opt);
+    if (self->results)
+        ss_res_free(self->results);
+    Py_TYPE(self)->tp_free((PyObject *) self);
+}
+
+static PyObject *
+PySStepRes_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    PySStepResObject *self;
+    self               = (PySStepResObject *) type->tp_alloc(type, 0);
+    self->py_reach     = NULL;
+    self->py_sstep_opt = NULL;
+    self->results      = NULL;
+    return (PyObject *) self;
+}
+
+PyDoc_STRVAR(sstepres_doc,
+             "StandardStepResults\n\n"
+             "Standard step solution results.\n\n"
+             "Initialized in StandardStep.solve()\n");
+
+PyTypeObject PySStepResType = {
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name =
+        "pantherapy.panthera.StandardStepResults",
+    .tp_doc      = sstepres_doc,
+    .tp_itemsize = 0,
+    .tp_flags    = Py_TPFLAGS_DEFAULT,
+    .tp_new      = PySStepRes_new,
+    .tp_init     = NULL,
+    .tp_dealloc  = (destructor) PySStepRes_dealloc,
+};
+
+/*
  * Standard step solver implementation
  */
 
@@ -1178,9 +1226,11 @@ PyInit_panthera(void)
         return NULL;
     if (PyType_Ready(&PyReachType) < 0)
         return NULL;
-    if (PyType_Ready(&PySStepType) < 0)
-        return NULL;
     if (PyType_Ready(&PySStepOptType) < 0)
+        return NULL;
+    if (PyType_Ready(&PySStepResType) < 0)
+        return NULL;
+    if (PyType_Ready(&PySStepType) < 0)
         return NULL;
 
     m = PyModule_Create(&pantheramodule);
@@ -1191,7 +1241,9 @@ PyInit_panthera(void)
     Py_INCREF(&PyXSType);
     PyModule_AddObject(m, "CrossSection", (PyObject *) &PyXSType);
     PyModule_AddObject(m, "Reach", (PyObject *) &PyReachType);
-    PyModule_AddObject(m, "StandardStep", (PyObject *) &PySStepType);
     PyModule_AddObject(m, "StandardStepOptions", (PyObject *) &PySStepOptType);
+    PyModule_AddObject(m, "StandardStepResults", (PyObject *) &PySStepResType);
+    PyModule_AddObject(m, "StandardStep", (PyObject *) &PySStepType);
+
     return m;
 }
