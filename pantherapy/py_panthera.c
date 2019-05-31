@@ -1192,6 +1192,58 @@ PySStep_init(PySStepObject *self, PyObject *args, PyObject *kwds)
     return 0;
 }
 
+static PyObject *
+PySStep_solve(PySStepObject *self, PyObject *args)
+{
+    int                 n_discharges;
+    int *               q_nodes_data_ptr;
+    double *            discharge_data_ptr;
+    StandardStepResults res;
+    PySStepOptObject *  py_options;
+    PySStepResObject *  py_results;
+    PyObject *          py_ss_options = NULL;
+
+    if (!PyArg_ParseTuple(args, "O", &py_ss_options))
+        return NULL;
+
+    if (!PyObject_TypeCheck(py_ss_options, &PySStepOptType)) {
+        PyErr_SetString(PyExc_TypeError,
+                        "options must be a StandardStepOptions");
+        return NULL;
+    }
+    py_options = (PySStepOptObject *) py_ss_options;
+
+    n_discharges = PyArray_SIZE((PyArrayObject *) py_options->discharge_nodes);
+    q_nodes_data_ptr =
+        (int *) PyArray_DATA((PyArrayObject *) py_options->discharge_nodes);
+    discharge_data_ptr =
+        (double *) PyArray_DATA((PyArrayObject *) py_options->discharge);
+
+    StandardStepOptions options = { n_discharges,
+                                    q_nodes_data_ptr,
+                                    discharge_data_ptr,
+                                    py_options->boundary_wse,
+                                    py_options->us_boundary };
+    res = solve_standard_step(&options, self->py_reach->reach);
+
+    py_results =
+        (PySStepResObject *) PySStepRes_new(&PySStepResType, NULL, NULL);
+    py_results->py_reach = self->py_reach;
+    Py_INCREF(py_results->py_reach);
+
+    py_results->py_sstep_opt = py_options;
+    Py_INCREF(py_results->py_sstep_opt);
+
+    py_results->results = res;
+
+    return (PyObject *) py_results;
+}
+
+static PyMethodDef PySStep_methods[] = {
+    { "solve", (PyCFunction) PySStep_solve, METH_VARARGS, " " },
+    { NULL }
+};
+
 PyDoc_STRVAR(sstep_doc,
              "StandardStep(reach) -> new StandardStep solver\n\n"
              "Standard step method solver\n\n"
@@ -1209,6 +1261,7 @@ PyTypeObject PySStepType = {
     .tp_new      = PySStep_new,
     .tp_init     = (initproc) PySStep_init,
     .tp_dealloc  = (destructor) PySStep_dealloc,
+    .tp_methods  = PySStep_methods,
 };
 
 static PyModuleDef pantheramodule = {
