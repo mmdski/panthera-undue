@@ -1092,12 +1092,13 @@ fail:
 PyTypeObject PySStepOptType = {
     PyVarObject_HEAD_INIT(NULL, 0).tp_name =
         "pantherapy.panthera.StandardStepOptions",
-    .tp_doc      = " ",
-    .tp_itemsize = 0,
-    .tp_flags    = Py_TPFLAGS_DEFAULT,
-    .tp_new      = PySStepOpt_new,
-    .tp_init     = (initproc) PySStepOpt_init,
-    .tp_dealloc  = (destructor) PySStepOpt_dealloc,
+    .tp_doc       = " ",
+    .tp_itemsize  = 0,
+    .tp_basicsize = sizeof(PySStepOptObject),
+    .tp_flags     = Py_TPFLAGS_DEFAULT,
+    .tp_new       = PySStepOpt_new,
+    .tp_init      = (initproc) PySStepOpt_init,
+    .tp_dealloc   = (destructor) PySStepOpt_dealloc,
 };
 
 /*
@@ -1140,12 +1141,13 @@ PyDoc_STRVAR(sstepres_doc,
 PyTypeObject PySStepResType = {
     PyVarObject_HEAD_INIT(NULL, 0).tp_name =
         "pantherapy.panthera.StandardStepResults",
-    .tp_doc      = sstepres_doc,
-    .tp_itemsize = 0,
-    .tp_flags    = Py_TPFLAGS_DEFAULT,
-    .tp_new      = PySStepRes_new,
-    .tp_init     = NULL,
-    .tp_dealloc  = (destructor) PySStepRes_dealloc,
+    .tp_doc       = sstepres_doc,
+    .tp_itemsize  = 0,
+    .tp_basicsize = sizeof(PySStepResObject),
+    .tp_flags     = Py_TPFLAGS_DEFAULT,
+    .tp_new       = PySStepRes_new,
+    .tp_init      = NULL,
+    .tp_dealloc   = (destructor) PySStepRes_dealloc,
 };
 
 /*
@@ -1256,13 +1258,14 @@ PyDoc_STRVAR(sstep_doc,
 PyTypeObject PySStepType = {
     PyVarObject_HEAD_INIT(NULL, 0).tp_name =
         "pantherapy.panthera.StandardStep",
-    .tp_doc      = sstep_doc,
-    .tp_itemsize = 0,
-    .tp_flags    = Py_TPFLAGS_DEFAULT,
-    .tp_new      = PySStep_new,
-    .tp_init     = (initproc) PySStep_init,
-    .tp_dealloc  = (destructor) PySStep_dealloc,
-    .tp_methods  = PySStep_methods,
+    .tp_doc       = sstep_doc,
+    .tp_itemsize  = 0,
+    .tp_basicsize = sizeof(PySStepObject),
+    .tp_flags     = Py_TPFLAGS_DEFAULT,
+    .tp_new       = PySStep_new,
+    .tp_init      = (initproc) PySStep_init,
+    .tp_dealloc   = (destructor) PySStep_dealloc,
+    .tp_methods   = PySStep_methods,
 };
 
 static PyModuleDef pantheramodule = {
