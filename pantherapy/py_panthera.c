@@ -1106,8 +1106,8 @@ PyTypeObject PySStepOptType = {
 
 typedef struct {
     PyObject_HEAD /* */
-        PyReachObject * py_reach;
-    PySStepOptObject *  py_sstep_opt;
+        PyObject *      py_reach;
+    PyObject *          py_sstep_opt;
     StandardStepResults results;
 } PySStepResObject;
 
@@ -1154,7 +1154,7 @@ PyTypeObject PySStepResType = {
 
 typedef struct {
     PyObject_HEAD /* */
-        PyReachObject *py_reach;
+        PyObject *py_reach;
 } PySStepObject;
 
 static void
@@ -1187,7 +1187,7 @@ PySStep_init(PySStepObject *self, PyObject *args, PyObject *kwds)
     }
 
     Py_INCREF(py_reach);
-    self->py_reach = (PyReachObject *) py_reach;
+    self->py_reach = py_reach;
 
     return 0;
 }
@@ -1224,14 +1224,15 @@ PySStep_solve(PySStepObject *self, PyObject *args)
                                     discharge_data_ptr,
                                     py_options->boundary_wse,
                                     py_options->us_boundary };
-    res = solve_standard_step(&options, self->py_reach->reach);
+    res                         = solve_standard_step(&options,
+                              ((PyReachObject *) self->py_reach)->reach);
 
     py_results =
         (PySStepResObject *) PySStepRes_new(&PySStepResType, NULL, NULL);
     py_results->py_reach = self->py_reach;
     Py_INCREF(py_results->py_reach);
 
-    py_results->py_sstep_opt = py_options;
+    py_results->py_sstep_opt = py_ss_options;
     Py_INCREF(py_results->py_sstep_opt);
 
     py_results->results = res;
