@@ -1198,9 +1198,10 @@ static PyObject *
 PySStep_solve(PySStepObject *self, PyObject *args)
 {
     int                 n_discharges;
+    int                 n_nodes;
     int *               q_nodes_data_ptr;
     double *            discharge_data_ptr;
-    StandardStepResults res;
+    StandardStepResults res = NULL;
     PySStepOptObject *  py_options;
     PySStepResObject *  py_results;
     PyObject *          py_ss_options = NULL;
@@ -1221,23 +1222,54 @@ PySStep_solve(PySStepObject *self, PyObject *args)
     discharge_data_ptr =
         (double *) PyArray_DATA((PyArrayObject *) py_options->discharge);
 
+    /* check the discharge options */
+    n_nodes = reach_size(((PyReachObject *) self->py_reach)->reach);
+    if ((n_discharges <= 0) || (n_nodes < n_discharges)) {
+        PyErr_SetString(PyExc_ValueError,
+                        "The number of discharges must be greater than 0 and "
+                        "less than the number of nodes in reach");
+        return NULL;
+    }
+
     StandardStepOptions options = { n_discharges,
                                     q_nodes_data_ptr,
                                     discharge_data_ptr,
                                     py_options->boundary_wse,
                                     py_options->us_boundary };
-    res                         = solve_standard_step(&options,
-                              ((PyReachObject *) self->py_reach)->reach);
+    TRY
+    {
+        res = solve_standard_step(&options,
+                                  ((PyReachObject *) self->py_reach)->reach);
+    }
+    EXCEPT(value_arg_error)
+    {
+        PyErr_SetString(
+            PyExc_ValueError,
+            "The discharge for the last node in reach must be specified");
+        return NULL;
+    }
+    EXCEPT(compute_fail_error);
+    {
+        PyErr_SetString(PyExc_RuntimeError, "Standard step solution failed");
+        return NULL;
+    }
+    ELSE;
+    {
+        PyErr_SetString(PyExc_RuntimeError, "Compute failed, unknown reason");
+        return NULL;
+    }
+    END_TRY;
 
+    /* initialize the results python object */
     py_results =
         (PySStepResObject *) PySStepRes_new(&PySStepResType, NULL, NULL);
-    py_results->py_reach = self->py_reach;
-    Py_INCREF(py_results->py_reach);
-
+    py_results->results      = res;
+    py_results->py_reach     = self->py_reach;
     py_results->py_sstep_opt = py_ss_options;
-    Py_INCREF(py_results->py_sstep_opt);
 
-    py_results->results = res;
+    /* increment the reference count for the reach and options */
+    Py_INCREF(py_results->py_reach);
+    Py_INCREF(py_results->py_sstep_opt);
 
     return (PyObject *) py_results;
 }
