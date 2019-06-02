@@ -1133,6 +1133,57 @@ PySStepRes_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     return (PyObject *) self;
 }
 
+static PyObject *
+PySStepRes_thalweg(PySStepResObject *self, PyObject *Py_UNUSED(ignored))
+{
+    return PyReach_thalweg((PyReachObject *) self->py_reach, NULL);
+}
+
+static PyObject *
+PySStepRes_ws_elevation(PySStepResObject *self, PyObject *Py_UNUSED(ignored))
+{
+    int       i;
+    int       nd = 1;
+    npy_intp  ndims;
+    double *  wse_data_ptr;
+    double *  x_data_ptr;
+    PyObject *wse   = NULL;
+    PyObject *x     = NULL;
+    PyObject *rslt  = NULL;
+    Reach     reach = ((PyReachObject *) self->py_reach)->reach;
+
+    ndims = (npy_intp) reach_size(reach);
+
+    wse          = PyArray_SimpleNew(nd, &ndims, NPY_DOUBLE);
+    wse_data_ptr = (double *) PyArray_DATA((PyArrayObject *) wse);
+
+    x          = PyArray_SimpleNew(nd, &ndims, NPY_DOUBLE);
+    x_data_ptr = (double *) PyArray_DATA((PyArrayObject *) x);
+
+    reach_stream_distance(reach, x_data_ptr);
+
+    for (i = 0; i < ndims; i++) {
+        *(wse_data_ptr + i) = ss_res_get_wse(self->results, i);
+    }
+
+    if (!(rslt = Py_BuildValue("(OO)", x, wse))) {
+        Py_DECREF(wse);
+        Py_DECREF(x);
+        return NULL;
+    }
+
+    return rslt;
+}
+
+static PyMethodDef PySStepRes_methods[] = {
+    { "ws_elevation",
+      (PyCFunction) PySStepRes_ws_elevation,
+      METH_NOARGS,
+      " " },
+    { "thalweg", (PyCFunction) PySStepRes_thalweg, METH_NOARGS, " " },
+    { NULL }
+};
+
 PyDoc_STRVAR(sstepres_doc,
              "StandardStepResults\n\n"
              "Standard step solution results.\n\n"
@@ -1148,6 +1199,7 @@ PyTypeObject PySStepResType = {
     .tp_new       = PySStepRes_new,
     .tp_init      = NULL,
     .tp_dealloc   = (destructor) PySStepRes_dealloc,
+    .tp_methods   = PySStepRes_methods,
 };
 
 /*
