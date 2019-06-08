@@ -238,9 +238,7 @@ fail:
 }
 
 PyDoc_STRVAR(xs_area__doc__,
-             "area($self, elevation, /)\n"
-             "--\n"
-             "\n"
+             "area(elevation)\n\n"
              "Computes area\n\n"
              "Parameters\n"
              "----------\n"
@@ -258,9 +256,7 @@ PyXS_area(PyXSObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(xs_conveyance__doc__,
-             "conveyance($self, elevation, /)\n"
-             "--\n"
-             "\n"
+             "conveyance(elevation)\n\n"
              "Computes conveyance\n\n"
              "Parameters\n"
              "----------\n"
@@ -283,9 +279,7 @@ PyXS_conveyance(PyXSObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(xs_coordinates__doc__,
-             "coordinates($self, /)\n"
-             "--\n"
-             "\n"
+             "coordinates()\n\n"
              "Returns cross section coordinates\n\n"
              "Returns\n"
              "-------\n"
@@ -342,9 +336,7 @@ PyXS_coordinates(PyXSObject *self, PyObject *Py_UNUSED(ignored))
 }
 
 PyDoc_STRVAR(xs_critical_flow__doc__,
-             "critical_flow($self, elevation, /)\n"
-             "--\n"
-             "\n"
+             "critical_flow(elevation)\n\n"
              "Computes critical flow\n\n"
              "Parameters\n"
              "----------\n"
@@ -362,9 +354,7 @@ PyXS_critical_flow(PyXSObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(xs_hydraulic_depth__doc__,
-             "hydraulic_depth($self, elevation, /)\n"
-             "--\n"
-             "\n"
+             "hydraulic_depth(elevation)\n\n"
              "Computes hydraulic depth\n\n"
              "Parameters\n"
              "----------\n"
@@ -382,9 +372,7 @@ PyXS_hydraulic_depth(PyXSObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(xs_hydraulic_radius__doc__,
-             "hydraulic_radius($self, elevation, /)\n"
-             "--\n"
-             "\n"
+             "hydraulic_radius(elevation)\n\n"
              "Computes hydraulic radius\n\n"
              "Parameters\n"
              "----------\n"
@@ -402,9 +390,7 @@ PyXS_hydraulic_radius(PyXSObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(xs_top_width__doc__,
-             "top_width($self, elevation, /)\n"
-             "--\n"
-             "\n"
+             "top_width(elevation)\n\n"
              "Computes top width\n\n"
              "Parameters\n"
              "----------\n"
@@ -422,9 +408,7 @@ PyXS_top_width(PyXSObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(xs_tw_array__doc__,
-             "tw_array($self, elevation, /)\n"
-             "--\n"
-             "\n"
+             "tw_array(elevation)\n\n"
              "Returns coordinates of top width\n\n"
              "Parameters\n"
              "----------\n"
@@ -493,9 +477,7 @@ PyXS_tw_array(PyXSObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(xs_velocity_coeff__doc__,
-             "velocity_coeff($self, elevation, /)\n"
-             "--\n"
-             "\n"
+             "velocity_coeff(elevation)\n\n"
              "Computes velocity coefficient\n\n"
              "Parameters\n"
              "----------\n"
@@ -513,9 +495,7 @@ PyXS_velocity_coeff(PyXSObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(xs_wetted_perimeter__doc__,
-             "wetted_perimeter($self, elevation, /)\n"
-             "--\n"
-             "\n"
+             "wetted_perimeter(elevation)\n\n"
              "Computes wetted perimeter\n\n"
              "Parameters\n"
              "----------\n"
@@ -533,9 +513,7 @@ PyXS_wetted_perimeter(PyXSObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(xs_wp_array__doc__,
-             "wp_array($self, elevation, /)\n"
-             "--\n"
-             "\n"
+             "wp_array(elevation)\n\n"
              "Returns coordinates of wetted perimeter\n\n"
              "Parameters\n"
              "----------\n"
@@ -949,7 +927,7 @@ PyDoc_STRVAR(
     "    correspond to a key in `xs_table`\n"
     "xs_table : dict\n"
     "    `dict` containing key, value pairs of cross section key (`int`),\n"
-    "    :class:`pantherapy.panthera.CrossSection`\n\n"
+    "    :class:`CrossSection`\n\n"
     "Notes\n"
     "-----\n"
     "`x`, `y`, and `xs_number` must have the same length.\n");
@@ -1089,10 +1067,26 @@ fail:
     return -1;
 }
 
+PyDoc_STRVAR(
+    sstep_opt_doc,
+    "StandardStepOptions(q_table, boundary_wse, us_boundary) -> new "
+    "StandardStepOptions\n\n"
+    "Options for a standard step solution.\n\n"
+    "Parameters\n"
+    "----------\n"
+    "q_table : dict\n"
+    "    Dictionary containing key, value pairs of node, discharge values.\n"
+    "    The last node in the reach in the solution must be specified.\n"
+    "boundary_wse : double\n"
+    "    Boundary water surface elevation\n"
+    "us_boundary : bool\n"
+    "    `True` if the boundary condition is applied to the upstream end of\n"
+    "    the reach, `False` if it is applied to the downstream end.\n");
+
 PyTypeObject PySStepOptType = {
     PyVarObject_HEAD_INIT(NULL, 0).tp_name =
         "pantherapy.panthera.StandardStepOptions",
-    .tp_doc       = " ",
+    .tp_doc       = sstep_opt_doc,
     .tp_itemsize  = 0,
     .tp_basicsize = sizeof(PySStepOptObject),
     .tp_flags     = Py_TPFLAGS_DEFAULT,
@@ -1133,11 +1127,32 @@ PySStepRes_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     return (PyObject *) self;
 }
 
+PyDoc_STRVAR(sstepres_thalweg__doc__,
+             "thalweg()\n"
+             "\n"
+             "Returns thalweg coordinates\n\n"
+             "Returns\n"
+             "-------\n"
+             "numpy.ndarray, numpy.ndarray\n"
+             "    Tuple of arrays containing x, y values of reach thalweg "
+             "coordinates\n");
+
 static PyObject *
 PySStepRes_thalweg(PySStepResObject *self, PyObject *Py_UNUSED(ignored))
 {
     return PyReach_thalweg((PyReachObject *) self->py_reach, NULL);
 }
+
+PyDoc_STRVAR(
+    sstepres_ws_elevation__doc__,
+    "ws_elevation()\n"
+    "\n"
+    "Returns coordinates of water surface elevation for standard step\n"
+    "solution results\n\n"
+    "Returns\n"
+    "-------\n"
+    "numpy.ndarray, numpy.ndarray\n"
+    "    Tuple of arrays containing x, y values of water surface elevation\n");
 
 static PyObject *
 PySStepRes_ws_elevation(PySStepResObject *self, PyObject *Py_UNUSED(ignored))
@@ -1176,11 +1191,14 @@ PySStepRes_ws_elevation(PySStepResObject *self, PyObject *Py_UNUSED(ignored))
 }
 
 static PyMethodDef PySStepRes_methods[] = {
+    { "thalweg",
+      (PyCFunction) PySStepRes_thalweg,
+      METH_NOARGS,
+      sstepres_thalweg__doc__ },
     { "ws_elevation",
       (PyCFunction) PySStepRes_ws_elevation,
       METH_NOARGS,
-      " " },
-    { "thalweg", (PyCFunction) PySStepRes_thalweg, METH_NOARGS, " " },
+      sstepres_ws_elevation__doc__ },
     { NULL }
 };
 
@@ -1245,6 +1263,19 @@ PySStep_init(PySStepObject *self, PyObject *args, PyObject *kwds)
 
     return 0;
 }
+
+PyDoc_STRVAR(
+    sstep_solve__doc__,
+    "solve(options)\n\n"
+    "Solves water surface elevation using the standard step method\n\n"
+    "Parameters\n"
+    "----------\n"
+    "options : :class:`StandardStepOptions`\n"
+    "    Options for standard step solution\n\n"
+    "Returns\n"
+    "-------\n"
+    ":class:`StandardStepResults`\n"
+    "    Solution results\n");
 
 static PyObject *
 PySStep_solve(PySStepObject *self, PyObject *args)
@@ -1327,7 +1358,7 @@ PySStep_solve(PySStepObject *self, PyObject *args)
 }
 
 static PyMethodDef PySStep_methods[] = {
-    { "solve", (PyCFunction) PySStep_solve, METH_VARARGS, " " },
+    { "solve", (PyCFunction) PySStep_solve, METH_VARARGS, sstep_solve__doc__ },
     { NULL }
 };
 
