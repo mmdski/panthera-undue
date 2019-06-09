@@ -1338,7 +1338,7 @@ PySStep_solve(PySStepObject *self, PyObject *args)
     }
     ELSE;
     {
-        PyErr_SetString(PyExc_RuntimeError, "Compute failed, unknown reason");
+        PyErr_SetString(PyExc_RuntimeError, "Compute failed");
         return NULL;
     }
     END_TRY;
