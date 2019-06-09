@@ -77,3 +77,43 @@ class TestStandardStep(unittest.TestCase):
 
         self.assertTrue(np.alltrue(np.abs(us_depth - boundary_depth) <= atol))
         self.assertTrue(np.alltrue(np.abs(ds_depth - boundary_depth) <= atol))
+
+    def test_trapezoid_channel(self):
+        """Test M1 curve solution in a trapezoidal channel"""
+
+        xs_y = [10, 0, 0, 10]
+        xs_z = [0, 20, 30, 50]
+        roughness = [0.013]
+
+        n_nodes = 5
+        last_node = n_nodes - 1
+        slope = 0.001
+        dx = 1000
+
+        discharge = 30
+        boundary_wse = 5
+
+        expected_depth = np.array([1.263, 2.038, 3.007, 4.002, 5])
+
+        xs = CrossSection(xs_y, xs_z, roughness)
+
+        x = np.linspace(0, (n_nodes-1)*dx, n_nodes)
+        y = (n_nodes - np.arange(n_nodes) - 1) * dx * slope
+        xs_number = np.zeros_like(x, dtype=np.int32)
+        xs_table = {0: xs}
+        reach = Reach(x, y, xs_number, xs_table)
+        sstep = StandardStep(reach)
+
+        q_table = {last_node: discharge}
+
+        options = StandardStepOptions(q_table, boundary_wse, False)
+
+        res = sstep.solve(options)
+
+        _, wse = res.ws_elevation()
+
+        depth = wse - y
+
+        atol = 0.01
+
+        self.assertTrue(np.allclose(depth, expected_depth, rtol=0, atol=atol))
