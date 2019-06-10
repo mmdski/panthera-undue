@@ -9,7 +9,8 @@ const Except_T empty_table_error      = { "Unsupported operation on empty"
                                      " table" };
 const Except_T reach_x_order_error    = { "Invalid x-value order" };
 const Except_T reach_xs_num_error     = { "Invalid cross section number" };
-const Except_T max_iteration_error = { "Maximum number of iterations reach" };
-const Except_T xsp_depth_error     = { "Depth is less than minimum y-value"
-                                   " in cross section." };
-Except_T       compute_fail_error  = { "Compute failed" };
+const Except_T max_iteration_error  = { "Maximum number of iterations reach" };
+const Except_T xsp_depth_error      = { "Depth is less than minimum y-value"
+                                   " in cross section" };
+const Except_T xs_invld_depth_error = { "Invalid Inf or Nan depth value" };
+Except_T       compute_fail_error   = { "Compute failed" };

@@ -225,6 +225,8 @@ xs_z_roughness (CrossSection xs, double *z_roughness);
  *
  * #xsp_depth_error if @h is less than the lowest y-value in @xs coordinate
  *
+ * #xs_invld_depth_error if @h is Nan or Inf
+ *
  * Returns: the hydraulic properties calculated by @xs at depth @h
  */
 extern CrossSectionProps

@@ -60,6 +60,13 @@ extern const Except_T index_error;
 extern const Except_T xsp_depth_error;
 
 /**
+ *xs_invld_depth_error:
+ *
+ * Raised when the depth @h passed to xs_hydraulic_properties() is NAN or INF.
+ */
+extern const Except_T xs_invld_depth_error;
+
+/**
  * empty_table_error:
  *
  * Raised when an unsupported operation is performed on an empty table.

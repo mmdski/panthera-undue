@@ -353,6 +353,7 @@ xs_get_properties_from_res (CrossSection xs, double h)
 {
 
     assert (xs);
+    assert (!isnan (h));
 
     int indlo = calc_index (h);
     int indhi = indlo + 1;
@@ -477,6 +478,9 @@ xs_hydraulic_properties (CrossSection xs, double h)
 
     if (h < coarray_min_y (xs->ca))
         RAISE (xsp_depth_error);
+
+    if (isnan (h) || isinf (h))
+        RAISE (xs_invld_depth_error);
 
     return xs_get_properties_from_res (xs, h);
 }
