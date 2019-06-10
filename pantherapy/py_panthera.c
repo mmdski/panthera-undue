@@ -1336,6 +1336,19 @@ PySStep_solve(PySStepObject *self, PyObject *args)
         PyErr_SetString(PyExc_RuntimeError, "Standard step solution failed");
         return NULL;
     }
+    EXCEPT(xsp_depth_error);
+    {
+        PyErr_SetString(PyExc_RuntimeError,
+                        "Water surface elevation below minimum channel "
+                        "elevation encountered during solution");
+        return NULL;
+    }
+    EXCEPT(xs_invld_depth_error);
+    {
+        PyErr_SetString(PyExc_RuntimeError,
+                        "inf or nan depth value encountered during solution");
+        return NULL;
+    }
     ELSE;
     {
         PyErr_SetString(PyExc_RuntimeError, "Compute failed");
