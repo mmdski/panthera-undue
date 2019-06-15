@@ -633,8 +633,8 @@ static PyMethodDef PyXS_methods[] = {
 
 PyDoc_STRVAR(
     xs_doc,
-    "CrossSection(y, x, roughness) -> new CrossSection with one subsection\n"
-    "CrossSection(y, x, roughness, z_roughness) -> new CrossSection with\n"
+    "CrossSection(y, z, roughness) -> new CrossSection with one subsection\n"
+    "CrossSection(y, z, roughness, z_roughness) -> new CrossSection with\n"
     "    len(roughness) subsections\n\n"
     "Hydraulic cross section\n\n"
     "Parameters\n"
