@@ -11,7 +11,7 @@ struct CrossSectionProps {
     double *properties;
 };
 
-CrossSectionProps
+static CrossSectionProps
 xsp_new (void)
 {
     CrossSectionProps xsp;
@@ -37,7 +37,7 @@ xsp_get (CrossSectionProps xsp, xs_prop prop)
     return *(xsp->properties + prop);
 }
 
-void
+static void
 xsp_set (CrossSectionProps xsp, xs_prop prop, double value)
 {
     if (!xsp)
@@ -45,7 +45,7 @@ xsp_set (CrossSectionProps xsp, xs_prop prop, double value)
     *(xsp->properties + prop) = value;
 }
 
-CrossSectionProps
+static CrossSectionProps
 xsp_interp_depth (CrossSectionProps xsp1, CrossSectionProps xsp2, double depth)
 {
     double d1 = *(xsp1->properties + XS_DEPTH);
@@ -81,7 +81,7 @@ struct Subsection {
 typedef struct Subsection *Subsection;
 
 /* Allocates memory and creates a new Subsection */
-Subsection
+static Subsection
 ss_new (CoArray ca, double roughness, double activation_depth)
 {
     assert ((int) (roughness > 0));
@@ -97,7 +97,7 @@ ss_new (CoArray ca, double roughness, double activation_depth)
 }
 
 /* Frees memory from a previously allocated Subsection */
-void
+static void
 ss_free (Subsection ss)
 {
     coarray_free (ss->array);
@@ -107,7 +107,7 @@ ss_free (Subsection ss)
 /* Calculates hydraulic properties for the subsection.
  * Returns a new CrossSectionProps.
  */
-CrossSectionProps
+static CrossSectionProps
 ss_hydraulic_properties (Subsection ss, double y)
 {
     assert (ss);
@@ -192,7 +192,7 @@ ss_hydraulic_properties (Subsection ss, double y)
     return xsp;
 }
 
-double
+static double
 ss_roughness (Subsection ss)
 {
     assert (ss);
@@ -213,7 +213,7 @@ typedef struct ResultsCache {
 #define calc_index(depth) (int) (depth / DEPTH_INTERP_DELTA)
 #define calc_depth(index) DEPTH_INTERP_DELTA *index
 
-ResultsCache *
+static ResultsCache *
 res_new (int size)
 {
     assert (size > 0);
@@ -237,7 +237,7 @@ res_new (int size)
     return res;
 }
 
-void
+static void
 res_free (ResultsCache *res)
 {
     assert (res);
@@ -254,7 +254,7 @@ res_free (ResultsCache *res)
     FREE (res);
 }
 
-ResultsCache *
+static ResultsCache *
 res_resize (int new_size, ResultsCache *old_res)
 {
     assert (old_res);
@@ -286,7 +286,7 @@ struct CrossSection {
     ResultsCache *results;       /* results cache */
 };
 
-CrossSectionProps
+static CrossSectionProps
 _calc_hydraulic_properties (CrossSection xs, double h)
 {
 
@@ -348,7 +348,7 @@ _calc_hydraulic_properties (CrossSection xs, double h)
 }
 
 /* interfacing function between results cache and cross section */
-CrossSectionProps
+static CrossSectionProps
 xs_get_properties_from_res (CrossSection xs, double h)
 {
 
