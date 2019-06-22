@@ -1,5 +1,5 @@
-#ifndef SECANT_SOLVE_INCLUDDED
-#define SECANT_SOLVE_INCLUDDED
+#ifndef SECANT_SOLVE_INCLUDED
+#define SECANT_SOLVE_INCLUDED
 
 #include <stdbool.h>
 
