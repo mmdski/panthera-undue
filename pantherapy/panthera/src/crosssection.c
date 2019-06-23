@@ -207,7 +207,9 @@ typedef struct ResultsCache {
     CrossSectionProps *xsp;
 } ResultsCache;
 
-#define DEPTH_INTERP_DELTA 0.1  /* depth interpolation step size */
+/* DEPTH_INTERP_DELTA must be = 1 / DEPTH_ROUNDING_FACTOR */
+#define DEPTH_ROUNDING_FACTOR 100
+#define DEPTH_INTERP_DELTA 0.01
 #define CACHE_EXPANSION_TERM 10 /* rate to grow array */
 
 #define calc_index(depth) (int) (depth / DEPTH_INTERP_DELTA)
@@ -368,15 +370,17 @@ xs_get_properties_from_res (CrossSection xs, double h)
 
     CrossSectionProps xsplo = *(xs->results->xsp + indlo);
     if (!xsplo) {
-        dlo                         = calc_depth (indlo);
-        xsplo                       = _calc_hydraulic_properties (xs, dlo);
+        dlo   = calc_depth (indlo);
+        dlo   = ((int) DEPTH_ROUNDING_FACTOR * dlo) / DEPTH_ROUNDING_FACTOR;
+        xsplo = _calc_hydraulic_properties (xs, dlo);
         *(xs->results->xsp + indlo) = xsplo;
     }
 
     CrossSectionProps xsphi = *(xs->results->xsp + indhi);
     if (!xsphi) {
-        dhi                         = calc_depth (indhi);
-        xsphi                       = _calc_hydraulic_properties (xs, dhi);
+        dhi   = calc_depth (indhi);
+        dhi   = ((int) DEPTH_ROUNDING_FACTOR * dhi) / DEPTH_ROUNDING_FACTOR;
+        xsphi = _calc_hydraulic_properties (xs, dhi);
         *(xs->results->xsp + indhi) = xsphi;
     }
 
