@@ -319,7 +319,7 @@ _calc_hydraulic_properties (CrossSection xs, double h)
         /* skip subsection if depth is less than the lowest point in the
          * subsection */
         ss = *(xs->ss + i);
-        if (h < coarray_min_y (ss->array))
+        if (h <= coarray_min_y (ss->array))
             continue;
 
         xsp_ss  = ss_hydraulic_properties (ss, h);
@@ -338,8 +338,10 @@ _calc_hydraulic_properties (CrossSection xs, double h)
         conveyance += k_ss;
     }
 
-    h_depth   = area / top_width;
-    h_radius  = area / w_perimeter;
+    h_depth  = area / top_width;
+    h_radius = area / w_perimeter;
+    if (isnan (h_radius))
+        conveyance = NAN;
     alpha     = (area * area) * sum / (conveyance * conveyance * conveyance);
     crit_flow = area * sqrt (GRAVITY * area / (alpha * top_width));
 

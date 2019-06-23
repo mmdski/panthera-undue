@@ -2,7 +2,7 @@
 #include <glib.h>
 #include <panthera/crosssection.h>
 
-#define ABS_TOL 1e-14
+#define ABS_TOL 1e-13
 #define REL_TOL 0
 
 typedef struct {
@@ -104,7 +104,9 @@ calc_perimeter (xs_test_data test_data, double depth)
     double perimeter;
     double factor = test_data.factor;
 
-    if (test_data.shape == 'r') {
+    if (depth <= 0)
+        perimeter = 0;
+    else if (test_data.shape == 'r') {
         perimeter = test_data.b0 + 2 * depth;
     } else if (test_data.shape == 't')
         perimeter = 2 * depth * sqrt (1 + (test_data.s * test_data.s));
@@ -123,7 +125,9 @@ calc_top_width (xs_test_data test_data, double depth)
     double top_width;
     double factor = test_data.factor;
 
-    if (test_data.shape == 'r')
+    if (depth <= 0)
+        top_width = 0;
+    else if (test_data.shape == 'r')
         top_width = test_data.b0;
     else if (test_data.shape == 't')
         top_width = 2 * test_data.s * depth;
@@ -306,7 +310,7 @@ void
 test_simple_h_properties (xs_fixture *xsf, gconstpointer test_data)
 {
 
-    int    steps = 10;
+    int    steps = 100;
     double depth;
     for (int i = 0; i < steps; i++) {
         depth = (double) i / (double) steps;
