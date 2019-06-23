@@ -43,6 +43,7 @@ typedef double (*SecantSolverFunc) (double x, void *func_data);
  * @func:           a #SecantSolverFunc
  * @func_data:      data used by @func for computing a solution
  * @x_0:            initial value of x
+ * @x_1:            second value of x
  *
  * Returns: a numerical solution using the secant method
  */
@@ -51,6 +52,7 @@ secant_solve (int              max_iterations,
               double           eps,
               SecantSolverFunc func,
               void *           func_data,
-              double           x_0);
+              double           x_0,
+              double           x_1);
 
 #endif

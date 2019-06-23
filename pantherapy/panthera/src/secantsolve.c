@@ -8,47 +8,46 @@ secant_solve (int              max_iterations,
               double           eps,
               SecantSolverFunc func,
               void *           func_data,
-              double           x_0)
+              double           x_0,
+              double           x_1)
 {
     if (max_iterations < 1)
         RAISE (value_arg_error);
 
     int    i;
-    double x_new;
-    double x_computed = NAN;
-    bool   solution_found;
+    double delta;
+    double x_diff;
+    double y_diff;
+    double x_computed     = NAN;
+    bool   solution_found = false;
 
     SecantSolution *solution;
 
-    double *assumed =
+    double *x =
         Mem_calloc (max_iterations, sizeof (double), __FILE__, __LINE__);
-    double *error =
+    double *y =
         Mem_calloc (max_iterations, sizeof (double), __FILE__, __LINE__);
-    double assumed_diff;
-    double error_diff;
 
-    x_new = x_0;
+    *(x + 0) = x_0;
+    *(x + 1) = x_1;
 
-    solution_found = false;
+    *(y + 0) = func (x_0, func_data);
+    *(y + 1) = func (x_1, func_data);
 
-    for (i = 0; i < max_iterations; i++) {
-        x_computed = func (x_new, func_data);
+    for (i = 2; i < max_iterations; i++) {
 
-        *(error + i)   = fabs (x_computed - x_new);
-        *(assumed + i) = x_new;
+        x_diff = *(x + i - 1) - *(x + i - 2);
+        y_diff = *(y + i - 1) - *(y + i - 2);
 
-        if (*(error + i) <= eps) {
+        *(x + i) = *(x + i - 1) - *(y + i - 1) * x_diff / y_diff;
+        *(y + i) = func (*(x + i), func_data);
+
+        delta = fabs (*(x + i) - *(x + i - 1));
+
+        if (delta <= eps) {
             solution_found = true;
+            x_computed     = *(x + i);
             break;
-        }
-
-        if (i == 0) {
-            x_new = x_0 + 0.7 * (x_computed - x_0);
-        } else {
-            assumed_diff = *(assumed + i - 1) - *(assumed + i);
-            error_diff   = *(error + i - 1) - *(error + i);
-            x_new        = *(assumed + i - 1) -
-                    *(error + i - 1) * assumed_diff / error_diff;
         }
     }
 
@@ -57,8 +56,8 @@ secant_solve (int              max_iterations,
     solution->solution_found = solution_found;
     solution->x_computed     = x_computed;
 
-    Mem_free (assumed, __FILE__, __LINE__);
-    Mem_free (error, __FILE__, __LINE__);
+    Mem_free (x, __FILE__, __LINE__);
+    Mem_free (y, __FILE__, __LINE__);
 
     return solution;
 }

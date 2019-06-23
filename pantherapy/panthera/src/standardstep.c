@@ -151,7 +151,7 @@ ws_compute_func (double ws_new, void *function_data)
 
     ws_computed = ws1 + vh1 - vh2 - he;
 
-    return ws_computed;
+    return ws_computed - ws_new;
 }
 
 StandardStepResults
@@ -185,6 +185,8 @@ solve_standard_step (StandardStepOptions *options, Reach reach)
 
     /* water surface elevation */
     double ws1;
+    double ws2_0;
+    double err;
 
     /* discharge */
     double q1;
@@ -215,8 +217,10 @@ solve_standard_step (StandardStepOptions *options, Reach reach)
         q2  = ss_res_get_q (ssr, i);
 
         NodeSolverData solver_data = { i, direction, ws1, q1, q2, reach };
-        node_solution              = secant_solve (
-            MAX_ITERATIONS, EPS, &ws_compute_func, &solver_data, ws1);
+        err           = ws_compute_func (ws1, (void *) &solver_data);
+        ws2_0         = ws1 + 0.7 * err;
+        node_solution = secant_solve (
+            MAX_ITERATIONS, EPS, &ws_compute_func, &solver_data, ws1, ws2_0);
         if (!(node_solution->solution_found)) {
             RAISE (compute_fail_error);
             FREE (node_solution);
