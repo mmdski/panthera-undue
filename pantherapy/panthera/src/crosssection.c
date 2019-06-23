@@ -315,7 +315,13 @@ _calc_hydraulic_properties (CrossSection xs, double h)
     Subsection        ss;
 
     for (i = 0; i < n_subsections; i++) {
-        ss      = *(xs->ss + i);
+
+        /* skip subsection if depth is less than the lowest point in the
+         * subsection */
+        ss = *(xs->ss + i);
+        if (h < coarray_min_y (ss->array))
+            continue;
+
         xsp_ss  = ss_hydraulic_properties (ss, h);
         area_ss = xsp_get (xsp_ss, XS_AREA);
         k_ss    = xsp_get (xsp_ss, XS_CONVEYANCE);
