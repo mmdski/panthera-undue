@@ -210,10 +210,11 @@ typedef struct ResultsCache {
 /* DEPTH_INTERP_DELTA must be = 1 / DEPTH_ROUNDING_FACTOR */
 #define DEPTH_ROUNDING_FACTOR 100
 #define DEPTH_INTERP_DELTA 0.01
-#define CACHE_EXPANSION_TERM 10 /* rate to grow array */
 
 #define calc_index(depth) (int) (depth / DEPTH_INTERP_DELTA)
 #define calc_depth(index) DEPTH_INTERP_DELTA *index
+
+#define CACHE_EXPANSION_TERM calc_index (1) /* rate to grow array */
 
 ResultsCache *
 res_new (int size)
