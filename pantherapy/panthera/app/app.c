@@ -18,8 +18,9 @@ main ()
     CrossSectionProps xsp;
 
     double depth;
+    double critical_flow;
     double max_depth  = 1;
-    double increments = 5;
+    double increments = 10;
 
     for (depth = 0; depth <= max_depth; depth += max_depth / increments) {
         xsp = xs_hydraulic_properties (xs, depth);
@@ -35,12 +36,11 @@ main ()
         xsp_free (xsp);
     }
 
-    printf ("\n");
-    if (coarray_eq (ca, xs_ca)) {
-        printf ("CoArrays are equal\n");
-    } else {
-        printf ("CoArrays are not equal\n");
-    }
+    critical_flow = 2.0;
+
+    printf ("Computing critical depth for flow of %f\n", critical_flow);
+    depth = xs_critical_depth (xs, critical_flow, 0.95);
+    printf ("\tComputed %f\n", depth);
 
     xs_free (xs);
     coarray_free (ca);

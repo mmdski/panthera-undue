@@ -232,4 +232,27 @@ xs_z_roughness (CrossSection xs, double *z_roughness);
 extern CrossSectionProps
 xs_hydraulic_properties (CrossSection xs, double h);
 
+/**
+ * xs_critical_depth
+ * @xs:            a #CrossSection
+ * @critical_flow: critical flow value
+ * @initial_depth: initial depth for solution
+ *
+ * Computes critical depth using secant solver. Returns NAN if no solution is
+ * found.
+ *
+ * **Raises:**
+ *
+ * #null_ptr_arg_error if @xs is `NULL`
+ *
+ * #value_arg_error if @critical_flow or @initial_depth are not finite or if
+ * @initial_depth is less than the minimum y value in @xs
+ *
+ * Returns: critical depth computed for @critical_flow
+ */
+extern double
+xs_critical_depth (CrossSection xs,
+                   double       critical_flow,
+                   double       initial_depth);
+
 #endif

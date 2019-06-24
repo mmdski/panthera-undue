@@ -3,6 +3,7 @@
 #include <panthera/constants.h>
 #include <panthera/crosssection.h>
 #include <panthera/exceptions.h>
+#include <panthera/secantsolve.h>
 #include <stddef.h>
 
 /* cross section properties interface */
@@ -343,7 +344,7 @@ _calc_hydraulic_properties (CrossSection xs, double h)
     if (isnan (h_radius))
         conveyance = NAN;
     alpha     = (area * area) * sum / (conveyance * conveyance * conveyance);
-    crit_flow = area * sqrt (GRAVITY * area / (alpha * top_width));
+    crit_flow = area * sqrt (GRAVITY * h_depth);
 
     xsp_set (xsp, XS_DEPTH, h);
     xsp_set (xsp, XS_AREA, area);
@@ -358,13 +359,63 @@ _calc_hydraulic_properties (CrossSection xs, double h)
     return xsp;
 }
 
+/* critical depth solver */
+typedef struct {
+    double       discharge;
+    CrossSection xs;
+} CriticalDepthData;
+
+double
+critical_flow_zero (double h, void *function_data)
+{
+    double             critical_flow;
+    CrossSectionProps  xsp;
+    CriticalDepthData *solver_data = (CriticalDepthData *) function_data;
+
+    xsp           = xs_hydraulic_properties (solver_data->xs, h);
+    critical_flow = xsp_get (xsp, XS_CRITICAL_FLOW);
+    xsp_free (xsp);
+
+    return critical_flow - solver_data->discharge;
+}
+
+static double
+calc_critical_depth (CrossSection xs, double discharge, double initial_h)
+{
+    assert (xs && isfinite (discharge) && isfinite (initial_h));
+    assert (initial_h > coarray_min_y (xs->ca));
+    int             max_iterations = 20;
+    double          eps            = 0.003;
+    double          critical_depth = NAN;
+    double          err;
+    double          h_1;
+    SecantSolution *res;
+
+    CriticalDepthData func_data = { discharge, xs };
+    err = critical_flow_zero (initial_h, (void *) &func_data);
+    h_1 = initial_h + 0.7 * err;
+
+    TRY res = secant_solve (
+        max_iterations, eps, &critical_flow_zero, &func_data, initial_h, h_1);
+    if (res->solution_found)
+        critical_depth = res->x_computed;
+    FREE (res);
+    EXCEPT (xsp_depth_error);
+    ;
+    EXCEPT (xs_invld_depth_error);
+    ;
+    END_TRY;
+
+    return critical_depth;
+}
+
 /* interfacing function between results cache and cross section */
 static CrossSectionProps
 xs_get_properties_from_res (CrossSection xs, double h)
 {
 
     assert (xs);
-    assert (!isnan (h));
+    assert (isfinite (h));
 
     int indlo = calc_index (h);
     int indhi = indlo + 1;
@@ -492,7 +543,7 @@ xs_hydraulic_properties (CrossSection xs, double h)
     if (h < coarray_min_y (xs->ca))
         RAISE (xsp_depth_error);
 
-    if (isnan (h) || isinf (h))
+    if (!isfinite (h))
         RAISE (xs_invld_depth_error);
 
     return xs_get_properties_from_res (xs, h);
@@ -546,4 +597,19 @@ xs_z_roughness (CrossSection xs, double *z_roughness)
         ss                     = *(xs->ss + i);
         *(z_roughness + i - 1) = coarray_get_z (ss->array, 0);
     }
+}
+
+double
+xs_critical_depth (CrossSection xs, double discharge, double initial_depth)
+{
+    if (!xs)
+        RAISE (null_ptr_arg_error);
+    if (!isfinite (discharge) || !isfinite (initial_depth))
+        RAISE (value_arg_error);
+    if (initial_depth < coarray_min_y (xs->ca))
+        RAISE (value_arg_error);
+
+    double critical_depth = calc_critical_depth (xs, discharge, initial_depth);
+
+    return critical_depth;
 }
