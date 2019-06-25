@@ -16,6 +16,9 @@ extern void
 test_xs_n_roughness (void);
 
 extern void
+test_xs_critical_depth (void);
+
+extern void
 test_reach (void);
 
 extern void

@@ -8,6 +8,7 @@ main (void)
     test_reach ();
     test_xstable ();
     test_standardstep ();
+    test_xs_critical_depth ();
 
     return 0;
 }
