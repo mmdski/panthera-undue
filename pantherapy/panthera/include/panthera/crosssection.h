@@ -238,7 +238,7 @@ xs_hydraulic_properties (CrossSection xs, double h);
  * @critical_flow: critical flow value
  * @initial_depth: initial depth for solution
  *
- * Computes critical depth using secant solver. Returns NAN if no solution is
+ * Computes critical depth using secant solver. Returns `NAN` if no solution is
  * found.
  *
  * **Raises:**
@@ -254,5 +254,30 @@ extern double
 xs_critical_depth (CrossSection xs,
                    double       critical_flow,
                    double       initial_depth);
+
+/**
+ * xs_normal_depth
+ * @xs:            a #CrossSection
+ * @normal_flow:   normal flow value
+ * @slope:         slope for computing normal depth
+ * @initial_depth: initial depth for solution
+ *
+ * Computes normal depth using secant solver. Returns `NAN` if no solution is
+ * found.
+ *
+ * **Raises:**
+ *
+ * #null_ptr_arg_error if @xs is `NULL`
+ *
+ * #value_arg_error if @normal_flow, @slope, or @initial_depth are not finite
+ * or if @initial_depth is less than the minimum y value in @xs
+ *
+ * Returns: normal depth computed for @normal_flow
+ */
+extern double
+xs_normal_depth (CrossSection xs,
+                 double       normal_flow,
+                 double       slope,
+                 double       initial_depth);
 
 #endif

@@ -409,6 +409,60 @@ calc_critical_depth (CrossSection xs, double discharge, double initial_h)
     return critical_depth;
 }
 
+/* normal depth solver */
+typedef struct {
+    double       discharge;
+    double       sqrt_slope;
+    CrossSection xs;
+} NormalDepthData;
+
+double
+normal_flow_zero (double h, void *function_data)
+{
+    double            conveyance;
+    CrossSectionProps xsp;
+    NormalDepthData * solver_data = (NormalDepthData *) function_data;
+
+    xsp        = xs_hydraulic_properties (solver_data->xs, h);
+    conveyance = xsp_get (xsp, XS_CONVEYANCE);
+    xsp_free (xsp);
+
+    return conveyance * solver_data->sqrt_slope - solver_data->discharge;
+}
+
+static double
+calc_normal_depth (CrossSection xs,
+                   double       discharge,
+                   double       slope,
+                   double       initial_h)
+{
+    assert (xs && isfinite (discharge) && isfinite (initial_h));
+    assert (initial_h > coarray_min_y (xs->ca));
+    int             max_iterations = 20;
+    double          eps            = 0.003;
+    double          normal_depth   = NAN;
+    double          err;
+    double          h_1;
+    SecantSolution *res;
+
+    NormalDepthData func_data = { discharge, sqrt (slope), xs };
+    err = normal_flow_zero (initial_h, (void *) &func_data);
+    h_1 = initial_h + 0.7 * err;
+
+    TRY res = secant_solve (
+        max_iterations, eps, &normal_flow_zero, &func_data, initial_h, h_1);
+    if (res->solution_found)
+        normal_depth = res->x_computed;
+    FREE (res);
+    EXCEPT (xsp_depth_error);
+    ;
+    EXCEPT (xs_invld_depth_error);
+    ;
+    END_TRY;
+
+    return normal_depth;
+}
+
 /* interfacing function between results cache and cross section */
 static CrossSectionProps
 xs_get_properties_from_res (CrossSection xs, double h)
@@ -612,4 +666,24 @@ xs_critical_depth (CrossSection xs, double discharge, double initial_depth)
     double critical_depth = calc_critical_depth (xs, discharge, initial_depth);
 
     return critical_depth;
+}
+
+double
+xs_normal_depth (CrossSection xs,
+                 double       discharge,
+                 double       slope,
+                 double       initial_depth)
+{
+    if (!xs)
+        RAISE (null_ptr_arg_error);
+    if (!isfinite (discharge) || !isfinite (slope) ||
+        !isfinite (initial_depth))
+        RAISE (value_arg_error);
+    if (initial_depth < coarray_min_y (xs->ca))
+        RAISE (value_arg_error);
+
+    double normal_depth =
+        calc_normal_depth (xs, discharge, slope, initial_depth);
+
+    return normal_depth;
 }

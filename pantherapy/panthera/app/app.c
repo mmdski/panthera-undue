@@ -1,3 +1,4 @@
+#include <math.h>
 #include <panthera/crosssection.h>
 #include <stdio.h>
 
@@ -18,7 +19,8 @@ main ()
     CrossSectionProps xsp;
 
     double depth;
-    double critical_flow;
+    double discharge;
+    double slope      = 0.001;
     double max_depth  = 1;
     double increments = 10;
 
@@ -36,10 +38,24 @@ main ()
         xsp_free (xsp);
     }
 
-    critical_flow = 2.0;
+    depth     = 10.0;
+    xsp       = xs_hydraulic_properties (xs, depth);
+    discharge = xsp_get (xsp, XS_CRITICAL_FLOW);
+    xsp_free (xsp);
+    printf ("Computing critical depth for flow of %f\n", discharge);
+    printf ("\tExpecting %f\n", depth);
+    depth = xs_critical_depth (xs, discharge, 11.0);
+    printf ("\tComputed %f\n", depth);
 
-    printf ("Computing critical depth for flow of %f\n", critical_flow);
-    depth = xs_critical_depth (xs, critical_flow, 0.95);
+    depth     = 10.0;
+    xsp       = xs_hydraulic_properties (xs, depth);
+    discharge = xsp_get (xsp, XS_CONVEYANCE) * sqrt (slope);
+    xsp_free (xsp);
+    printf ("Computing normal depth for flow of %f and slope of %f\n",
+            discharge,
+            slope);
+    printf ("\tExpecting %f\n", depth);
+    depth = xs_normal_depth (xs, discharge, slope, 9);
     printf ("\tComputed %f\n", depth);
 
     xs_free (xs);
