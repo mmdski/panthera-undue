@@ -459,6 +459,40 @@ test_critical_depth (void)
 }
 
 void
+test_normal_depth (void)
+{
+    int     i;
+    int     n           = 5;
+    double  z[]         = { 0, 0, 0.5, 1, 1 };
+    double  y[]         = { 1, 0, 0, 0, 1 };
+    int     n_roughness = 1;
+    double  r[]         = { 0.030 };
+    double *z_r         = NULL;
+
+    double depth;
+    double normal_flow;
+    double normal_depth;
+    double slope = 0.001;
+
+    CoArray           ca = coarray_new (n, y, z);
+    CrossSection      xs = xs_new (ca, n_roughness, r, z_r);
+    CrossSectionProps xsp;
+
+    for (i = 1; i < 10; i++) {
+        depth       = (double) i;
+        xsp         = xs_hydraulic_properties (xs, depth);
+        normal_flow = sqrt (slope) * xsp_get (xsp, XS_CONVEYANCE);
+        xsp_free (xsp);
+
+        normal_depth = xs_normal_depth (xs, normal_flow, slope, 1.25 * depth);
+        g_assert_true (test_is_close (depth, normal_depth, 0, 0.01));
+    }
+
+    coarray_free (ca);
+    xs_free (xs);
+}
+
+void
 add_xs_new_test ()
 {
     int    n        = 5;
@@ -644,4 +678,6 @@ add_crosssection_tests ()
     add_xs_roughness_test ();
     g_test_add_func ("/panthera/xs/crosssection/xs_critical_depth",
                      test_critical_depth);
+    g_test_add_func ("/panthera/xs/crosssection/xs_normal_depth",
+                     test_normal_depth);
 }

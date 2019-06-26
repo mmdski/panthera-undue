@@ -19,6 +19,9 @@ extern void
 test_xs_critical_depth (void);
 
 extern void
+test_xs_normal_depth (void);
+
+extern void
 test_reach (void);
 
 extern void
@@ -26,4 +29,5 @@ test_xstable (void);
 
 extern void
 test_standardstep (void);
+
 #endif
