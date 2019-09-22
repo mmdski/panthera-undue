@@ -181,9 +181,6 @@ dmypy.json
 # build directories
 build*/
 
-# trying out io.elementary.code
-*~
-
 # hotdoc
 built_docs
 hotdoc-*

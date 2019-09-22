@@ -1,21 +1,13 @@
-cii_sources = [
-               'cii/assert.c',
-               'cii/except.c',
-               'cii/list.c',
-               'cii/mem.c'
-              ]
 panthera_sources = [
-                    'exceptions.c',
-                    'crosssection.c',
                     'coarray.c',
-                    'xstable.c',
-                    'reach.c',
-                    'standardstep.c',
+                    'coordinate.c',
+                    'crosssection.c',
+                    'list.c',
+                    'mem.c',
                     'secantsolve.c',
-                    'redblackbst.c',
-                    cii_sources
+                    'subsection.c',
+                    'xsproperties.c'
                     ]
-
 
 if target_machine.system() == 'windows'
     pantheralib = static_library('panthera',

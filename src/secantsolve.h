@@ -34,7 +34,7 @@ typedef struct {
  *
  * Returns: computed function
  */
-typedef double (*SecantSolverFunc) (double x, void *func_data);
+typedef double (*SecantSolverFunc)(double x, void *func_data);
 
 /**
  * secant_solve:
@@ -48,11 +48,11 @@ typedef double (*SecantSolverFunc) (double x, void *func_data);
  * Returns: a numerical solution using the secant method
  */
 SecantSolution *
-secant_solve (int              max_iterations,
-              double           eps,
-              SecantSolverFunc func,
-              void *           func_data,
-              double           x_0,
-              double           x_1);
+secant_solve(int              max_iterations,
+             double           eps,
+             SecantSolverFunc func,
+             void *           func_data,
+             double           x_0,
+             double           x_1);
 
 #endif
