@@ -35,7 +35,12 @@ test_xs_properties(void)
     CrossSection xs = xs_new(ca, n_roughness, r, z_r);
     coarray_free(ca);
 
-    xsp = xs_hydraulic_properties(xs, 0.5);
+    for (double h = 0.1; h < 1; h += 0.1) {
+        xsp = xs_hydraulic_properties(xs, h);
+        xsp_free(xsp);
+    }
+
+    xsp = xs_hydraulic_properties(xs, -1);
     xsp_free(xsp);
 
     xs_free(xs);

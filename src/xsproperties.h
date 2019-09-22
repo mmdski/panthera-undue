@@ -57,6 +57,9 @@ xsp_new(void);
 extern void
 xsp_free(CrossSectionProps xsp);
 
+extern CrossSectionProps
+xsp_copy(CrossSectionProps xsp);
+
 /**
  * xsp_get:
  * @xsp:   a #CrossSectionProps

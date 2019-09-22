@@ -25,6 +25,19 @@ xsp_free(CrossSectionProps xsp)
     FREE(xsp);
 }
 
+CrossSectionProps
+xsp_copy(CrossSectionProps xsp)
+{
+    assert(xsp);
+    double            value;
+    CrossSectionProps new_xsp = xsp_new();
+    for (int i = 0; i < N_XSP; i++) {
+        value = xsp_get(xsp, i);
+        xsp_set(new_xsp, i, value);
+    }
+    return new_xsp;
+}
+
 double
 xsp_get(CrossSectionProps xsp, xs_prop prop)
 {
