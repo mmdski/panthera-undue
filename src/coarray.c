@@ -108,6 +108,29 @@ coarray_copy(CoArray ca)
     return copy;
 }
 
+CoArray
+coarray_add_y(CoArray ca, double add_y)
+{
+    assert(ca);
+
+    int     n = ca->length;
+    double *y = mem_calloc(n, sizeof(double), __FILE__, __LINE__);
+    double *z = mem_calloc(n, sizeof(double), __FILE__, __LINE__);
+
+    int i;
+    for (i = 0; i < n; i++) {
+        y[i] = (*(ca->coordinates + i))->y + add_y;
+        z[i] = (*(ca->coordinates + i))->z;
+    }
+
+    CoArray new_a = coarray_new(n, y, z);
+
+    mem_free(y, __FILE__, __LINE__);
+    mem_free(z, __FILE__, __LINE__);
+
+    return new_a;
+}
+
 void
 coarray_free(CoArray a)
 {

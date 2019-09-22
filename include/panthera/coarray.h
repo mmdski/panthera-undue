@@ -57,6 +57,20 @@ extern void
 coarray_free(CoArray a);
 
 /**
+ * coarray_add_y:
+ * @a:     a #CoArray
+ * @add_y: y-value to add to @a
+ *
+ * Translates @a in the y-direction by @add_y. The returned coordinate array is
+ * newly allocated and should be freed using coarray_free() when no longer
+ * needed.
+ *
+ * Returns: @a translated in the y-direction by @add_y
+ */
+extern CoArray
+coarray_add_y(CoArray a, double add_y);
+
+/**
  * coarray_eq:
  * @a1: a #CoArray
  * @a2: another #CoArray
