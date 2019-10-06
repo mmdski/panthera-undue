@@ -41,11 +41,13 @@ rnp_get(ReachNodeProps rnp, rn_prop prop)
     return *(rnp->properties + prop);
 }
 
-typedef struct ReachNode {
+struct ReachNode {
     double       x; /* distance downstream */
     double       y; /* thalweg elevation */
     CrossSection xs;
-} ReachNode;
+};
+
+typedef struct ReachNode *ReachNode;
 
 struct Reach {
     ReachNode * nodes; /* array of nodes */
@@ -132,8 +134,9 @@ create_array(Reach reach)
 
     for (int i = 0; i < n; i++) {
         item     = redblackbst_get(tree, keys[i]);
-        nodes[i] = *(ReachNode *) item->value;
+        nodes[i] = (ReachNode) item->value;
         redblackbst_free_item(item);
+        item = NULL;
     }
 
     reach->nodes = nodes;
@@ -164,12 +167,12 @@ reach_stream_distance(Reach reach, double *x)
     if (reach->nodes == NULL)
         create_array(reach);
 
-    int        i;
-    int        n = redblackbst_size(reach->tree);
-    ReachNode *node;
+    int       i;
+    int       n = redblackbst_size(reach->tree);
+    ReachNode node;
 
     for (i = 0; i < n; i++) {
-        node     = (reach->nodes + i);
+        node     = *(reach->nodes + i);
         *(x + i) = node->x;
     }
 }
@@ -182,12 +185,12 @@ reach_elevation(Reach reach, double *y)
     if (reach->nodes == NULL)
         create_array(reach);
 
-    int        i;
-    int        n = redblackbst_size(reach->tree);
-    ReachNode *node;
+    int       i;
+    int       n = redblackbst_size(reach->tree);
+    ReachNode node;
 
     for (i = 0; i < n; i++) {
-        node     = (reach->nodes + i);
+        node     = *(reach->nodes + i);
         *(y + i) = node->y;
     }
 }
@@ -201,7 +204,7 @@ reach_node_properties(Reach reach, int i, double wse, double q)
     if (reach->nodes == NULL)
         create_array(reach);
 
-    ReachNode *node = (reach->nodes + i);
+    ReachNode node = *(reach->nodes + i);
 
     double h = wse - node->y;
 
@@ -235,7 +238,7 @@ reach_put(Reach reach, double x, double y, CrossSection xs)
 
     double *tree_key;
 
-    ReachNode *node;
+    ReachNode node;
     NEW(node);
 
     node->x  = x;

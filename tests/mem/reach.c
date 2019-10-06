@@ -40,7 +40,63 @@ test_reach_new(void)
 }
 
 void
+test_reach_node_props(void)
+{
+    int    i;
+    int    n_nodes = 5;
+    double x[]     = { 0, 1, 2, 3, 4 };
+    double y[]     = { 0, 0.001, 0.002, 0.003, 0.004 };
+    double q       = 0.1;
+    double h       = 0.5;
+    double wse;
+
+    ReachNodeProps rnp;
+
+    CrossSection xs = new_cross_section();
+
+    Reach reach = reach_new();
+
+    for (i = 0; i < n_nodes; i++) {
+        reach_put(reach, x[i], y[i], xs);
+    }
+
+    for (i = 0; i < n_nodes; i++) {
+        wse = h + y[i];
+        rnp = reach_node_properties(reach, i, wse, q);
+        rnp_free(rnp);
+    }
+
+    reach_free(reach);
+    xs_free(xs);
+}
+
+void
+test_reach_stream_distance(void)
+{
+    int    n_nodes = 5;
+    double x[]     = { 0, 1, 2, 3, 4 };
+    double y[]     = { 0, 0.001, 0.002, 0.003, 0.004 };
+
+    double *stream_distance = calloc(n_nodes, sizeof(double));
+
+    CrossSection xs = new_cross_section();
+
+    Reach reach = reach_new();
+
+    for (int i = 0; i < n_nodes; i++)
+        reach_put(reach, x[i], y[i], xs);
+
+    reach_stream_distance(reach, stream_distance);
+
+    free(stream_distance);
+    reach_free(reach);
+    xs_free(xs);
+}
+
+void
 test_reach(void)
 {
     test_reach_new();
+    test_reach_node_props();
+    test_reach_stream_distance();
 }

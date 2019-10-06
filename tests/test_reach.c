@@ -33,6 +33,8 @@ test_reach_new(void)
     /* test successful initialization of a reach */
     Reach reach = reach_new();
 
+    g_assert_true(reach_size(reach) == 0);
+
     for (int i = 0; i < n_nodes; i++)
         reach_put(reach, x[i], y[i], xs);
 
@@ -76,40 +78,41 @@ test_reach_node_props(void)
     xs_free(xs);
 }
 
-// void
-// test_reach_stream_distance(void)
-// {
-//     int    i;
-//     int    n_nodes     = 5;
-//     double x[]         = { 0, 1, 2, 3, 4 };
-//     double y[]         = { 0, 0.001, 0.002, 0.003, 0.004 };
-//     int    xs_number[] = { 0, 0, 0, 0, 0 };
+void
+test_reach_stream_distance(void)
+{
+    int    i;
+    int    n_nodes = 5;
+    double x[]     = { 0, 1, 2, 3, 4 };
+    double y[]     = { 0, 0.001, 0.002, 0.003, 0.004 };
 
-//     double *stream_distance =
-//         Mem_calloc(n_nodes, sizeof(double), __FILE__, __LINE__);
+    double *stream_distance = calloc(n_nodes, sizeof(double));
 
-//     CrossSection xs = new_cross_section();
+    CrossSection xs = new_cross_section();
 
-//     Reach reach = reach_new();
+    Reach reach = reach_new();
 
-//     reach_stream_distance(reach, stream_distance);
+    for (int i = 0; i < n_nodes; i++)
+        reach_put(reach, x[i], y[i], xs);
 
-//     for (i = 0; i < n_nodes; i++) {
-//         g_assert_true(*(stream_distance + i) == *(x + i));
-//     }
+    reach_stream_distance(reach, stream_distance);
 
-//     Mem_free(stream_distance, __FILE__, __LINE__);
-//     reach_free(reach);
-//     xs_free(xs);
-// }
+    for (i = 0; i < n_nodes; i++) {
+        g_assert_true(*(stream_distance + i) == *(x + i));
+    }
+
+    free(stream_distance);
+    reach_free(reach);
+    xs_free(xs);
+}
 
 int
 main(int argc, char *argv[])
 {
     g_test_init(&argc, &argv, NULL);
     g_test_add_func("/panthera/reach/new", test_reach_new);
-    // g_test_add_func("/panthera/reach/node properties",
-    // test_reach_node_props); g_test_add_func("/panthera/reach/stream
-    // distance", test_reach_stream_distance);
+    g_test_add_func("/panthera/reach/node properties", test_reach_node_props);
+    g_test_add_func("/panthera/reach/stream distance",
+                    test_reach_stream_distance);
     return g_test_run();
 }
