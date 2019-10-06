@@ -4,6 +4,8 @@ panthera_sources = [
                     'crosssection.c',
                     'list.c',
                     'mem.c',
+                    'reach.c',
+                    'redblackbst.c',
                     'secantsolve.c',
                     'subsection.c',
                     'xsproperties.c'

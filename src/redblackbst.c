@@ -1,6 +1,6 @@
-#include <panthera/cii/assert.h>
-#include <panthera/cii/mem.h>
-#include <panthera/redblackbst.h>
+#include "redblackbst.h"
+#include "mem.h"
+#include <assert.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -22,10 +22,10 @@ struct TreeNode {
 };
 
 static TreeNode *
-tree_node_new (const void *key, void *value)
+tree_node_new(const void *key, void *value)
 {
     TreeNode *node;
-    NEW (node);
+    NEW(node);
     node->size  = 1;
     node->color = RED;
     node->key   = key;
@@ -36,23 +36,23 @@ tree_node_new (const void *key, void *value)
 }
 
 static void
-tree_node_free (TreeNode *node)
+tree_node_free(TreeNode *node)
 {
-    FREE (node);
+    FREE(node);
 }
 
 static void
-tree_free (TreeNode *node)
+tree_free(TreeNode *node)
 {
     if (node) {
-        tree_free (node->l);
-        tree_free (node->r);
-        tree_node_free (node);
+        tree_free(node->l);
+        tree_free(node->r);
+        tree_node_free(node);
     }
 }
 
 static int
-tree_size (TreeNode *node)
+tree_size(TreeNode *node)
 {
     if (node == NULL)
         return 0;
@@ -61,57 +61,57 @@ tree_size (TreeNode *node)
 }
 
 static TreeNode *
-tree_min (TreeNode *node)
+tree_min(TreeNode *node)
 {
     if (node->l == NULL)
         return node;
     else
-        return tree_min (node->l);
+        return tree_min(node->l);
 }
 
 static TreeNode *
-tree_max (TreeNode *node)
+tree_max(TreeNode *node)
 {
     if (node->r == NULL)
         return node;
     else
-        return tree_max (node->r);
+        return tree_max(node->r);
 }
 
 static TreeNode *
-tree_get (TreeNode *node, KeyCompareFunc compare_func, const void *key)
+tree_get(TreeNode *node, KeyCompareFunc compare_func, const void *key)
 {
-    assert (compare_func && key);
+    assert(compare_func && key);
     if (node == NULL)
         return NULL;
 
-    int cmp = compare_func (key, node->key);
+    int cmp = compare_func(key, node->key);
 
     if (cmp < 0)
-        return tree_get (node->l, compare_func, key);
+        return tree_get(node->l, compare_func, key);
     else if (cmp > 0)
-        return tree_get (node->r, compare_func, key);
+        return tree_get(node->r, compare_func, key);
     else
         return node;
 }
 
 static bool
-tree_contains (TreeNode *node, KeyCompareFunc compare_func, const void *key)
+tree_contains(TreeNode *node, KeyCompareFunc compare_func, const void *key)
 {
-    return tree_get (node, compare_func, key) != NULL;
+    return tree_get(node, compare_func, key) != NULL;
 }
 
 static int
-tree_is_red (TreeNode *node)
+tree_is_red(TreeNode *node)
 {
     return node != NULL && node->color;
 }
 
 static TreeNode *
-tree_rotate_right (TreeNode *h)
+tree_rotate_right(TreeNode *h)
 {
-    assert (h);
-    assert (h->l->color == RED);
+    assert(h);
+    assert(h->l->color == RED);
 
     TreeNode *x = h->l;
     h->l        = x->r;
@@ -119,15 +119,15 @@ tree_rotate_right (TreeNode *h)
     x->color    = x->r->color;
     x->r->color = RED;
     x->size     = h->size;
-    h->size     = tree_size (h->l) + tree_size (h->r) + 1;
+    h->size     = tree_size(h->l) + tree_size(h->r) + 1;
     return x;
 }
 
 static TreeNode *
-tree_rotate_left (TreeNode *h)
+tree_rotate_left(TreeNode *h)
 {
-    assert (h);
-    assert (h->r->color == RED);
+    assert(h);
+    assert(h->r->color == RED);
 
     TreeNode *x = h->r;
     h->r        = x->l;
@@ -135,15 +135,15 @@ tree_rotate_left (TreeNode *h)
     x->color    = x->l->color;
     x->l->color = RED;
     x->size     = h->size;
-    h->size     = tree_size (h->l) + tree_size (h->r) + 1;
+    h->size     = tree_size(h->l) + tree_size(h->r) + 1;
     return x;
 }
 
 /* flip the colors of a node and its two children */
 static void
-tree_flip_colors (TreeNode *node)
+tree_flip_colors(TreeNode *node)
 {
-    assert (node && node->l && node->r);
+    assert(node && node->l && node->r);
     node->color    = !(node->color);
     node->l->color = !(node->l->color);
     node->r->color = !(node->r->color);
@@ -151,18 +151,18 @@ tree_flip_colors (TreeNode *node)
 
 /* restore red-black tree invariant */
 static TreeNode *
-tree_balance (TreeNode *node)
+tree_balance(TreeNode *node)
 {
-    assert (node);
+    assert(node);
 
-    if (tree_is_red (node->r))
-        node = tree_rotate_left (node);
-    if (tree_is_red (node->l) && tree_is_red (node->l->l))
-        node = tree_rotate_right (node);
-    if (tree_is_red (node->l) && tree_is_red (node->r))
-        tree_flip_colors (node);
+    if (tree_is_red(node->r))
+        node = tree_rotate_left(node);
+    if (tree_is_red(node->l) && tree_is_red(node->l->l))
+        node = tree_rotate_right(node);
+    if (tree_is_red(node->l) && tree_is_red(node->r))
+        tree_flip_colors(node);
 
-    node->size = tree_size (node->l) + tree_size (node->r) + 1;
+    node->size = tree_size(node->l) + tree_size(node->r) + 1;
     return node;
 }
 
@@ -170,17 +170,17 @@ tree_balance (TreeNode *node)
  * black, make node->left or one of its children red.
  */
 static TreeNode *
-tree_move_red_left (TreeNode *node)
+tree_move_red_left(TreeNode *node)
 {
-    assert (node);
-    assert (tree_is_red (node) && !tree_is_red (node->l) &&
-            !tree_is_red (node->l->l));
+    assert(node);
+    assert(tree_is_red(node) && !tree_is_red(node->l) &&
+           !tree_is_red(node->l->l));
 
-    tree_flip_colors (node);
-    if (tree_is_red (node->r->l)) {
-        node->r = tree_rotate_right (node->r);
-        node    = tree_rotate_left (node);
-        tree_flip_colors (node);
+    tree_flip_colors(node);
+    if (tree_is_red(node->r->l)) {
+        node->r = tree_rotate_right(node->r);
+        node    = tree_rotate_left(node);
+        tree_flip_colors(node);
     }
     return node;
 }
@@ -189,105 +189,105 @@ tree_move_red_left (TreeNode *node)
  * black, make node->right or one of its children red.
  */
 static TreeNode *
-tree_move_red_right (TreeNode *node)
+tree_move_red_right(TreeNode *node)
 {
-    assert (node);
-    assert (tree_is_red (node) && !tree_is_red (node->r) &&
-            !tree_is_red (node->r->l));
+    assert(node);
+    assert(tree_is_red(node) && !tree_is_red(node->r) &&
+           !tree_is_red(node->r->l));
 
-    tree_flip_colors (node);
-    if (tree_is_red (node->l->l)) {
-        node = tree_rotate_right (node);
-        tree_flip_colors (node);
+    tree_flip_colors(node);
+    if (tree_is_red(node->l->l)) {
+        node = tree_rotate_right(node);
+        tree_flip_colors(node);
     }
     return node;
 }
 
 /* delete the node with the minimum x rooted at node */
 static TreeNode *
-tree_delete_min (TreeNode *node)
+tree_delete_min(TreeNode *node)
 {
 
     if (node->l == NULL) {
-        tree_node_free (node);
+        tree_node_free(node);
         return NULL;
     }
 
-    if (!tree_is_red (node->l) && !tree_is_red (node->l->l))
-        node = tree_move_red_left (node);
+    if (!tree_is_red(node->l) && !tree_is_red(node->l->l))
+        node = tree_move_red_left(node);
 
-    node->l = tree_delete_min (node->l);
-    return tree_balance (node);
+    node->l = tree_delete_min(node->l);
+    return tree_balance(node);
 }
 
 /* delete the node with the given key rooted at node */
 static TreeNode *
-tree_delete (TreeNode *node, KeyCompareFunc compare_func, const void *key)
+tree_delete(TreeNode *node, KeyCompareFunc compare_func, const void *key)
 {
-    assert (tree_get (node, compare_func, key) != NULL);
+    assert(tree_get(node, compare_func, key) != NULL);
 
-    if (compare_func (key, node->key) < 0) {
-        if (!tree_is_red (node->l) && !tree_is_red (node->l->l))
-            node = tree_move_red_left (node);
-        node->l = tree_delete (node->l, compare_func, key);
+    if (compare_func(key, node->key) < 0) {
+        if (!tree_is_red(node->l) && !tree_is_red(node->l->l))
+            node = tree_move_red_left(node);
+        node->l = tree_delete(node->l, compare_func, key);
     } else {
-        if (tree_is_red (node->l))
-            node = tree_rotate_right (node);
-        if (compare_func (key, node->key) == 0 && node->r == NULL) {
-            tree_node_free (node);
+        if (tree_is_red(node->l))
+            node = tree_rotate_right(node);
+        if (compare_func(key, node->key) == 0 && node->r == NULL) {
+            tree_node_free(node);
             return NULL;
         }
-        if (!tree_is_red (node->r) && !tree_is_red (node->r->l))
-            node = tree_move_red_right (node);
-        if (compare_func (key, node->key) == 0) {
-            TreeNode *min_r = tree_min (node->r);
+        if (!tree_is_red(node->r) && !tree_is_red(node->r->l))
+            node = tree_move_red_right(node);
+        if (compare_func(key, node->key) == 0) {
+            TreeNode *min_r = tree_min(node->r);
             node->key       = min_r->key;
             node->value     = min_r->value;
             min_r->value    = NULL;
-            node->r         = tree_delete_min (node->r);
+            node->r         = tree_delete_min(node->r);
         } else
-            node->r = tree_delete (node->r, compare_func, key);
+            node->r = tree_delete(node->r, compare_func, key);
     }
-    return tree_balance (node);
+    return tree_balance(node);
 }
 
 static int
-tree_keys (TreeNode *node, int i, void **key_array)
+tree_keys(TreeNode *node, int i, void **key_array)
 {
     if (node) {
-        i                  = tree_keys (node->l, i, key_array);
+        i                  = tree_keys(node->l, i, key_array);
         *(key_array + i++) = (void *) node->key;
-        i                  = tree_keys (node->r, i, key_array);
+        i                  = tree_keys(node->r, i, key_array);
     }
     return i;
 }
 
 static TreeNode *
-tree_put (TreeNode *     node,
-          KeyCompareFunc compare_func,
-          const void *   key,
-          void *         value)
+tree_put(TreeNode *     node,
+         KeyCompareFunc compare_func,
+         const void *   key,
+         void *         value)
 {
     if (!node)
-        return tree_node_new (key, value);
+        return tree_node_new(key, value);
 
-    if (compare_func (key, node->key) < 0)
-        node->l = tree_put (node->l, compare_func, key, value);
-    else if (compare_func (key, node->key) > 0)
-        node->r = tree_put (node->r, compare_func, key, value);
+    if (compare_func(key, node->key) < 0)
+        node->l = tree_put(node->l, compare_func, key, value);
+    else if (compare_func(key, node->key) > 0)
+        node->r = tree_put(node->r, compare_func, key, value);
     else {
         /* should not be reached */
-        assert (true);
+        assert(true);
     }
 
     /* fix any right-leaning links */
-    if (tree_is_red (node->r) && !tree_is_red (node->l))
-        node = tree_rotate_left (node);
-    if (tree_is_red (node->l) && tree_is_red (node->l->l))
-        node = tree_rotate_right (node);
-    if (tree_is_red (node->l) && (tree_is_red (node->r)))
-        tree_flip_colors (node);
-    node->size = 1 + tree_size (node->l) + tree_size (node->r);
+    if (tree_is_red(node->r) && !tree_is_red(node->l))
+        node = tree_rotate_left(node);
+    if (tree_is_red(node->l) && tree_is_red(node->l->l))
+        node = tree_rotate_right(node);
+    if (tree_is_red(node->l) && (tree_is_red(node->r)))
+        tree_flip_colors(node);
+    node->size = 1 + tree_size(node->l) + tree_size(node->r);
     return node;
 }
 
@@ -297,64 +297,64 @@ struct RedBlackBST {
 };
 
 RedBlackBST
-redblackbst_new (KeyCompareFunc compare_func)
+redblackbst_new(KeyCompareFunc compare_func)
 {
-    assert (compare_func);
+    assert(compare_func);
     RedBlackBST tree;
-    NEW (tree);
+    NEW(tree);
     tree->root         = NULL;
     tree->compare_func = compare_func;
     return tree;
 }
 
 void
-redblackbst_free (RedBlackBST tree)
+redblackbst_free(RedBlackBST tree)
 {
-    assert (tree);
-    tree_free (tree->root);
-    FREE (tree);
+    assert(tree);
+    tree_free(tree->root);
+    FREE(tree);
 }
 
 void
-redblackbst_free_item (Item *item)
+redblackbst_free_item(Item *item)
 {
-    assert (item);
-    FREE (item);
+    assert(item);
+    FREE(item);
 }
 
 int
-redblackbst_size (RedBlackBST tree)
+redblackbst_size(RedBlackBST tree)
 {
-    assert (tree);
-    return tree_size (tree->root);
+    assert(tree);
+    return tree_size(tree->root);
 }
 
 void *
-redblackbst_min_key (RedBlackBST tree)
+redblackbst_min_key(RedBlackBST tree)
 {
-    assert (tree);
-    assert (tree_size (tree->root) > 0);
-    TreeNode *min = tree_min (tree->root);
+    assert(tree);
+    assert(tree_size(tree->root) > 0);
+    TreeNode *min = tree_min(tree->root);
     return (void *) min->key;
 }
 
 void *
-redblackbst_max_key (RedBlackBST tree)
+redblackbst_max_key(RedBlackBST tree)
 {
-    assert (tree);
-    assert (tree_size (tree->root) > 0);
-    TreeNode *max = tree_max (tree->root);
+    assert(tree);
+    assert(tree_size(tree->root) > 0);
+    TreeNode *max = tree_max(tree->root);
     return (void *) max->key;
 }
 
 Item *
-redblackbst_get (RedBlackBST tree, const void *key)
+redblackbst_get(RedBlackBST tree, const void *key)
 {
-    assert (tree && key);
+    assert(tree && key);
     Item *    item;
-    TreeNode *node = tree_get (tree->root, tree->compare_func, key);
+    TreeNode *node = tree_get(tree->root, tree->compare_func, key);
     if (node) {
-        NEW (item);
+        NEW(item);
         item->key   = (void *) node->key;
         item->value = node->value;
     } else {
@@ -365,39 +365,39 @@ redblackbst_get (RedBlackBST tree, const void *key)
 }
 
 void
-redblackbst_put (RedBlackBST tree, const void *key, void *value)
+redblackbst_put(RedBlackBST tree, const void *key, void *value)
 {
-    assert (tree && key && value);
-    tree->root        = tree_put (tree->root, tree->compare_func, key, value);
+    assert(tree && key && value);
+    tree->root        = tree_put(tree->root, tree->compare_func, key, value);
     tree->root->color = BLACK;
 }
 
 bool
-redblackbst_contains (RedBlackBST tree, const void *key)
+redblackbst_contains(RedBlackBST tree, const void *key)
 {
-    assert (tree && key);
-    return tree_contains (tree->root, tree->compare_func, key);
+    assert(tree && key);
+    return tree_contains(tree->root, tree->compare_func, key);
 }
 
 void
-redblackbst_delete (RedBlackBST tree, const void *key)
+redblackbst_delete(RedBlackBST tree, const void *key)
 {
-    assert (tree && key);
-    if (!tree_contains (tree->root, tree->compare_func, key))
+    assert(tree && key);
+    if (!tree_contains(tree->root, tree->compare_func, key))
         return;
 
     /* if both children of root are black, set root to red */
-    if (!tree_is_red (tree->root->l) && !tree_is_red (tree->root->r))
+    if (!tree_is_red(tree->root->l) && !tree_is_red(tree->root->r))
         tree->root->color = RED;
 
-    tree->root = tree_delete (tree->root, tree->compare_func, key);
-    if (redblackbst_size (tree) > 0)
+    tree->root = tree_delete(tree->root, tree->compare_func, key);
+    if (redblackbst_size(tree) > 0)
         tree->root->color = BLACK;
 }
 
 void
-redblackbst_keys (RedBlackBST tree, void **keys)
+redblackbst_keys(RedBlackBST tree, void **keys)
 {
-    assert (tree && keys);
-    tree_keys (tree->root, 0, keys);
+    assert(tree && keys);
+    tree_keys(tree->root, 0, keys);
 }

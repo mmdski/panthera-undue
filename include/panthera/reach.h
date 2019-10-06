@@ -2,7 +2,6 @@
 #define REACH_INCLUDED
 
 #include <panthera/crosssection.h>
-#include <panthera/xstable.h>
 
 /**
  * SECTION: reach.h
@@ -50,7 +49,7 @@ typedef struct ReachNodeProps *ReachNodeProps;
  * Returns: None
  */
 extern void
-rnp_free (ReachNodeProps rnp);
+rnp_free(ReachNodeProps rnp);
 
 /**
  * rnp_get:
@@ -64,7 +63,7 @@ rnp_free (ReachNodeProps rnp);
  * Returns: The value of @prop contained in @rnp
  */
 extern double
-rnp_get (ReachNodeProps rnp, rn_prop prop);
+rnp_get(ReachNodeProps rnp, rn_prop prop);
 
 /**
  * Reach:
@@ -75,46 +74,14 @@ typedef struct Reach *Reach;
 
 /**
  * reach_new:
- * @n_nodes:    the number of nodes in the reach
- * @x:          x-location of each node
- * @y:          y-location of each node
- * @xs_number:  cross section number of each node
- * @xstable:    a #XSTable containing keys in @xs_number
  *
  * Creates a new #Reach. The returned reach is newly created and should be
  * freed with reach_free() after use.
  *
- * @x contains the distance downstream of each node. The values in @x must be
- * in ascending order.
- *
- * @y contains the elevation of each node. The y-value of each node is
- * is subtracted from elevation to get depth for the computation of cross
- * section properties using xs_hydraulic_properties(). If the lowest y-value
- * in the cross section coordinate array is 0, then @y may be considered the
- * thalweg elevation.
- *
- * @xs_number contains cross section numbers for each node. Cross section
- * numbers must return valid cross sections through xstable_get().
- *
- * @xstable contains cross sections accessible as keys in @xs_number. The
- * returned reach contains references to #CrossSection instances, so @xstable
- * must not be freed while the returned reach is still in use.
- *
- * **Raises:**
- *
- * #value_arg_error if @n_nodes < 1
- *
- * #null_ptr_arg_error if @x, @y, @xs_number, or @xstable are `NULL`
- *
- * #reach_xs_num_error if a cross section number is @xs_number is not contained
- * in @xstable
- *
- * #reach_x_order_error if the values in @x are not in ascending order
- *
  * Returns: a new reach
  */
 extern Reach
-reach_new (int n_nodes, double *x, double *y, int *xs_number, XSTable xstable);
+reach_new(void);
 
 /**
  * reach_free:
@@ -124,14 +91,10 @@ reach_new (int n_nodes, double *x, double *y, int *xs_number, XSTable xstable);
  * they are contained and freed by a cross section table through the
  * [XSTable](xstable.html) interface.
  *
- * **Raises:**
- *
- * #null_ptr_arg_error if @reach is `NULL`
- *
  * Returns: None
  */
 extern void
-reach_free (Reach reach);
+reach_free(Reach reach);
 
 /**
  * reach_size:
@@ -146,7 +109,7 @@ reach_free (Reach reach);
  * Returns: size of @reach
  */
 extern int
-reach_size (Reach reach);
+reach_size(Reach reach);
 
 /**
  * reach_node_properties:
@@ -168,7 +131,10 @@ reach_size (Reach reach);
  * discharge @q
  */
 extern ReachNodeProps
-reach_node_properties (Reach reach, int i, double wse, double q);
+reach_node_properties(Reach reach, int i, double wse, double q);
+
+extern void
+reach_put(Reach reach, double x, double y, CrossSection xs);
 
 /**
  * reach_stream_distance:
@@ -186,7 +152,7 @@ reach_node_properties (Reach reach, int i, double wse, double q);
  * Returns: None
  */
 extern void
-reach_stream_distance (Reach reach, double *x);
+reach_stream_distance(Reach reach, double *x);
 
 /**
  * reach_elevation:
@@ -204,6 +170,6 @@ reach_stream_distance (Reach reach, double *x);
  * Returns: None
  */
 extern void
-reach_elevation (Reach reach, double *y);
+reach_elevation(Reach reach, double *y);
 
 #endif

@@ -23,7 +23,7 @@
  * Returns: -1 if x < y, 1 if x > y, 0 if x == y
  */
 
-typedef int (*KeyCompareFunc) (const void *x, const void *y);
+typedef int (*KeyCompareFunc)(const void *x, const void *y);
 
 /**
  * RecBlackBST:
@@ -53,7 +53,7 @@ typedef struct {
  * Returns: a new search tree
  */
 extern RedBlackBST
-redblackbst_new (KeyCompareFunc compare_func);
+redblackbst_new(KeyCompareFunc compare_func);
 
 /**
  * redblackbst_free:
@@ -64,7 +64,7 @@ redblackbst_new (KeyCompareFunc compare_func);
  * Returns: none
  */
 extern void
-redblackbst_free (RedBlackBST tree);
+redblackbst_free(RedBlackBST tree);
 
 /**
  * redblackbst_free_item:
@@ -75,7 +75,7 @@ redblackbst_free (RedBlackBST tree);
  * Returns: None
  */
 extern void
-redblackbst_free_item (Item *item);
+redblackbst_free_item(Item *item);
 
 /**
  * redblackbst_size:
@@ -84,7 +84,7 @@ redblackbst_free_item (Item *item);
  * Returns: the number of items in @tree
  */
 extern int
-redblackbst_size (RedBlackBST tree);
+redblackbst_size(RedBlackBST tree);
 
 /**
  * redblackbst_min_key:
@@ -93,7 +93,7 @@ redblackbst_size (RedBlackBST tree);
  * Returns: the minimum key value in @tree
  */
 extern void *
-redblackbst_min_key (RedBlackBST tree);
+redblackbst_min_key(RedBlackBST tree);
 
 /**
  * redblackbst_max_key:
@@ -102,7 +102,7 @@ redblackbst_min_key (RedBlackBST tree);
  * Returns: the maximum key value in @tree
  */
 extern void *
-redblackbst_max_key (RedBlackBST tree);
+redblackbst_max_key(RedBlackBST tree);
 
 /**
  * redblackbst_get:
@@ -117,7 +117,7 @@ redblackbst_max_key (RedBlackBST tree);
  * Returns: an item with references to a key, value pair
  */
 extern Item *
-redblackbst_get (RedBlackBST tree, const void *key);
+redblackbst_get(RedBlackBST tree, const void *key);
 
 /**
  * redblackbst_put:
@@ -132,7 +132,7 @@ redblackbst_get (RedBlackBST tree, const void *key);
  * Returns: None
  */
 extern void
-redblackbst_put (RedBlackBST tree, const void *key, void *value);
+redblackbst_put(RedBlackBST tree, const void *key, void *value);
 
 /**
  * redblackbst_contains:
@@ -144,7 +144,7 @@ redblackbst_put (RedBlackBST tree, const void *key, void *value);
  * Returns: true if @tree contains @key, false otherwise
  */
 extern bool
-redblackbst_contains (RedBlackBST tree, const void *key);
+redblackbst_contains(RedBlackBST tree, const void *key);
 
 /**
  * redblackbst_delete:
@@ -157,7 +157,7 @@ redblackbst_contains (RedBlackBST tree, const void *key);
  * Returns: None
  */
 extern void
-redblackbst_delete (RedBlackBST tree, const void *key);
+redblackbst_delete(RedBlackBST tree, const void *key);
 
 /**
  * redblackbst_keys:
@@ -171,6 +171,6 @@ redblackbst_delete (RedBlackBST tree, const void *key);
  * Returns: None
  */
 extern void
-redblackbst_keys (RedBlackBST tree, void **keys);
+redblackbst_keys(RedBlackBST tree, void **keys);
 
 #endif

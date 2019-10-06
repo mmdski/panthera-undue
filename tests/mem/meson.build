@@ -3,6 +3,7 @@ mem_test_src = [
     'coarray.c',
     'crosssection.c',
     'list.c',
+    'reach.c',
     'subsection.c'
     ]
 

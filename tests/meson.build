@@ -51,6 +51,20 @@ if glib_dep.found()
             ]
         )
 
+    # reach tests
+    test_crosssection = executable('test_reach',
+        ['test_reach.c'],
+        include_directories : [inc],
+        dependencies : [glib_dep],
+        link_with : [testlib, pantheralib])
+    test('test_reach',
+        test_crosssection,
+        env: [
+            'G_TEST_SRCDIR=@0@'.format(meson.current_source_dir()),
+            'G_TEST_BUILDDIR=@0@'.format(meson.current_build_dir())
+            ]
+        )
+
 endif
 
 vlgnd = find_program('valgrind', required : false)
