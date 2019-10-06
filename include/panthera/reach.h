@@ -46,7 +46,7 @@ typedef struct ReachNodeProps *ReachNodeProps;
  *
  * Frees @rnp
  *
- * Returns: None
+ * Returns: nothing
  */
 extern void
 rnp_free(ReachNodeProps rnp);
@@ -56,11 +56,7 @@ rnp_free(ReachNodeProps rnp);
  * @rnp: a #ReachNodeProps
  * @prop: a #rn_prop
  *
- * **Raises:**
- *
- * #null_ptr_arg_error if @rnp is `NULL`
- *
- * Returns: The value of @prop contained in @rnp
+ * Returns: a reach node property value
  */
 extern double
 rnp_get(ReachNodeProps rnp, rn_prop prop);
@@ -75,7 +71,7 @@ typedef struct Reach *Reach;
 /**
  * reach_new:
  *
- * Creates a new #Reach. The returned reach is newly created and should be
+ * Creates a new reach. The returned reach is newly created and should be
  * freed with reach_free() after use.
  *
  * Returns: a new reach
@@ -87,11 +83,9 @@ reach_new(void);
  * reach_free:
  * @reach: a #Reach
  *
- * Frees a #Reach. The cross sections referenced by @reach are not freed, as
- * they are contained and freed by a cross section table through the
- * [XSTable](xstable.html) interface.
+ * Frees @reach. The cross sections referenced by @reach are not freed.
  *
- * Returns: None
+ * Returns: nothing
  */
 extern void
 reach_free(Reach reach);
@@ -100,11 +94,7 @@ reach_free(Reach reach);
  * reach_size:
  * @reach: a #Reach
  *
- * Returns the number of nodes in @reach.
- *
- * **Raises:**
- *
- * #null_ptr_arg_error if @reach is `NULL`
+ * Returns the number of nodes in a reach.
  *
  * Returns: size of @reach
  */
@@ -118,21 +108,28 @@ reach_size(Reach reach);
  * @wse:   water surface elevation
  * @q:     discharge
  *
- * The returned #ReachNodeProps is newly created and should be freed with
+ * Properties of reach node with water surface elevation @wse and
+ * discharge @q.
+ *
+ * The returned reach node propreties is newly created and should be freed with
  * rnp_free() after use.
  *
- * **Raises:**
- *
- * #null_ptr_arg_error if @reach is `NULL`
- *
- * #index_error if `i < 0` or `i >= size`, where `size` is the size of @reach
- *
- * Returns: properties of reach node with water surface elevation @wse and
- * discharge @q
+ * Returns: reach node properties
  */
 extern ReachNodeProps
 reach_node_properties(Reach reach, int i, double wse, double q);
 
+/**
+ * reach_put:
+ * @reach: a #Reach
+ * @x:     distance downstream
+ * @y:     thalweg elevation
+ * xs:     a #CrossSection
+ *
+ * Create a node in a reach.
+ *
+ * Returns: nothing
+ */
 extern void
 reach_put(Reach reach, double x, double y, CrossSection xs);
 
@@ -145,11 +142,7 @@ reach_put(Reach reach, double x, double y, CrossSection xs);
  * allocated before being passed as a parameter and should be freed when no
  * longer in use.
  *
- * **Raises:**
- *
- * #null_ptr_arg_error if @reach or @x are `NULL`
- *
- * Returns: None
+ * Returns: nothing
  */
 extern void
 reach_stream_distance(Reach reach, double *x);
@@ -163,11 +156,7 @@ reach_stream_distance(Reach reach, double *x);
  * allocated before being passed as a parameter and should be freed when no
  * longer in use.
  *
- * **Raises:**
- *
- * #null_ptr_arg_error if @reach or @y are `NULL`
- *
- * Returns: None
+ * Returns: nothing
  */
 extern void
 reach_elevation(Reach reach, double *y);
