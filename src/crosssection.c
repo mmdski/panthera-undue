@@ -14,7 +14,6 @@
 struct CrossSection {
     int         n_coordinates; /* number of coordinates */
     int         n_subsections; /* number of subsections */
-    double      min_y;         /* minimum y value (thalweg) */
     CoArray     ca;            /* coordinate array */
     Subsection *ss;            /* array of subsections */
 };
