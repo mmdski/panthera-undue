@@ -226,6 +226,19 @@ test_coarray_get(void)
     coarray_free(ca);
 }
 
+void
+test_coarray_min_y(void)
+{
+    int     n   = 5;
+    double  z[] = { 0, 0, 0.5, 1, 1 };
+    double  y[] = { 21, 20, 20, 20, 21 };
+    CoArray ca  = coarray_new(n, y, z);
+
+    g_assert_true(coarray_min_y(ca) == 20);
+
+    coarray_free(ca);
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -249,6 +262,7 @@ main(int argc, char *argv[])
                     test_coarray_subsection_multi_rectangle);
     g_test_add_func("/polonium-pollywog/coarray/length", test_coarray_length);
     g_test_add_func("/polonium-pollywog/coarray/get", test_coarray_get);
+    g_test_add_func("/polonium-pollywog/coarray/min_y", test_coarray_min_y);
 
     return g_test_run();
 }
