@@ -15,6 +15,7 @@ typedef struct {
     double *roughness;
     double *z_roughness;
     double  activation_depth;
+    double  y_offset;
 
     /* shape information */
     /* r - rectangle */
@@ -34,7 +35,8 @@ xs_test_data_new(int     n,
                  double *z,
                  int     n_roughness,
                  double *roughness,
-                 char    shape)
+                 char    shape,
+                 double  y_offset)
 {
 
     xs_test_data *test_data = (xs_test_data *) malloc(sizeof(xs_test_data));
@@ -53,6 +55,7 @@ xs_test_data_new(int     n,
     test_data->s                = 0.5;
     test_data->activation_depth = -INFINITY;
     test_data->factor           = 1;
+    test_data->y_offset         = y_offset;
 
     int i;
 
@@ -230,7 +233,8 @@ test_xs_new(xs_fixture *xsf, gconstpointer test_data)
 void
 check_simple_xsp(xs_fixture *xsf, xs_test_data test_data, double depth)
 {
-    CrossSectionProps xsp = xs_hydraulic_properties(xsf->xs, depth);
+    CrossSectionProps xsp =
+        xs_hydraulic_properties(xsf->xs, depth + test_data.y_offset);
 
     bool is_close;
 
@@ -296,11 +300,12 @@ void
 test_simple_h_properties(xs_fixture *xsf, gconstpointer test_data)
 {
 
-    int    steps = 100;
-    double depth;
+    int          steps = 100;
+    double       depth;
+    xs_test_data data = *(const xs_test_data *) test_data;
     for (int i = 0; i < steps; i++) {
         depth = (double) i / (double) steps;
-        check_simple_xsp(xsf, *(const xs_test_data *) test_data, depth);
+        check_simple_xsp(xsf, data, depth);
     }
 }
 
@@ -400,7 +405,7 @@ add_xs_new_test()
     double y[] = { 1, 0, 0, 0, 1 };
     double r[] = { 0.030 };
 
-    xs_test_data *rect_test_data = xs_test_data_new(n, y, z, 1, r, 'r');
+    xs_test_data *rect_test_data = xs_test_data_new(n, y, z, 1, r, 'r', 0);
     g_test_add("/pollywog/crosssection/new",
                xs_fixture,
                rect_test_data,
@@ -417,9 +422,27 @@ add_xs_rect_test()
     double        z[]            = { 0, 0, 0.5, 1, 1 };
     double        y[]            = { 1, 0, 0, 0, 1 };
     double        r[]            = { 0.030 };
-    xs_test_data *rect_test_data = xs_test_data_new(n, y, z, 1, r, 'r');
+    xs_test_data *rect_test_data = xs_test_data_new(n, y, z, 1, r, 'r', 0);
     g_test_add("/pollywog/crosssection/hydraulic_properties/"
                "simple rectangle",
+               xs_fixture,
+               rect_test_data,
+               xs_setup,
+               test_simple_h_properties,
+               xs_teardown);
+}
+
+void
+add_xs_high_rect_test()
+{
+
+    int           n              = 5;
+    double        z[]            = { 0, 0, 0.5, 1, 1 };
+    double        y[]            = { 21, 20, 20, 20, 21 };
+    double        r[]            = { 0.030 };
+    xs_test_data *rect_test_data = xs_test_data_new(n, y, z, 1, r, 'r', 20);
+    g_test_add("/pollywog/crosssection/hydraulic_properties/"
+               "rectangle min_y > 0",
                xs_fixture,
                rect_test_data,
                xs_setup,
@@ -434,7 +457,7 @@ add_xs_triangle_test()
     double        z[]                = { 0, 0.25, 0.5, 0.75, 1 };
     double        y[]                = { 1, 0.5, 0, 0.5, 1 };
     double        r[]                = { 0.030 };
-    xs_test_data *triangle_test_data = xs_test_data_new(n, y, z, 1, r, 't');
+    xs_test_data *triangle_test_data = xs_test_data_new(n, y, z, 1, r, 't', 0);
     g_test_add("/pollywog/crosssection/hydraulic_properties/"
                "simple triangle",
                xs_fixture,
@@ -447,11 +470,12 @@ add_xs_triangle_test()
 void
 add_xs_trapezoid_test()
 {
-    int           n                   = 6;
-    double        z[]                 = { 0, 0.25, 0.5, 1.5, 1.75, 2 };
-    double        y[]                 = { 1, 0.5, 0, 0, 0.5, 1 };
-    double        r[]                 = { 0.030 };
-    xs_test_data *trapezoid_test_data = xs_test_data_new(n, y, z, 1, r, 'z');
+    int           n   = 6;
+    double        z[] = { 0, 0.25, 0.5, 1.5, 1.75, 2 };
+    double        y[] = { 1, 0.5, 0, 0, 0.5, 1 };
+    double        r[] = { 0.030 };
+    xs_test_data *trapezoid_test_data =
+        xs_test_data_new(n, y, z, 1, r, 'z', 0);
     g_test_add("/pollywog/crosssection/hydraulic_properties/"
                "simple trapezoid",
                xs_fixture,
@@ -468,8 +492,8 @@ add_xs_double_triangle_test()
     double        z[] = { 0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2 };
     double        y[] = { 1, 0.5, 0, 0.5, 1, 0.5, 0, 0.5, 1 };
     double        r[] = { 0.030, 0.030 };
-    xs_test_data *triangle_test_data   = xs_test_data_new(n, y, z, 2, r, 't');
-    triangle_test_data->factor         = 2;
+    xs_test_data *triangle_test_data = xs_test_data_new(n, y, z, 2, r, 't', 0);
+    triangle_test_data->factor       = 2;
     *(triangle_test_data->z_roughness) = 1;
     g_test_add("/pollywog/crosssection/hydraulic_properties/double triangle",
                xs_fixture,
@@ -553,6 +577,7 @@ main(int argc, char *argv[])
 
     add_xs_new_test();
     add_xs_rect_test();
+    add_xs_high_rect_test();
     add_xs_triangle_test();
     add_xs_trapezoid_test();
     add_xs_double_triangle_test();

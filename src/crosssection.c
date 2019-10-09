@@ -99,7 +99,7 @@ struct CrossSection {
 };
 
 static CrossSectionProps
-calc_hydraulic_properties(CrossSection xs, double y)
+calc_hydraulic_properties(CrossSection xs, double h)
 {
 
     assert(xs);
@@ -118,7 +118,6 @@ calc_hydraulic_properties(CrossSection xs, double y)
     double sum        = 0;  /* sum for velocity coefficient */
     double alpha;           /* velocity coefficient */
     double crit_flow;       /* critical flow */
-    double h = y - xs->min_y;
 
     CrossSectionProps xsp = xsp_new();
     CrossSectionProps xsp_ss;
@@ -155,7 +154,7 @@ calc_hydraulic_properties(CrossSection xs, double y)
     alpha     = (area * area) * sum / (conveyance * conveyance * conveyance);
     crit_flow = area * sqrt(GRAVITY * h_depth);
 
-    xsp_set(xsp, XS_DEPTH, y);
+    xsp_set(xsp, XS_DEPTH, h);
     xsp_set(xsp, XS_AREA, area);
     xsp_set(xsp, XS_TOP_WIDTH, top_width);
     xsp_set(xsp, XS_WETTED_PERIMETER, w_perimeter);
@@ -239,7 +238,7 @@ xs_new(CoArray ca, int n_roughness, double *roughness, double *z_roughness)
     xs->n_subsections = n_roughness;
     xs->ss = mem_calloc(n_roughness, sizeof(Subsection), __FILE__, __LINE__);
     xs->min_y = coarray_min_y(ca);
-    xs->ca    = coarray_add_y(ca, xs->min_y);
+    xs->ca    = coarray_add_y(ca, -xs->min_y);
 
     /* initialize a results cache to store depths up to 2 *
      * DEPTH_INTERP_DELTA
