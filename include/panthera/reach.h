@@ -120,18 +120,18 @@ extern ReachNodeProps
 reach_node_properties(Reach reach, int i, double wse, double q);
 
 /**
- * reach_put:
+ * reach_put_xs:
  * @reach: a #Reach
  * @x:     distance downstream
  * @y:     thalweg elevation
  * xs:     a #CrossSection
  *
- * Create a node in a reach.
+ * Create a node in a reach from a cross section.
  *
  * Returns: nothing
  */
 extern void
-reach_put(Reach reach, double x, double y, CrossSection xs);
+reach_put_xs(Reach reach, double x, double y, CrossSection xs);
 
 /**
  * reach_stream_distance:

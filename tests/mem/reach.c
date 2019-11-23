@@ -33,7 +33,7 @@ test_reach_new(void)
     Reach reach = reach_new();
 
     for (int i = 0; i < n_nodes; i++)
-        reach_put(reach, x[i], y[i], xs);
+        reach_put_xs(reach, x[i], y[i], xs);
 
     reach_free(reach);
     xs_free(xs);
@@ -57,7 +57,7 @@ test_reach_node_props(void)
     Reach reach = reach_new();
 
     for (i = 0; i < n_nodes; i++) {
-        reach_put(reach, x[i], y[i], xs);
+        reach_put_xs(reach, x[i], y[i], xs);
     }
 
     for (i = 0; i < n_nodes; i++) {
@@ -84,7 +84,7 @@ test_reach_stream_distance(void)
     Reach reach = reach_new();
 
     for (int i = 0; i < n_nodes; i++)
-        reach_put(reach, x[i], y[i], xs);
+        reach_put_xs(reach, x[i], y[i], xs);
 
     reach_stream_distance(reach, stream_distance);
 

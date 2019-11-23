@@ -36,7 +36,7 @@ test_reach_new(void)
     g_assert_true(reach_size(reach) == 0);
 
     for (int i = 0; i < n_nodes; i++)
-        reach_put(reach, x[i], y[i], xs);
+        reach_put_xs(reach, x[i], y[i], xs);
 
     g_assert_true(reach_size(reach) == n_nodes);
 
@@ -62,7 +62,7 @@ test_reach_node_props(void)
     Reach reach = reach_new();
 
     for (i = 0; i < n_nodes; i++) {
-        reach_put(reach, x[i], y[i], xs);
+        reach_put_xs(reach, x[i], y[i], xs);
     }
 
     for (i = 0; i < n_nodes; i++) {
@@ -93,7 +93,7 @@ test_reach_stream_distance(void)
     Reach reach = reach_new();
 
     for (int i = 0; i < n_nodes; i++)
-        reach_put(reach, x[i], y[i], xs);
+        reach_put_xs(reach, x[i], y[i], xs);
 
     reach_stream_distance(reach, stream_distance);
 

@@ -232,7 +232,7 @@ reach_node_properties(Reach reach, int i, double wse, double q)
 }
 
 void
-reach_put(Reach reach, double x, double y, CrossSection xs)
+reach_put_xs(Reach reach, double x, double y, CrossSection xs)
 {
     assert(reach && xs);
 
