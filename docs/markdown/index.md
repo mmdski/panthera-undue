@@ -41,22 +41,15 @@ Cross section plot
   * Conveyance
   * Velocity coefficient (energy flux correction coefficient)
   * Critical flow
-  * Results caching
-* Cross section table
-* Steady flow
-  * Gradually varied
-      * Standard step
 
 ### Planned features
 * Steady flow
   * Normal
   * Gradually varied
-    * Single step
-    * Simultaneous solution
+    * Initial value
+    * Boundary value
 * Gradually varied unsteady flow
-  * Method of characteritics
-* Python extensions to major features
-* HDF5 storage
+  * Method of characteristics
 
 ## Building and testing
 ### Linux
@@ -75,32 +68,10 @@ $ meson build
 $ ninja -C build test
 ```
 
-### Windows
-* Build requirements
-  * Visual C++ 2015 (msvc2015)
-  * Meson
-
-From the Developer Command Prompt:
-```
->meson build --backend=vs2015
->cd build
->MSBuild panthera-undue.sln
-```
 ## Implementation notes
 A goal of this project is for the code to also be natively compilable on
 Windows. As a result, I'm using portable solutions. The only exception so far
 is GLib for testing.
-
-### Cross section
-The cross section interface caches computation results. This means once a
-set of values is calculated for a given depth, the results are saved for the
-next time they're needed.
-
-### CII
-panthera uses several interfaces and implementations from David Hanson's book
-*[C Interfaces and Implementations: Techniques for Creating Reusable Software](
-http://www.cs.princeton.edu/software/cii/)*. The CII code in panthera is only
-slightly modified, if at all.
 
 ### Red-black BST
 The cross section table implementation in panthera uses the red-black binary
