@@ -62,7 +62,7 @@ test_reach_node_props(void)
 
     for (i = 0; i < n_nodes; i++) {
         wse = h + y[i];
-        rnp = reach_node_properties(reach, i, wse, q);
+        rnp = reach_rnp(reach, i, wse, q);
         rnp_free(rnp);
     }
 

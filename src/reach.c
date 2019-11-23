@@ -6,47 +6,6 @@
 #include <panthera/reach.h>
 #include <stddef.h>
 
-struct ReachNodeProps {
-    double *properties;
-};
-
-static ReachNodeProps
-rnp_new(void)
-{
-    ReachNodeProps rnp;
-    NEW(rnp);
-    rnp->properties = mem_calloc(N_RN, sizeof(double), __FILE__, __LINE__);
-    return rnp;
-}
-
-void
-rnp_free(ReachNodeProps rnp)
-{
-    assert(rnp);
-    mem_free(rnp->properties, __FILE__, __LINE__);
-    FREE(rnp);
-}
-
-static void
-rnp_set(ReachNodeProps rnp, rn_prop prop, double value)
-{
-    assert(rnp);
-    *(rnp->properties + prop) = value;
-}
-
-double
-rnp_get(ReachNodeProps rnp, rn_prop prop)
-{
-    assert(rnp);
-    return *(rnp->properties + prop);
-}
-
-struct ReachNode {
-    double       x; /* distance downstream */
-    double       y; /* thalweg elevation */
-    CrossSection xs;
-};
-
 typedef struct ReachNode *ReachNode;
 
 struct Reach {
@@ -173,7 +132,7 @@ reach_stream_distance(Reach reach, double *x)
 
     for (i = 0; i < n; i++) {
         node     = *(reach->nodes + i);
-        *(x + i) = node->x;
+        *(x + i) = reachnode_x(node);
     }
 }
 
@@ -191,12 +150,12 @@ reach_elevation(Reach reach, double *y)
 
     for (i = 0; i < n; i++) {
         node     = *(reach->nodes + i);
-        *(y + i) = node->y;
+        *(y + i) = reachnode_y(node);
     }
 }
 
 ReachNodeProps
-reach_node_properties(Reach reach, int i, double wse, double q)
+reach_rnp(Reach reach, int i, double wse, double q)
 {
     assert(reach);
     assert(0 <= i && i < redblackbst_size(reach->tree));
@@ -206,27 +165,7 @@ reach_node_properties(Reach reach, int i, double wse, double q)
 
     ReachNode node = *(reach->nodes + i);
 
-    double h = wse - node->y;
-
-    CrossSectionProps xsp            = xs_hydraulic_properties(node->xs, h);
-    double            area           = xsp_get(xsp, XS_AREA);
-    double            conveyance     = xsp_get(xsp, XS_CONVEYANCE);
-    double            velocity_coeff = xsp_get(xsp, XS_VELOCITY_COEFF);
-    xsp_free(xsp);
-
-    double velocity       = q / area;
-    double friction_slope = (q * q) / (conveyance * conveyance);
-    double velocity_head =
-        velocity_coeff * velocity * velocity / (2 * GRAVITY);
-
-    ReachNodeProps rnp = rnp_new();
-    rnp_set(rnp, RN_X, node->x);
-    rnp_set(rnp, RN_Y, node->y);
-    rnp_set(rnp, RN_WSE, wse);
-    rnp_set(rnp, RN_DISCHARGE, q);
-    rnp_set(rnp, RN_VELOCITY, velocity);
-    rnp_set(rnp, RN_FRICTION_SLOPE, friction_slope);
-    rnp_set(rnp, RN_VELOCITY_HEAD, velocity_head);
+    ReachNodeProps rnp = reachnode_properties(node, wse, q);
 
     return rnp;
 }
@@ -238,12 +177,7 @@ reach_put_xs(Reach reach, double x, double y, CrossSection xs)
 
     double *tree_key;
 
-    ReachNode node;
-    NEW(node);
-
-    node->x  = x;
-    node->y  = y;
-    node->xs = xs;
+    ReachNode node = reachnode_new(x, y, xs);
 
     Item *item = redblackbst_get(reach->tree, &x);
     if (item) {

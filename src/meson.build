@@ -5,6 +5,7 @@ panthera_sources = [
                     'list.c',
                     'mem.c',
                     'reach.c',
+                    'reachnode.c',
                     'redblackbst.c',
                     'secantsolve.c',
                     'subsection.c',

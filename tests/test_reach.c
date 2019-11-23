@@ -67,7 +67,7 @@ test_reach_node_props(void)
 
     for (i = 0; i < n_nodes; i++) {
         wse = h + y[i];
-        rnp = reach_node_properties(reach, i, wse, q);
+        rnp = reach_rnp(reach, i, wse, q);
         g_assert_true(rnp_get(rnp, RN_X) == x[i]);
         g_assert_true(rnp_get(rnp, RN_WSE) == wse);
         g_assert_true(rnp_get(rnp, RN_DISCHARGE) == q);

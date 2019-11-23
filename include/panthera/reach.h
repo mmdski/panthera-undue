@@ -2,6 +2,7 @@
 #define REACH_INCLUDED
 
 #include <panthera/crosssection.h>
+#include <panthera/reachnode.h>
 
 /**
  * SECTION: reach.h
@@ -10,56 +11,6 @@
  *
  * Simulation river reach
  */
-
-/**
- * rn_prop:
- * @RN_X:              Downstream distance of reach node
- * @RN_Y:              Elevation of reach node
- * @RN_WSE:            Water surface elevation of reach node properties
- * @RN_DISCHARGE:      Discharge of reach node properties
- * @RN_VELOCITY:       Mean channel velocity of node
- * @RN_FRICTION_SLOPE: Friction slope of reach node properties
- * @N_RN:              Number of reach node properties
- */
-typedef enum {
-    RN_X,
-    RN_Y,
-    RN_WSE,
-    RN_DISCHARGE,
-    RN_VELOCITY,
-    RN_FRICTION_SLOPE,
-    RN_VELOCITY_HEAD,
-    N_RN
-} rn_prop;
-
-/**
- * ReachNodeProps:
- *
- * Reach node properties
- *
- */
-typedef struct ReachNodeProps *ReachNodeProps;
-
-/**
- * rnp_free:
- * @rnp: a #ReachNodeProps
- *
- * Frees @rnp
- *
- * Returns: nothing
- */
-extern void
-rnp_free(ReachNodeProps rnp);
-
-/**
- * rnp_get:
- * @rnp: a #ReachNodeProps
- * @prop: a #rn_prop
- *
- * Returns: a reach node property value
- */
-extern double
-rnp_get(ReachNodeProps rnp, rn_prop prop);
 
 /**
  * Reach:
@@ -102,7 +53,7 @@ extern int
 reach_size(Reach reach);
 
 /**
- * reach_node_properties:
+ * reach_rnp:
  * @reach: a #Reach
  * @i:     a node index
  * @wse:   water surface elevation
@@ -117,7 +68,7 @@ reach_size(Reach reach);
  * Returns: reach node properties
  */
 extern ReachNodeProps
-reach_node_properties(Reach reach, int i, double wse, double q);
+reach_rnp(Reach reach, int i, double wse, double q);
 
 /**
  * reach_put_xs:
