@@ -1,5 +1,6 @@
 panthera_sources = [
                     'coarray.c',
+                    'constants.c',
                     'coordinate.c',
                     'crosssection.c',
                     'list.c',

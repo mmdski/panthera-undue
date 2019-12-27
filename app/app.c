@@ -1,4 +1,5 @@
 #include <math.h>
+#include <panthera/constants.h>
 #include <panthera/crosssection.h>
 #include <stdio.h>
 
@@ -11,6 +12,10 @@ main()
     double n_roughness   = 3;
     double roughness[]   = { 0.05, 0.01, 0.05 };
     double z_roughness[] = { 0.75, 1.25 };
+
+    const_set_gravity(32.2);
+
+    printf("Gravity = %f\n", const_gravity());
 
     CoArray      ca = coarray_new(n, y, z);
     CrossSection xs = xs_new(ca, n_roughness, roughness, z_roughness);

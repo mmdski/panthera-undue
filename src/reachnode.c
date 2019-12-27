@@ -103,7 +103,7 @@ reachnode_properties(ReachNode node, double wse, double q)
     double velocity       = q / area;
     double friction_slope = (q * q) / (conveyance * conveyance);
     double velocity_head =
-        velocity_coeff * velocity * velocity / (2 * GRAVITY);
+        velocity_coeff * velocity * velocity / (2 * const_gravity());
 
     ReachNodeProps rnp = rnp_new();
     rnp_set(rnp, RN_X, reachnode_x(node));

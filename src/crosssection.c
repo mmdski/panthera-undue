@@ -72,7 +72,7 @@ calc_hydraulic_properties(CrossSection xs, double h)
     if (isnan(h_radius))
         conveyance = NAN;
     alpha     = (area * area) * sum / (conveyance * conveyance * conveyance);
-    crit_flow = area * sqrt(GRAVITY * h_depth);
+    crit_flow = area * sqrt(const_gravity() * h_depth);
 
     xsp_set(xsp, XS_DEPTH, h);
     xsp_set(xsp, XS_AREA, area);

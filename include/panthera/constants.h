@@ -6,14 +6,28 @@
  * @short_description: Physical constants
  * @title: Constants
  *
- * Definition of physical constants
+ * Application wide access to physical constants
  */
 
 /**
- * GRAVITY:
+ * const_gravity:
  *
- * Acceleration due to gravity [L/T^2]
+ * Returns the acceleration due to gravity [L/T^2]
+ *
+ * Returns: acceleration due to gravity
  */
-#define GRAVITY 9.81
+extern double
+const_gravity(void);
+
+/**
+ * const_set_gravity:
+ * @gravity: acceleration due to gravity
+ *
+ * Sets the acceleration due to gravity [L/T^2]
+ *
+ * Returns: nothing
+ */
+extern void
+const_set_gravity(double gravity);
 
 #endif
