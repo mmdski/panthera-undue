@@ -22,7 +22,7 @@ const_gravity(void);
 /**
  * const_manning:
  *
- * Returns the conversion factor k used to convert the Manning coefficient to
+ * Returns the conversion factor k used to convert the Manning coefficient from
  * SI units.
  *
  * Returns: Manning formula conversion factor
@@ -45,7 +45,7 @@ const_set_gravity(double gravity);
  * const_set_manning:
  * @k: Manning formula conversion factor
  *
- * Sets the conversion factor k used to convert the Manning coefficient to SI
+ * Sets the conversion factor k used to convert the Manning coefficient from SI
  * units.
  *
  * Typical values are 1 for SI units and 1.49 for English units.
