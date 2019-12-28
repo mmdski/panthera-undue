@@ -20,6 +20,17 @@ extern double
 const_gravity(void);
 
 /**
+ * const_manning:
+ *
+ * Returns the conversion factor k used to convert the Manning coefficient to
+ * SI units.
+ *
+ * Returns: Manning formula conversion factor
+ */
+extern double
+const_manning(void);
+
+/**
  * const_set_gravity:
  * @gravity: acceleration due to gravity
  *
@@ -29,5 +40,19 @@ const_gravity(void);
  */
 extern void
 const_set_gravity(double gravity);
+
+/**
+ * const_set_manning:
+ * @k: Manning formula conversion factor
+ *
+ * Sets the conversion factor k used to convert the Manning coefficient to SI
+ * units.
+ *
+ * Typical values are 1 for SI units and 1.49 for English units.
+ *
+ * Returns: nothing
+ */
+extern void
+const_set_manning(double k);
 
 #endif

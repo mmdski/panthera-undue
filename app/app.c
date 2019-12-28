@@ -14,8 +14,10 @@ main()
     double z_roughness[] = { 0.75, 1.25 };
 
     const_set_gravity(32.2);
+    const_set_manning(1.49);
 
     printf("Gravity = %f\n", const_gravity());
+    printf("Manning conversion factor = %f\n", const_manning());
 
     CoArray      ca = coarray_new(n, y, z);
     CrossSection xs = xs_new(ca, n_roughness, roughness, z_roughness);
@@ -27,7 +29,7 @@ main()
     double discharge;
     double slope      = 0.001;
     double max_depth  = 1;
-    double increments = 10;
+    double increments = 5;
 
     for (depth = 0; depth <= max_depth; depth += max_depth / increments) {
         xsp = xs_hydraulic_properties(xs, depth);
@@ -43,7 +45,7 @@ main()
         xsp_free(xsp);
     }
 
-    depth     = 10.0;
+    depth     = 1;
     xsp       = xs_hydraulic_properties(xs, depth);
     discharge = xsp_get(xsp, XS_CRITICAL_FLOW);
     xsp_free(xsp);
@@ -52,7 +54,7 @@ main()
     depth = xs_critical_depth(xs, discharge, 11.0);
     printf("\tComputed %f\n", depth);
 
-    depth     = 10.0;
+    depth     = 1;
     xsp       = xs_hydraulic_properties(xs, depth);
     discharge = xsp_get(xsp, XS_CONVEYANCE) * sqrt(slope);
     xsp_free(xsp);

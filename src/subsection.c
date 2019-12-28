@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <math.h>
 #include <panthera/coarray.h>
+#include <panthera/constants.h>
 #include <stddef.h>
 
 /* subsection interface */
@@ -131,7 +132,8 @@ subsection_properties(Subsection ss, double y)
     }
 
     hydraulic_radius = area / perimeter;
-    conveyance       = 1 / ss->n * area * pow(hydraulic_radius, 2.0 / 3.0);
+    conveyance =
+        const_manning() / ss->n * area * pow(hydraulic_radius, 2.0 / 3.0);
 
     xsp_set(xsp, XS_AREA, area);
     xsp_set(xsp, XS_TOP_WIDTH, top_width);
