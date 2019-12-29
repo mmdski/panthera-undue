@@ -145,8 +145,8 @@ xs_new(CoArray ca, int n_roughness, double *roughness, double *z_roughness)
 void
 xs_free(CrossSection xs)
 {
-
-    assert(xs);
+    if (xs == NULL)
+        return;
 
     int i;
     int n = xs->n_subsections;
