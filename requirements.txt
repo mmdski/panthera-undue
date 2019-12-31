@@ -1,0 +1,9 @@
+autopep8
+Cython
+matplotlib
+notebook
+numpy
+pylint
+scipy
+Sphinx
+wheel
