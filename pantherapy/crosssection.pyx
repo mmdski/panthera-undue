@@ -21,8 +21,8 @@ cdef class CrossSection:
 
     Hydraulic cross section
 
-    Paramters
-    ---------
+    Parameters
+    ----------
     y : array_like
         Vertical values of cross section coordinates
     z : array_like
@@ -139,7 +139,9 @@ cdef class CrossSection:
             return p_data[0]
 
     def area(self, y):
-        """Computes area
+        """area(y)
+
+        Computes area
 
         Parameters
         ----------
@@ -149,13 +151,16 @@ cdef class CrossSection:
         Returns
         -------
         numpy.ndarray
+            Computed area
 
         """
 
         return self._property(y, cxsp.XS_AREA)
 
     def conveyance(self, y):
-        """Computes conveyance
+        """conveyance(y)
+
+        Computes conveyance
 
         Parameters
         ----------
@@ -165,6 +170,7 @@ cdef class CrossSection:
         Returns
         -------
         numpy.ndarray
+            Computed conveyance
 
         Notes
         -----
@@ -211,7 +217,9 @@ cdef class CrossSection:
         return y, z
 
     def critical_depth(self, critical_flow, y0=None):
-        """Computes critical depth
+        """critical_depth(critical_flow, y0=None)
+
+        Computes critical depth
 
         Parameters
         ----------
@@ -262,7 +270,9 @@ cdef class CrossSection:
             return yc_data[0]
 
     def critical_flow(self, y):
-        """Computes critical flow
+        """critical_flow(y)
+
+        Computes critical flow
 
         Parameters
         ----------
@@ -279,7 +289,9 @@ cdef class CrossSection:
         return self._property(y, cxsp.XS_CRITICAL_FLOW)
 
     def hydraulic_depth(self, y):
-        """Computes hydraulic depth
+        """hydrauilc_depth(y)
+
+        Computes hydraulic depth
 
         Parameters
         ----------
@@ -296,7 +308,9 @@ cdef class CrossSection:
         return self._property(y, cxsp.XS_HYDRAULIC_DEPTH)
 
     def hydraulic_radius(self, y):
-        """Computes hydraulic radius
+        """hydraulic_radius(y)
+
+        Computes hydraulic radius
 
         Parameters
         ----------
@@ -313,7 +327,9 @@ cdef class CrossSection:
         return self._property(y, cxsp.XS_HYDRAULIC_RADIUS)
 
     def normal_depth(self, normal_flow, slope, y0=None):
-        """Computes normal depth
+        """normal_depth(normal_flow, slope, y0=None)
+
+        Computes normal depth
 
         Parameters
         ----------
@@ -371,7 +387,9 @@ cdef class CrossSection:
             return yn_data[0]
 
     def normal_flow(self, y, slope):
-        """Computes normal flow
+        """normal_flow(y, slope)
+
+        Computes normal flow
 
         Parameters
         ----------
@@ -420,7 +438,9 @@ cdef class CrossSection:
             return qn_data[0]
 
     def plot(self, y=None, ax=None):
-        """Plot cross section geometry
+        """plot(y=None, ax=None)
+
+        Plot cross section geometry
 
         Parameters
         ----------
@@ -472,7 +492,9 @@ cdef class CrossSection:
         return ax
 
     def specific_energy(self, y, q):
-        """Computes specific energy
+        """specific_energy(y, q)
+
+        Computes specific energy
 
         Parameters
         ----------
@@ -524,7 +546,9 @@ cdef class CrossSection:
             return e_data[0]
 
     def top_width(self, y):
-        """Computes top width
+        """top_width(y)
+
+        Computes top width
 
         Parameters
         ----------
@@ -541,7 +565,9 @@ cdef class CrossSection:
         return self._property(y, cxsp.XS_TOP_WIDTH)
 
     def velocity_coeff(self, y):
-        """Computes velocity coefficient
+        """velocity_coeff(y)
+
+        Computes velocity coefficient
 
         Parameters
         ----------
@@ -558,7 +584,9 @@ cdef class CrossSection:
         return self._property(y, cxsp.XS_VELOCITY_COEFF)
 
     def wetted_perimeter(self, y):
-        """Computes wetted perimeter
+        """wetted_perimeter(y)
+
+        Computes wetted perimeter
 
         Parameters
         ----------

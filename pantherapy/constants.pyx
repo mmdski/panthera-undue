@@ -4,6 +4,15 @@
 cimport pantherapy.cconstants as constants
 
 cdef class Constants:
+    """Physical constants
+
+    Constants is a singleton class and shouldn't be initalized. All
+    methods are static.
+
+    """
+
+    def __init__(self):
+        raise NotImplementedError("cannot initialize Constants")
 
     @staticmethod
     def gravity():
@@ -12,6 +21,7 @@ cdef class Constants:
         Returns
         -------
         float
+            Acceleration due to gravity
 
         """
 
@@ -22,13 +32,20 @@ cdef class Constants:
         """Returns the factor to convert the Manning coefficient from SI
         to the appropriate system of units
 
+        Returns
+        -------
+        float
+            Manning coefficient conversion factor
+
         """
 
         return constants.const_manning()
 
     @staticmethod
     def set_gravity(double g):
-        """Sets the acceleration due to gravity
+        """set_gravity(g)
+
+        Sets the acceleration due to gravity
 
         Parameters
         ----------
@@ -40,7 +57,9 @@ cdef class Constants:
 
     @staticmethod
     def set_manning(double k):
-        """Sets the factor to convert the Manning coefficient from SI
+        """set_manning(k)
+
+        Sets the factor to convert the Manning coefficient from SI
         to the appropriate system of units
 
         Parameters

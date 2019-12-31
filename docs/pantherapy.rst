@@ -9,14 +9,6 @@ pantherapy.panthera module
     :undoc-members:
     :show-inheritance:
 
-pantherapy.plot module
-----------------------
-
-.. automodule:: pantherapy.plot
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 pantherapy.reach module
 -----------------------
 .. automodule:: pantherapy.reach
