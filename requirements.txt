@@ -1,6 +1,8 @@
 autopep8
 Cython
 matplotlib
+meson
+ninja
 notebook
 numpy
 pylint
