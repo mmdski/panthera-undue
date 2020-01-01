@@ -1,8 +1,10 @@
 pantherapy
-==============
+==========
 
 .. toctree::
    :maxdepth: 4
 
-   pantherapy
+   panthera
+   reach
+   relation
    steady

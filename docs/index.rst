@@ -12,7 +12,7 @@ Welcome to pantherapy's documentation!
 
    modules
 
-Indices and tables
+Indices
 ==================
 
 * :ref:`genindex`

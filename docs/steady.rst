@@ -1,26 +1,30 @@
 steady subpackage
 =================
 
-pantherapy.steady.boundaryvalue
+boundaryvalue
 -------------------------------
 .. automodule:: pantherapy.steady.boundaryvalue
     :members:
+    :undoc-members:
     :show-inheritance:
 
-pantherapy.steady.flow
+flow
 ----------------------
 .. automodule:: pantherapy.steady.flow
     :members:
+    :undoc-members:
     :show-inheritance:
 
-pantherapy.steady.initialvalue
+initialvalue
 ------------------------------
 .. automodule:: pantherapy.steady.initialvalue
     :members:
+    :undoc-members:
     :show-inheritance:
 
-pantherapy.steady.solution
+solution
 --------------------------
 .. automodule:: pantherapy.steady.solution
     :members:
+    :undoc-members:
     :show-inheritance:
