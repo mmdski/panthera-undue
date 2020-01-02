@@ -5,6 +5,7 @@ panthera-undue
     :maxdepth: 1
 
     pantherapy/index
+    panthera/index
 
 Indices
 ==================
