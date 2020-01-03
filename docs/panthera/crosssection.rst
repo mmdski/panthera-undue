@@ -2,6 +2,9 @@
 Cross section
 =============
 
+.. code-block:: c
+
+    pantherapy/crosssection.h
 
 Coordinate
 ==========
