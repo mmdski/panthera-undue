@@ -10,11 +10,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon
 
-cimport pantherapy.ccoarray as coarray
 cimport pantherapy.cconstants as constants
-cimport pantherapy.ccoordinate as ccoord
 cimport pantherapy.ccrosssection as cxs
-cimport pantherapy.cxsp as cxsp
 
 cdef class CrossSection:
     """CrossSection(y, z, roughness) -> new CrossSection with one subsection
@@ -57,26 +54,26 @@ cdef class CrossSection:
         cdef double[:] y_view = y
         cdef double[:] z_view = z
 
-        cdef coarray.CoArray ca = \
-            coarray.coarray_new(n_coordinates, &y_view[0], &z_view[0])
+        cdef cxs.CoArray ca = \
+            cxs.coarray_new(n_coordinates, &y_view[0], &z_view[0])
 
         self.xs = cxs.xs_new(ca, 1, &n, NULL)
 
-        coarray.coarray_free(ca)
+        cxs.coarray_free(ca)
 
     def __dealloc__(self):
         cxs.xs_free(self.xs)
 
     def _plot_tw_wp(self, cy, ax):
 
-        cdef coarray.CoArray ca = cxs.xs_coarray(self.xs)
-        cdef coarray.CoArray wp_array
-        cdef ccoord.Coordinate c
+        cdef cxs.CoArray ca = cxs.xs_coarray(self.xs)
+        cdef cxs.CoArray wp_array
+        cdef cxs.Coordinate c
 
-        wp_array = coarray.coarray_subarray_y(ca, cy)
+        wp_array = cxs.coarray_subarray_y(ca, cy)
 
         cdef Py_ssize_t i
-        cdef Py_ssize_t length = coarray.coarray_length(wp_array)
+        cdef Py_ssize_t length = cxs.coarray_length(wp_array)
 
         tw_y = np.zeros(length)
         wp_y = np.zeros(length)
@@ -87,11 +84,11 @@ cdef class CrossSection:
         cdef double[:] z_view = z
 
         for i in range(length):
-            c = coarray.coarray_get(wp_array, <int> i)
+            c = cxs.coarray_get(wp_array, <int> i)
             tw_y_view[i] = cy
             wp_y_view[i] = c.y
             z_view[i] = c.z
-            ccoord.coord_free(c)
+            cxs.coord_free(c)
 
         xs_area_zy = [*zip(z, wp_y)]
 
@@ -108,9 +105,9 @@ cdef class CrossSection:
         ax.plot(z, tw_y, 'b', linewidth=2.5, label='Top width')
         ax.plot(z, wp_y, 'g', linewidth=5, label='Wetted perimeter')
 
-        coarray.coarray_free(wp_array)
+        cxs.coarray_free(wp_array)
 
-    cdef _property(self, y, cxsp.xs_prop prop):
+    cdef _property(self, y, cxs.xs_prop prop):
 
         y = np.array(y, dtype=np.float64, order='C')
         p = np.zeros_like(y)
@@ -121,7 +118,7 @@ cdef class CrossSection:
         cdef double *y_data = <double *> cnp.PyArray_DATA(y)
         cdef double *p_data = <double *> cnp.PyArray_DATA(p)
 
-        cdef cxsp.CrossSectionProps xsp
+        cdef cxs.CrossSectionProps xsp
         cdef double result
 
         for i in range(i_max):
@@ -129,9 +126,9 @@ cdef class CrossSection:
                 p_data[i] = NAN
             else:
                 xsp = cxs.xs_hydraulic_properties(self.xs, y_data[i])
-                result = cxsp.xsp_get(xsp, prop)
+                result = cxs.xsp_get(xsp, prop)
                 p_data[i] = result
-                cxsp.xsp_free(xsp)
+                cxs.xsp_free(xsp)
 
         if np.ndim(p) > 0:
             return p
@@ -155,7 +152,7 @@ cdef class CrossSection:
 
         """
 
-        return self._property(y, cxsp.XS_AREA)
+        return self._property(y, cxs.XS_AREA)
 
     def conveyance(self, y):
         """conveyance(y)
@@ -179,7 +176,7 @@ cdef class CrossSection:
 
         """
 
-        return self._property(y, cxsp.XS_CONVEYANCE)
+        return self._property(y, cxs.XS_CONVEYANCE)
 
     def coordinates(self):
         """Returns cross section coordinates
@@ -192,8 +189,8 @@ cdef class CrossSection:
 
         """
 
-        cdef coarray.CoArray ca = cxs.xs_coarray(self.xs)
-        cdef Py_ssize_t length = coarray.coarray_length(ca)
+        cdef cxs.CoArray ca = cxs.xs_coarray(self.xs)
+        cdef Py_ssize_t length = cxs.coarray_length(ca)
 
         y = np.zeros(length)
         z = np.zeros(length)
@@ -204,15 +201,15 @@ cdef class CrossSection:
         cdef Py_ssize_t i
         cdef Py_ssize_t i_max = length
 
-        cdef ccoord.Coordinate c
+        cdef cxs.Coordinate c
 
         for i in range(i_max):
-            c = coarray.coarray_get(ca, <int> i)
+            c = cxs.coarray_get(ca, <int> i)
             y_view[i] = c.y
             z_view[i] = c.z
-            ccoord.coord_free(c)
+            cxs.coord_free(c)
 
-        coarray.coarray_free(ca)
+        cxs.coarray_free(ca)
 
         return y, z
 
@@ -238,16 +235,16 @@ cdef class CrossSection:
         critical_flow = np.array(critical_flow, dtype=np.float64, order='C')
 
         cdef double cy0
-        cdef coarray.CoArray ca
+        cdef cxs.CoArray ca
         cdef double y_min
         cdef double y_max
 
         if y0 is None:
             ca = cxs.xs_coarray(self.xs)
-            y_min = coarray.coarray_min_y(ca)
-            y_max = coarray.coarray_max_y(ca)
+            y_min = cxs.coarray_min_y(ca)
+            y_max = cxs.coarray_max_y(ca)
             cy0 = 0.75 * (y_max - y_min) + y_min
-            coarray.coarray_free(ca)
+            cxs.coarray_free(ca)
         else:
             if not pyfloat.PyFloat_Check(y0):
                 raise ValueError("y0 must be a float")
@@ -286,7 +283,7 @@ cdef class CrossSection:
 
         """
 
-        return self._property(y, cxsp.XS_CRITICAL_FLOW)
+        return self._property(y, cxs.XS_CRITICAL_FLOW)
 
     def hydraulic_depth(self, y):
         """hydrauilc_depth(y)
@@ -305,7 +302,7 @@ cdef class CrossSection:
 
         """
 
-        return self._property(y, cxsp.XS_HYDRAULIC_DEPTH)
+        return self._property(y, cxs.XS_HYDRAULIC_DEPTH)
 
     def hydraulic_radius(self, y):
         """hydraulic_radius(y)
@@ -324,7 +321,7 @@ cdef class CrossSection:
 
         """
 
-        return self._property(y, cxsp.XS_HYDRAULIC_RADIUS)
+        return self._property(y, cxs.XS_HYDRAULIC_RADIUS)
 
     def normal_depth(self, normal_flow, slope, y0=None):
         """normal_depth(normal_flow, slope, y0=None)
@@ -353,16 +350,16 @@ cdef class CrossSection:
             raise ValueError("slope must be a float")
 
         cdef double cy0
-        cdef coarray.CoArray ca
+        cdef cxs.CoArray ca
         cdef double y_min
         cdef double y_max
 
         if y0 is None:
             ca = cxs.xs_coarray(self.xs)
-            y_min = coarray.coarray_min_y(ca)
-            y_max = coarray.coarray_max_y(ca)
+            y_min = cxs.coarray_min_y(ca)
+            y_max = cxs.coarray_max_y(ca)
             cy0 = 0.75 * (y_max - y_min) + y_min
-            coarray.coarray_free(ca)
+            cxs.coarray_free(ca)
         else:
             if not pyfloat.PyFloat_Check(y0):
                 raise ValueError("y0 must be a float")
@@ -420,7 +417,7 @@ cdef class CrossSection:
         cdef double *y_data = <double *> cnp.PyArray_DATA(y)
         cdef double *qn_data = <double *> cnp.PyArray_DATA(normal_flow)
 
-        cdef cxsp.CrossSectionProps xsp
+        cdef cxs.CrossSectionProps xsp
         cdef double conveyance
 
         for i in range(i_max):
@@ -428,8 +425,8 @@ cdef class CrossSection:
                 qn_data[i] = NAN
             else:
                 xsp = cxs.xs_hydraulic_properties(self.xs, y_data[i])
-                conveyance = cxsp.xsp_get(xsp, cxsp.XS_CONVEYANCE)
-                cxsp.xsp_free(xsp)
+                conveyance = cxs.xsp_get(xsp, cxs.XS_CONVEYANCE)
+                cxs.xsp_free(xsp)
                 qn_data[i] = conveyance * sqrt_s
 
         if np.ndim(normal_flow) > 0:
@@ -471,18 +468,18 @@ cdef class CrossSection:
 
         cdef double cy
         cdef double min_y
-        cdef coarray.CoArray ca
+        cdef cxs.CoArray ca
 
         if y is not None:
             ca = cxs.xs_coarray(self.xs)
-            min_y = coarray.coarray_min_y(ca)
+            min_y = cxs.coarray_min_y(ca)
 
             cy = pyfloat.PyFloat_AsDouble(y)
 
             if cy > min_y:
                 self._plot_tw_wp(cy, ax)
 
-            coarray.coarray_free(ca)
+            cxs.coarray_free(ca)
 
         ax.set_xlabel('z')
         ax.set_ylabel('y')
@@ -524,7 +521,7 @@ cdef class CrossSection:
         cdef double alpha
         cdef double area
         cdef double gravity = constants.const_gravity()
-        cdef cxsp.CrossSectionProps xsp
+        cdef cxs.CrossSectionProps xsp
 
         cdef double *y_data = <double *> cnp.PyArray_DATA(y)
         cdef double *e_data = <double *> cnp.PyArray_DATA(specific_energy)
@@ -534,9 +531,9 @@ cdef class CrossSection:
                 e_data[i] = NAN
             else:
                 xsp = cxs.xs_hydraulic_properties(self.xs, y_data[i])
-                alpha = cxsp.xsp_get(xsp, cxsp.XS_VELOCITY_COEFF)
-                area = cxsp.xsp_get(xsp, cxsp.XS_AREA)
-                cxsp.xsp_free(xsp)
+                alpha = cxs.xsp_get(xsp, cxs.XS_VELOCITY_COEFF)
+                area = cxs.xsp_get(xsp, cxs.XS_AREA)
+                cxs.xsp_free(xsp)
                 e_data[i] = \
                     y_data[i] + alpha * cq * cq / (2 * gravity * area * area)
 
@@ -562,7 +559,7 @@ cdef class CrossSection:
 
         """
 
-        return self._property(y, cxsp.XS_TOP_WIDTH)
+        return self._property(y, cxs.XS_TOP_WIDTH)
 
     def velocity_coeff(self, y):
         """velocity_coeff(y)
@@ -581,7 +578,7 @@ cdef class CrossSection:
 
         """
 
-        return self._property(y, cxsp.XS_VELOCITY_COEFF)
+        return self._property(y, cxs.XS_VELOCITY_COEFF)
 
     def wetted_perimeter(self, y):
         """wetted_perimeter(y)
@@ -600,4 +597,4 @@ cdef class CrossSection:
 
         """
 
-        return self._property(y, cxsp.XS_WETTED_PERIMETER)
+        return self._property(y, cxs.XS_WETTED_PERIMETER)

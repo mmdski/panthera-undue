@@ -1,5 +1,5 @@
 #include <assert.h>
-#include <panthera/coarray.h>
+#include <panthera/crosssection.h>
 #include <stdio.h>
 
 void

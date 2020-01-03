@@ -1,5 +1,5 @@
 #include <glib.h>
-#include <panthera/coarray.h>
+#include <panthera/crosssection.h>
 #include <stdbool.h>
 #include <stdio.h>
 

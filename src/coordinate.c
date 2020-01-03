@@ -1,6 +1,6 @@
 #include "mem.h"
 #include <assert.h>
-#include <panthera/coordinate.h>
+#include <panthera/crosssection.h>
 
 /* Creates and allocate space for a new Coordinate */
 Coordinate

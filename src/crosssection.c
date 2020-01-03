@@ -5,7 +5,6 @@
 #include <math.h>
 #include <panthera/constants.h>
 #include <panthera/crosssection.h>
-#include <panthera/xsproperties.h>
 #include <stdlib.h>
 
 /*

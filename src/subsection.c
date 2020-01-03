@@ -3,7 +3,7 @@
 #include "mem.h"
 #include <assert.h>
 #include <math.h>
-#include <panthera/coarray.h>
+#include <panthera/crosssection.h>
 #include <panthera/constants.h>
 #include <stddef.h>
 

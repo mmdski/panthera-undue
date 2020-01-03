@@ -2,7 +2,7 @@
 #define SUBSECTION_INCLUDED
 
 #include "xsproperties.h"
-#include <panthera/coarray.h>
+#include <panthera/crosssection.h>
 #include <stdbool.h>
 
 /**
