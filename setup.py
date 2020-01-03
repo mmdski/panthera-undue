@@ -25,16 +25,16 @@ class build_ext(_build_ext):
 
 
 panthera_inc = os.path.abspath('include')
-panthera_src = glob.glob('src/**/*.c', recursive=True)
+panthera_src = glob.glob('src/*.c', recursive=True)
 
 pantherapy_src = ['pantherapy/panthera.pyx']
 pantherapy_src.extend(panthera_src)
-constants = Extension('pantherapy.panthera',
-                      sources=pantherapy_src,
-                      include_dirs=[panthera_inc]
-                      )
+pantherapy_ext = Extension('pantherapy.panthera',
+                           sources=pantherapy_src,
+                           include_dirs=[panthera_inc]
+                           )
 
-ext_modules = cythonize([constants], annotate=True)
+ext_modules = cythonize([pantherapy_ext], annotate=True)
 
 # general setup
 name = 'pantherapy'
