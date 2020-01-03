@@ -2,6 +2,10 @@
 Constants
 =========
 
+.. code-block:: c
+
+    pantherapy/constants.h
+
 Application-wide management of physical constants
 
 .. c:function:: double const_gravity()
