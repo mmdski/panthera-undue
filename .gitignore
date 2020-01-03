@@ -187,3 +187,6 @@ hotdoc-*
 
 # vscode
 .vscode/
+
+#
+setup.cfg
