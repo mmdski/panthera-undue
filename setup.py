@@ -1,8 +1,6 @@
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext as _build_ext
 
-from Cython.Build import cythonize
-
 import os
 import glob
 
@@ -12,6 +10,12 @@ try:
     sphinx_imported = True
 except ImportError:
     sphinx_imported = False
+
+try:
+    from Cython.Build import cythonize
+    use_cython = True
+except ImportError:
+    use_cython = False
 
 
 # binary build
@@ -27,14 +31,19 @@ class build_ext(_build_ext):
 panthera_inc = os.path.abspath('include')
 panthera_src = glob.glob('src/*.c', recursive=True)
 
-pantherapy_src = ['pantherapy/panthera.pyx']
+ext = '.pyx' if use_cython else '.c'
+
+pantherapy_src = ['pantherapy/panthera' + ext]
 pantherapy_src.extend(panthera_src)
 pantherapy_ext = Extension('pantherapy.panthera',
                            sources=pantherapy_src,
                            include_dirs=[panthera_inc]
                            )
 
-ext_modules = cythonize([pantherapy_ext], annotate=True)
+if use_cython:
+    ext_modules = cythonize([pantherapy_ext], annotate=True)
+else:
+    ext_modules = [pantherapy_ext]
 
 # general setup
 name = 'pantherapy'
@@ -60,7 +69,7 @@ setup_kwargs = {
     'packages': ['pantherapy'],
     'ext_modules': ext_modules,
     'install_requires': ['matplotlib', 'numpy', 'scipy'],
-    'setup_requires': ['cython', 'numpy'],
+    'setup_requires': ['numpy'],
     'python_requires': '>=3.6',
     'cmdclass': {'build_ext': build_ext},
 }
