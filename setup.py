@@ -38,8 +38,8 @@ ext_modules = cythonize([pantherapy_ext], annotate=True)
 
 # general setup
 name = 'pantherapy'
-release = '0.1.0'
-version = '0.1'
+release = '0.0.1'
+version = '0.0'
 
 setup_kwargs = {
     'name': name,
@@ -49,15 +49,19 @@ setup_kwargs = {
     'author_email': 'mmdski@gmail.com',
     'classifiers': [
         'Development Status :: 1 - Planning',
-        'Programming Language :: Python 3',
-        'OSI Approved :: GNU General Public License v3 (GPLv3)'
+        'Intended Audience :: Science/Research',
+        'Programming Language :: C',
+        'Programming Language :: Python :: 3',
+        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+        'Topic :: Scientific/Engineering :: Hydrology'
     ],
-    'description': '1-D hydraulics library',
+    'description': '1D hydraulics',
     'license': 'GPLv3',
     'packages': ['pantherapy'],
     'ext_modules': ext_modules,
     'install_requires': ['matplotlib', 'numpy', 'scipy'],
     'setup_requires': ['cython', 'numpy'],
+    'python_requires': '>=3.7',
     'cmdclass': {'build_ext': build_ext},
 }
 
