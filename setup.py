@@ -61,7 +61,7 @@ setup_kwargs = {
     'ext_modules': ext_modules,
     'install_requires': ['matplotlib', 'numpy', 'scipy'],
     'setup_requires': ['cython', 'numpy'],
-    'python_requires': '>=3.7',
+    'python_requires': '>=3.6',
     'cmdclass': {'build_ext': build_ext},
 }
 
