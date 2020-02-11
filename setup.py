@@ -28,7 +28,7 @@ class build_ext(_build_ext):
         self.include_dirs.append(numpy.get_include())
 
 
-panthera_inc = os.path.abspath('include')
+panthera_inc = 'include'
 panthera_src = glob.glob('src/*.c', recursive=True)
 
 ext = '.pyx' if use_cython else '.c'
