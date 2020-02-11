@@ -47,7 +47,7 @@ else:
 
 # general setup
 name = 'pantherapy'
-release = '0.0.1'
+release = '0.0.2'
 version = '0.0'
 
 setup_kwargs = {
