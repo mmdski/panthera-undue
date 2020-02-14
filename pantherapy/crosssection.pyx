@@ -95,7 +95,7 @@ cdef class CrossSection:
         if cy > wp_y_view[0]:
             xs_area_zy.insert(0, (z[0], cy))
         if cy > wp_y_view[-1]:
-            xs_area_zy.append((z[0], cy))
+            xs_area_zy.append((z[-1], cy))
 
         if len(xs_area_zy) > 2:
             poly = Polygon(xs_area_zy, facecolor='b',
@@ -457,9 +457,6 @@ cdef class CrossSection:
 
         """
 
-        if y is not None:
-            y = float(y)
-
         if ax is None:
             ax = plt.axes()
 
@@ -471,6 +468,8 @@ cdef class CrossSection:
         cdef cxs.CoArray ca
 
         if y is not None:
+            y = float(y)
+
             ca = cxs.xs_coarray(self.xs)
             min_y = cxs.coarray_min_y(ca)
 
