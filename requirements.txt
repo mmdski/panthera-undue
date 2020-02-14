@@ -8,4 +8,5 @@ numpy
 pylint
 scipy
 Sphinx
+twine
 wheel

@@ -1,0 +1,5 @@
+include pantherapy/*.pxd
+include pantherapy/*.pyx
+include pantherapy/*.c
+include include/panthera/*.h
+include src/*.h

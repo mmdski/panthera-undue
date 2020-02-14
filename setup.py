@@ -1,8 +1,6 @@
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext as _build_ext
 
-from Cython.Build import cythonize
-
 import os
 import glob
 
@@ -12,6 +10,12 @@ try:
     sphinx_imported = True
 except ImportError:
     sphinx_imported = False
+
+try:
+    from Cython.Build import cythonize
+    use_cython = True
+except ImportError:
+    use_cython = False
 
 
 # binary build
@@ -24,22 +28,27 @@ class build_ext(_build_ext):
         self.include_dirs.append(numpy.get_include())
 
 
-panthera_inc = os.path.abspath('include')
+panthera_inc = 'include'
 panthera_src = glob.glob('src/*.c', recursive=True)
 
-pantherapy_src = ['pantherapy/panthera.pyx']
+ext = '.pyx' if use_cython else '.c'
+
+pantherapy_src = ['pantherapy/panthera' + ext]
 pantherapy_src.extend(panthera_src)
 pantherapy_ext = Extension('pantherapy.panthera',
                            sources=pantherapy_src,
                            include_dirs=[panthera_inc]
                            )
 
-ext_modules = cythonize([pantherapy_ext], annotate=True)
+if use_cython:
+    ext_modules = cythonize([pantherapy_ext], annotate=True)
+else:
+    ext_modules = [pantherapy_ext]
 
 # general setup
 name = 'pantherapy'
-release = '0.1.0'
-version = '0.1'
+release = '0.0.2'
+version = '0.0'
 
 setup_kwargs = {
     'name': name,
@@ -49,15 +58,19 @@ setup_kwargs = {
     'author_email': 'mmdski@gmail.com',
     'classifiers': [
         'Development Status :: 1 - Planning',
-        'Programming Language :: Python 3',
-        'OSI Approved :: GNU General Public License v3 (GPLv3)'
+        'Intended Audience :: Science/Research',
+        'Programming Language :: C',
+        'Programming Language :: Python :: 3',
+        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+        'Topic :: Scientific/Engineering :: Hydrology'
     ],
-    'description': '1-D hydraulics library',
+    'description': '1D hydraulics',
     'license': 'GPLv3',
     'packages': ['pantherapy'],
     'ext_modules': ext_modules,
     'install_requires': ['matplotlib', 'numpy', 'scipy'],
-    'setup_requires': ['cython', 'numpy'],
+    'setup_requires': ['numpy'],
+    'python_requires': '>=3.6',
     'cmdclass': {'build_ext': build_ext},
 }
 
