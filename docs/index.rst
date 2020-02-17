@@ -2,14 +2,13 @@ panthera-undue
 ==============
 
 .. toctree::
-    :maxdepth: 1
+    :maxdepth: 2
 
-    pantherapy/index
-    panthera/index
+    tutorial/index
+    api
 
 Indices
 ==================
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`

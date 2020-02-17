@@ -18,11 +18,11 @@ sys.path.insert(0, os.path.abspath('../'))
 # -- Project information -----------------------------------------------------
 
 project = 'panthera-undue'
-copyright = '2019, Marian Domanski'
+copyright = '2020, Marian Domanski'
 author = 'Marian Domanski'
 
 # The full version, including alpha/beta/rc tags
-release = '0.0.0'
+release = '0.0.2'
 
 
 # -- General configuration ---------------------------------------------------
