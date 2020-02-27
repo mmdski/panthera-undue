@@ -96,7 +96,8 @@ Coordinate array
 
     Returns a copy of the `i`-th coordinate of *a*. The returned coordinate is
     newly created and should be freed with :c:func:`coord_free` when no longer
-    needed.
+    needed. :c:func:`coarray_get` may return `NULL` if the `i`-th coordinate
+    doesn't exist.
 
 .. c:function:: int coarray_length(CoArray a)
 
