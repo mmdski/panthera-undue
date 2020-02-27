@@ -85,10 +85,15 @@ cdef class CrossSection:
 
         for i in range(length):
             c = cxs.coarray_get(wp_array, <int> i)
-            tw_y_view[i] = cy
-            wp_y_view[i] = c.y
-            z_view[i] = c.z
-            cxs.coord_free(c)
+            if c:
+                tw_y_view[i] = cy
+                wp_y_view[i] = c.y
+                z_view[i] = c.z
+                cxs.coord_free(c)
+            else:
+                tw_y_view[i] = NAN
+                wp_y_view[i] = NAN
+                z_view[i] = NAN
 
         xs_area_zy = [*zip(z, wp_y)]
 
