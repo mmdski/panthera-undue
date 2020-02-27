@@ -1,3 +1,4 @@
+from os import path
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext as _build_ext
 
@@ -47,8 +48,12 @@ else:
 
 # general setup
 name = 'pantherapy'
-release = '0.0.2'
-version = '0.0'
+release = '0.1.0rc1'
+version = '0.1rc1'
+
+this_directory = path.abspath(path.dirname(__file__))
+with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
 
 setup_kwargs = {
     'name': name,
@@ -65,6 +70,8 @@ setup_kwargs = {
         'Topic :: Scientific/Engineering :: Hydrology'
     ],
     'description': '1D hydraulics',
+    'long_description': long_description,
+    'long_description_content_type': 'text/markdown',
     'license': 'GPLv3',
     'packages': ['pantherapy'],
     'ext_modules': ext_modules,

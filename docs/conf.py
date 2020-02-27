@@ -22,7 +22,7 @@ copyright = '2020, Marian Domanski'
 author = 'Marian Domanski'
 
 # The full version, including alpha/beta/rc tags
-release = '0.0.2'
+release = '0.1.0rc1'
 
 
 # -- General configuration ---------------------------------------------------
