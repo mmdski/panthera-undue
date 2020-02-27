@@ -48,8 +48,12 @@ else:
 
 # general setup
 name = 'pantherapy'
-release = '0.1.0rc1'
-version = '0.1rc1'
+
+about = {}
+with open("pantherapy/__about__.py") as fp:
+    exec(fp.read(), about)
+release = about['__release__']
+version = about['__version__']
 
 this_directory = path.abspath(path.dirname(__file__))
 with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
