@@ -5,11 +5,18 @@ src_inc = include_directories('../src/')
 if glib_dep.found()
 
     testlib_sources = ['testlib.c']
-    testlib = library(
-        'testlib',
-        testlib_sources,
-        include_directories : inc,
-        dependencies : [m_dep])
+    if target_machine.system() == 'windows'
+        testlib = static_library(
+            'testlib', [testlib_sources], 
+            include_directories : inc,
+            name_prefix : '', name_suffix : 'lib')
+    else
+        testlib = library(
+            'testlib',
+            testlib_sources,
+            include_directories : inc,
+            dependencies : [m_dep])
+    endif
 
     # coarray tests
     test_coarray = executable('test_coarray', ['test_coarray.c'],
