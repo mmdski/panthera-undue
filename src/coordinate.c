@@ -1,76 +1,76 @@
-#include "mem.h"
-#include <assert.h>
-#include <panthera/crosssection.h>
+#include "xscoord.h"
+#include <glib.h>
 
-/* Creates and allocate space for a new Coordinate */
-Coordinate
-coord_new(double y, double z)
+/* Creates and allocate space for a new XSCoordinate */
+XSCoordinate *
+xscoord_new (double station, double elevation)
 {
-    Coordinate c;
-    NEW(c);
+  XSCoordinate *c;
+  g_new (XSCoordinate, 1);
 
-    c->y = y;
-    c->z = z;
+  c->station = station;
+  c->elevation = elevation;
 
-    return c;
+  return c;
 }
 
 /* Makes a copy and returns a new Coordinate */
-Coordinate
-coord_copy(Coordinate c)
+XSCoordinate *
+xscoord_copy (XSCoordinate *c)
 {
-    assert(c);
-    return coord_new((c->y), (c->z));
+  g_assert (c);
+  return xscoord_new ((c->station), (c->elevation));
 }
 
 /* Frees space from a previously allocated Coordinate */
 void
-coord_free(Coordinate c)
+xscoord_free (XSCoordinate *c)
 {
-    if (c)
-        FREE(c);
+  g_free (c);
 }
 
 /* Returns 0 if c1 and c2 are equal */
 int
-coord_eq(Coordinate c1, Coordinate c2)
+xscoord_eq (XSCoordinate *c1, XSCoordinate *c2)
 {
-    if (c1 == c2)
-        return 0;
-    /* either coordinate is NULL */
-    if (!c1 || !c2)
-        return 1;
+  if (c1 == c2)
+    return 0;
+  /* either coordinate is NULL */
+  if (!c1 || !c2)
+    return 1;
 
-    if (c1->y == c2->y && c1->z == c2->z)
-        return 0;
-    else
-        return 1;
+  if (c1->station == c2->station && c1->elevation == c2->elevation)
+    return 0;
+  else
+    return 1;
 }
 
-/* Linearly interpolates Coordinate z value given a y value */
-Coordinate
-coord_interp_z(Coordinate c1, Coordinate c2, double y)
+/* Linearly interpolates XSCoordinate elevation value given a station value */
+XSCoordinate *
+xscoord_interpelevation (XSCoordinate *c1, XSCoordinate *c2, double station)
 {
-    assert(c1 && c2);
+  g_assert (c1 && c2);
 
-    /* assert y is between the two points */
-    assert((c1->y <= y && y <= c2->y) || (c2->y <= y && y <= c1->y));
+  /* assert station is between the two points */
+  g_assert ((c1->station <= station && station <= c2->station) ||
+            (c2->station <= station && station <= c1->station));
 
-    double slope = (c2->z - c1->z) / (c2->y - c1->y);
-    double z     = slope * (y - c1->y) + c1->z;
-    return coord_new(y, z);
+  double slope = (c2->elevation - c1->elevation) / (c2->station - c1->station);
+  double elevation = slope * (station - c1->station) + c1->elevation;
+  return xscoord_new (station, elevation);
 }
 
-/* Linearly interpolates Coordinate z value given a y value */
-Coordinate
-coord_interp_y(Coordinate c1, Coordinate c2, double z)
+/* Linearly interpolates XSCoordinate station value given an elevation value */
+XSCoordinate *
+xscoord_interpstation (XSCoordinate *c1, XSCoordinate *c2, double elevation)
 {
-    assert(c1 && c2);
+  g_assert (c1 && c2);
 
-    /* assert z is between the two points */
-    assert((c1->z <= z && z <= c2->z) || (c2->z <= z && z <= c1->z));
+  /* assert z is between the two points */
+  g_assert ((c1->elevation <= elevation && elevation <= c2->elevation) ||
+            (c2->elevation <= elevation && elevation <= c1->elevation));
 
-    double slope = (c2->y - c1->y) / (c2->z - c1->z);
-    double y     = slope * (z - c1->z) + c1->y;
-    return coord_new(y, z);
+  double slope = (c2->station - c1->station) / (c2->elevation - c1->elevation);
+  double station = slope * (elevation - c1->elevation) + c1->station;
+  return coord_new (station, elevation);
 }
