@@ -1,27 +1,14 @@
-panthera_sources = [
-                    'coarray.c',
-                    'constants.c',
-                    'coordinate.c',
-                    'crosssection.c',
-                    'list.c',
-                    'mem.c',
-                    'reach.c',
-                    'reachnode.c',
-                    'redblackbst.c',
-                    'secantsolve.c',
-                    'subsection.c',
-                    'xsproperties.c'
-                    ]
+panthera_sources = ['xscoord.c']
 
 if target_machine.system() == 'windows'
     pantheralib = static_library('panthera',
                              [panthera_sources],
                              include_directories : inc,
-                             dependencies : m_dep,
+                             dependencies : [m_dep, glib_dep],
                              name_prefix : '', name_suffix : 'lib')
 else
     pantheralib = static_library('panthera',
                              panthera_sources,
                              include_directories : inc,
-                             dependencies : m_dep)
+                             dependencies : [m_dep, glib_dep])
 endif
