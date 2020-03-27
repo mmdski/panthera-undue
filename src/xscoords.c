@@ -1,20 +1,164 @@
-#include "list.h"
-#include "mem.h"
-#include <assert.h>
+#include <glib.h>
 #include <math.h>
-#include <panthera/crosssection.h>
 #include <stddef.h>
+
+/**
+ * XSCoordinate:
+ * @station: lateral value of coordinate
+ * @elevation: vertical value of coordinate
+ *
+ * station, elevation coordinate
+ */
+
+typedef struct XSCoordinate
+{
+  double station;   /* lateral coordinate */
+  double elevation; /* elevation coordinate */
+} XSCoordinate;
+
+/**
+ * xscoord_new:
+ * @station: lateral value of coordinate
+ * @elevation: vertical value of coordinate
+ *
+ * Creates a new coordinate with @station and @elevation as the lateral and
+ * vertical values, respectively. The resulting coordinate is newly allocated
+ * and should be freed with xscoord_free().
+ *
+ * Returns: a new coordinate
+ */
+XSCoordinate *
+xscoord_new (double station, double elevation)
+{
+  XSCoordinate *c = g_new (XSCoordinate, 1);
+
+  c->station = station;
+  c->elevation = elevation;
+
+  return c;
+}
+
+/**
+ * xscoord_copy:
+ * @c: a #XSCoordinate
+ *
+ * Creates a new copy of @c. The returned coordinate is newly created and
+ * should be freed using coord_free().
+ *
+ * Returns: a copy of @c
+ */
+XSCoordinate *
+xscoord_copy (XSCoordinate *c)
+{
+  g_assert (c);
+  return xscoord_new ((c->station), (c->elevation));
+}
+
+/**
+ * xscoord_free:
+ * @c: a #XSCoordinate
+ *
+ * Frees a coordinate
+ *
+ * Returns: nothing
+ */
+void
+xscoord_free (XSCoordinate *c)
+{
+  g_free (c);
+}
+
+/**
+ * xscoord_eq:
+ * @c1: a #XSCoordinate
+ * @c2: another #XSCoordinate
+ *
+ * Returns: 0 if @c1 and @c2 are equal
+ */
+int
+xscoord_eq (XSCoordinate *c1, XSCoordinate *c2)
+{
+  if (c1 == c2)
+    return 0;
+  /* either coordinate is NULL */
+  if (!c1 || !c2)
+    return 1;
+
+  if (c1->station == c2->station && c1->elevation == c2->elevation)
+    return 0;
+  else
+    return 1;
+}
+
+/**
+ * xscoord_interpelevation:
+ * @c1: a #XSCoordinate
+ * @c2: another #XSCoordinate
+ * @station: lateral value
+ *
+ * Creates a new coordinate with an @elevation that is linearly interpolated
+ * using the values of @c1 and @c2 and @elevation. The new coordinate will have
+ * a vertical value that is equal to the interpolated value and a lateral value
+ * equal to @station. The returned coordinate is newly created and should be
+ * freed using @xscoord_free().
+ *
+ * Returns: an interpolated coordinate
+ */
+XSCoordinate *
+xscoord_interpelevation (XSCoordinate *c1, XSCoordinate *c2, double station)
+{
+  g_assert (c1 && c2);
+
+  /* assert station is between the two points */
+  g_assert ((c1->station <= station && station <= c2->station) ||
+            (c2->station <= station && station <= c1->station));
+
+  double slope = (c2->elevation - c1->elevation) / (c2->station - c1->station);
+  double elevation = slope * (station - c1->station) + c1->elevation;
+  return xscoord_new (station, elevation);
+}
+
+/**
+ * xscoord_interpstation:
+ * @c1: a #XSCoordinate
+ * @c2: another #XSCoordinate
+ * @elevation: vertical value
+ *
+ * Creates a new coordinate with a @station that is linearly interpolated using
+ * the values of @c1 and @c2 and @elevation. The new coordinate will have a
+ * lateral value that is equal to the interpolated value and a vertical value
+ * equal to @elevation. The returned coordinate is newly created and should be
+ * freed using @coord_free().
+ *
+ * Returns: an interpolated coordinate
+ */
+XSCoordinate *
+xscoord_interpstation (XSCoordinate *c1, XSCoordinate *c2, double elevation)
+{
+  g_assert (c1 && c2);
+
+  /* assert z is between the two points */
+  g_assert ((c1->elevation <= elevation && elevation <= c2->elevation) ||
+            (c2->elevation <= elevation && elevation <= c1->elevation));
+
+  double slope = (c2->station - c1->station) / (c2->elevation - c1->elevation);
+  double station = slope * (elevation - c1->elevation) + c1->station;
+  return xscoord_new (station, elevation);
+}
 
 struct ChlXSCoords
 {
-  int length;              /* number of coordinates in this array */
-  double max_y;            /* maximum y in coarray */
-  double min_y;            /* minimum y in coarray */
-  Coordinate *coordinates; /* array of coordinates */
+  int length;                /* number of coordinates in this array */
+  double max_y;              /* maximum y in coarray */
+  double min_y;              /* minimum y in coarray */
+  XSCoordinate *coordinates; /* array of coordinates */
 };
 
 static void
-check_z_coordinates (int n, Coordinate *coordinates, const char *file, int line)
+check_z_coordinates (int n,
+                     XSCoordinate *coordinates,
+                     const char *file,
+                     int line)
 {
   assert (coordinates);
 
@@ -36,7 +180,7 @@ coarray_new (int n, double *y, double *z)
   NEW (a);
 
   a->length = n;
-  a->coordinates = mem_calloc (n, sizeof (Coordinate), __FILE__, __LINE__);
+  a->coordinates = mem_calloc (n, sizeof (XSCoordinate), __FILE__, __LINE__);
 
   int i;
   for (i = 0; i < n; i++)
@@ -56,20 +200,20 @@ coarray_new (int n, double *y, double *z)
 }
 
 static ChlXSCoords
-coarray_from_array (int n, Coordinate *array)
+coarray_from_array (int n, XSCoordinate *array)
 {
   assert (array);
 
   ChlXSCoords a;
-  Coordinate *coordinates;
+  XSCoordinate *coordinates;
   double max_y = -INFINITY;
   double min_y = INFINITY;
 
-  Coordinate c;
+  XSCoordinate c;
 
   if (n > 0)
     {
-      coordinates = mem_calloc (n, sizeof (Coordinate), __FILE__, __LINE__);
+      coordinates = mem_calloc (n, sizeof (XSCoordinate), __FILE__, __LINE__);
       for (int i = 0; i < n; i++)
         {
           c = *(array + i);
@@ -102,8 +246,8 @@ coarray_copy (ChlXSCoords ca)
 
   int n = ca->length;
 
-  Coordinate *coordinates =
-      mem_calloc (n, sizeof (Coordinate), __FILE__, __LINE__);
+  XSCoordinate *coordinates =
+      mem_calloc (n, sizeof (XSCoordinate), __FILE__, __LINE__);
   ChlXSCoords copy;
 
   for (int i = 0; i < n; i++)
@@ -145,7 +289,7 @@ coarray_free (ChlXSCoords a)
   assert (a);
 
   int i;
-  Coordinate c;
+  XSCoordinate c;
   for (i = 0; i < a->length; i++)
     {
       c = *(a->coordinates + i);
@@ -161,8 +305,8 @@ int
 coarray_eq (ChlXSCoords a1, ChlXSCoords a2)
 {
 
-  Coordinate c1;
-  Coordinate c2;
+  XSCoordinate c1;
+  XSCoordinate c2;
 
   int i;
 
@@ -208,7 +352,7 @@ coarray_length (ChlXSCoords a)
   return a->length;
 }
 
-Coordinate
+XSCoordinate
 coarray_get (ChlXSCoords a, int i)
 {
   assert (a);
@@ -277,12 +421,12 @@ coarray_subarray_y (ChlXSCoords a, double y)
   int sa_length;
   List list = list_new ();
   ChlXSCoords sa;
-  Coordinate *coordinates;
+  XSCoordinate *coordinates;
 
   /* loop variables */
-  Coordinate c1 = NULL;
-  Coordinate c2 = NULL;
-  Coordinate c_last = NULL; /* keep track of the last coordinate added */
+  XSCoordinate c1 = NULL;
+  XSCoordinate c2 = NULL;
+  XSCoordinate c_last = NULL; /* keep track of the last coordinate added */
 
   /* check the first coordinate */
   c1 = *(a->coordinates);
@@ -336,7 +480,7 @@ coarray_subarray_y (ChlXSCoords a, double y)
   if (c_last == NULL)
     sa_length--;
 
-  coordinates = (Coordinate *) list_to_array (list);
+  coordinates = (XSCoordinate *) list_to_array (list);
   list_free (list);
   sa = coarray_from_array (sa_length, coordinates);
   mem_free (coordinates, __FILE__, __LINE__);
@@ -354,10 +498,10 @@ coarray_subarray (ChlXSCoords a, double zlo, double zhi)
 
   double eps = 1e-10;
   ChlXSCoords sa;
-  Coordinate c0;
-  Coordinate c1;
-  Coordinate *array =
-      mem_calloc (a->length, sizeof (Coordinate), __FILE__, __LINE__);
+  XSCoordinate c0;
+  XSCoordinate c1;
+  XSCoordinate *array =
+      mem_calloc (a->length, sizeof (XSCoordinate), __FILE__, __LINE__);
 
   /* loop variables */
   int i = find_zlo_idx (a, 0, a->length, zlo);
