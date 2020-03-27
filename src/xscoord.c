@@ -5,8 +5,7 @@
 XSCoordinate *
 xscoord_new (double station, double elevation)
 {
-  XSCoordinate *c;
-  g_new (XSCoordinate, 1);
+  XSCoordinate *c = g_new (XSCoordinate, 1);
 
   c->station = station;
   c->elevation = elevation;
@@ -72,5 +71,5 @@ xscoord_interpstation (XSCoordinate *c1, XSCoordinate *c2, double elevation)
 
   double slope = (c2->station - c1->station) / (c2->elevation - c1->elevation);
   double station = slope * (elevation - c1->elevation) + c1->station;
-  return coord_new (station, elevation);
+  return xscoord_new (station, elevation);
 }
