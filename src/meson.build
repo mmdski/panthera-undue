@@ -1,4 +1,4 @@
-panthera_sources = ['xscoord.c']
+panthera_sources = ['xscoords.c']
 
 if target_machine.system() == 'windows'
     pantheralib = static_library('panthera',
