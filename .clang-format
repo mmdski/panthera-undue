@@ -1,7 +1,12 @@
 # See https://wiki.apertis.org/Guidelines/Coding_conventions#Code_formatting
 BasedOnStyle: GNU
+AlignAfterOpenBracket: true
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
+AllowAllParametersOfDeclarationOnNextLine: true
 AlwaysBreakAfterDefinitionReturnType: All
 BreakBeforeBinaryOperators: None
+BinPackArguments: false
 BinPackParameters: false
 SpaceAfterCStyleCast: true
 # Our column limit is actually 80, but setting that results in clang-format
