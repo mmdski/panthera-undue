@@ -190,3 +190,6 @@ hotdoc-*
 
 #
 setup.cfg
+
+# macos shenanigans
+.DS_Store
